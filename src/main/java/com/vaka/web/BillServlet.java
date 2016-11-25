@@ -26,7 +26,6 @@ public class BillServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if ("/payments/pay".equals(req.getRequestURI())) {
             //return paid bill
-
         }
         super.doPost(req, resp);
     }

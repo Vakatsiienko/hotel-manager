@@ -14,7 +14,8 @@ public class RoomServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if ("/rooms".equals(req.getRequestURI())) {
             //return list of rooms
-        } else if(req.getRequestURI().startsWith("/rooms/find?")){
+        } else if (req.getRequestURI().startsWith("/rooms/find?")) {
+            
             //return list of suitable rooms
         }
         super.doGet(req, resp);

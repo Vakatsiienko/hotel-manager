@@ -23,10 +23,10 @@ public class UserServlet extends HttpServlet {
         if ("/login".equals(req.getRequestURI())){
             //login.jsp
         }
-        else if ("/authenticate".equals(req.getRequestURI())) {
+        else if ("/login/authenticate".equals(req.getRequestURI())) {
             //get credentials and set token
 
-        } else if ("/register".equals(req.getRequestURI())) {
+        } else if ("/login/register".equals(req.getRequestURI())) {
             //add new user and set token
         }
 

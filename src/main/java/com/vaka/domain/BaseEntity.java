@@ -7,4 +7,8 @@ package com.vaka.domain;
 
 public abstract class BaseEntity {
     private Integer id;
+
+    public boolean isNew(){
+        return id == null;
+    }
 }
