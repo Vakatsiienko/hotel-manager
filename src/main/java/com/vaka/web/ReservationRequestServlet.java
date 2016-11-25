@@ -10,13 +10,22 @@ import java.io.IOException;
  * Created by Iaroslav on 11/24/2016.
  */
 public class ReservationRequestServlet extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if ("/requests".equals(req.getRequestURI())) {
+            //return list of requests
+        } else if (req.getRequestURI().startsWith("/requests?id")) {
+            //return request detail info
+        }
+        super.doGet(req, resp);
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if ("/reservationRequest".equals(req.getRequestURI())) {
-
-        } else if ("/requests".equals(req.getRequestURI())) {
-
+        if ("requests/add".equals(req.getRequestURI())) {
+            //return
         }
-            super.doPost(req, resp);
+        super.doPost(req, resp);
     }
 }

@@ -13,13 +13,21 @@ public class BillServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //invoke bill controller
+        if ("/payments".equals(req.getRequestURI())) {
+            //return all unpaid payments
+        } else if (req.getRequestURI().startsWith("/payments?userId=")) {
+            //return all unpaid payments by specific user
+        }
         super.doGet(req, resp);
     }
 
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if ("/pay".equals(req.getRequestURI()))
+        if ("/payments/pay".equals(req.getRequestURI())) {
+            //return paid bill
+
+        }
         super.doPost(req, resp);
     }
 }

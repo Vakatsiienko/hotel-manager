@@ -20,10 +20,14 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if ("/authenticate".equals(req.getRequestURI())) {
+        if ("/login".equals(req.getRequestURI())){
+            //login.jsp
+        }
+        else if ("/authenticate".equals(req.getRequestURI())) {
+            //get credentials and set token
 
-        } else if ("/registration".equals(req.getRequestURI())){
-
+        } else if ("/register".equals(req.getRequestURI())) {
+            //add new user and set token
         }
 
         super.doPost(req, resp);

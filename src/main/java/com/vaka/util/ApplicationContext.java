@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Initializing in UserServlet
  * Created by Iaroslav on 11/24/2016.
  */
 public class ApplicationContext {
