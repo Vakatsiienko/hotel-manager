@@ -9,10 +9,10 @@ public interface CrudRepository<T extends BaseEntity> {
 
     T create(T entity);
 
-    T read(Long id);
+    T getById(Integer id);
 
-    boolean delete(Long id);
+    boolean delete(Integer id);
 
-    T update(Long id, T entity);
+    T update(Integer id, T entity);
 
 }

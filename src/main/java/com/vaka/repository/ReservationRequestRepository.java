@@ -7,9 +7,8 @@ import java.util.List;
 /**
  * Created by Iaroslav on 11/25/2016.
  */
-public interface ReservationRequestRepository {
+public interface ReservationRequestRepository  extends CrudRepository<ReservationRequest>{
 
     List<ReservationRequest> list();
 
-    ReservationRequest getById(Integer id);
 }

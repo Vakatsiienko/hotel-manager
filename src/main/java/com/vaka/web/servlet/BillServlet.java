@@ -1,4 +1,4 @@
-package com.vaka.web;
+package com.vaka.web.servlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

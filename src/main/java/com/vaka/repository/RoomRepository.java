@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface RoomRepository extends CrudRepository<Room> {
 
-    List<Room> find(ReservationRequest reservationRequest, LocalDate startDate, LocalDate endDate);
+    List<Room> find(ReservationRequest reservationRequest);
 
     boolean reserve(Room room);
 }

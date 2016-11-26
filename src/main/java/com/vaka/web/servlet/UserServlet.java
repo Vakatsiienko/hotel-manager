@@ -1,4 +1,4 @@
-package com.vaka.web;
+package com.vaka.web.servlet;
 
 import com.vaka.util.ApplicationContext;
 
@@ -15,7 +15,7 @@ public class UserServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        ApplicationContext context = ApplicationContext.getInstance();
+        ApplicationContext.init();
     }
 
     @Override

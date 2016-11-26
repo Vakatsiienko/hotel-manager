@@ -1,9 +1,9 @@
 package com.vaka.web.controller;
 
 import com.vaka.domain.ReservationRequest;
+import com.vaka.domain.User;
 import com.vaka.service.ReservationRequestService;
 import com.vaka.util.ApplicationContext;
-import com.vaka.web.ResponseEntity;
 
 import java.util.List;
 
@@ -14,22 +14,29 @@ public class ReservationRequestController {
 
     private ReservationRequestService requestService;
 
-    public ResponseEntity<List<ReservationRequest>> list() {
-        List<ReservationRequest> list = getRequestService().list();
-        return new ResponseEntity<>(list, list.size());
+    public List<ReservationRequest> list(User loggedUser) {
+        return getRequestService().list(loggedUser);
     }
 
-    public ResponseEntity<ReservationRequest> getById(Integer id){
-        return new ResponseEntity<>(getRequestService().getById(id));
+    public ReservationRequest getById(User loggedUser, Integer id) {
+        return getRequestService().getById(loggedUser, id);
     }
 
-    public ResponseEntity<ReservationRequest> create(ReservationRequest request) {
-        return new ResponseEntity<>(getRequestService().create(request));
+    public ReservationRequest create(User loggedUser, ReservationRequest request) {
+        return getRequestService().create(loggedUser, request);
+    }
+
+    public ReservationRequest update(User loggedUser, Integer id, ReservationRequest request) {
+        return getRequestService().update(loggedUser, id, request);
+    }
+
+    public boolean delete(User loggedUser, Integer id) {
+        return getRequestService().delete(loggedUser, id);
     }
 
     public ReservationRequestService getRequestService() {
         if (requestService == null)
-            synchronized (ReservationRequestController.class){
+            synchronized (ReservationRequestController.class) {
                 if (requestService == null) {
                     requestService = ApplicationContext.getBean(ReservationRequestService.class);
                 }
