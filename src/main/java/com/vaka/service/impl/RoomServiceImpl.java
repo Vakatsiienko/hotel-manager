@@ -19,24 +19,24 @@ public class RoomServiceImpl implements RoomService {
     private ReservationRequestRepository requestRepository;
 
     @Override
-    public List<Room> getForRequestId(User loggedUser, Integer id) {
+    public List<Room> findForRequestId(User loggedUser, Integer id) {
         if (loggedUser.isAdmin()) {
             ReservationRequest request = getRequestRepository().getById(id);
-            return getForRequest(loggedUser, request);
+            return findForRequest(loggedUser, request);
         } else throw new AuthorizationException();
     }
 
     @Override
-    public List<Room> getForRequest(User loggedUser, ReservationRequest request) {
+    public List<Room> findForRequest(User loggedUser, ReservationRequest request) {
         if (loggedUser.isAdmin())
-            return null;
+            return getRoomRepository().findForRequest(request);
         else throw new AuthorizationException();
     }
 
     @Override
-    public Room create(User loggedUser, Room entity) {
+    public Room persist(User loggedUser, Room entity) {
         if (loggedUser.isAdmin())
-            return getRoomRepository().create(entity);
+            return getRoomRepository().persist(entity);
         else throw new AuthorizationException();
     }
 

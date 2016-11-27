@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 /**
  * Created by Iaroslav on 11/23/2016.
@@ -19,8 +20,7 @@ public class ReservationRequest extends BaseEntity {
     private Integer numOfBeds;
     private RoomClass roomClass;
     private BathroomType bathroomType;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private Period period;
     private Integer totalCost;
     private String commentary;
     private ReservationRequestStatus status;

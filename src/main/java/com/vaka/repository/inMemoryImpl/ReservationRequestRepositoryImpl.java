@@ -26,7 +26,7 @@ public class ReservationRequestRepositoryImpl implements ReservationRequestRepos
     }
 
     @Override
-    public ReservationRequest create(ReservationRequest entity) {
+    public ReservationRequest persist(ReservationRequest entity) {
         entity.setId(idCounter.getAndIncrement());
         reservationRequestById.put(entity.getId(), entity);
         return entity;

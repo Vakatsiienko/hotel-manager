@@ -15,10 +15,10 @@ public class RoomController {
     private RoomService roomService;
 
     public List<Room> getForRequestById(User loggedUser, Integer reqId) {
-        return getRoomService().getForRequestId(loggedUser, reqId);
+        return getRoomService().findForRequestId(loggedUser, reqId);
     }
     public List<Room> getForRequest(User loggedUser, ReservationRequest request) {
-        return getRoomService().getForRequest(loggedUser, request);
+        return getRoomService().findForRequest(loggedUser, request);
     }
 
 

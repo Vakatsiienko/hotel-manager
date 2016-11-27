@@ -23,7 +23,7 @@ public class ReservationRequestController {
     }
 
     public ReservationRequest create(User loggedUser, ReservationRequest request) {
-        return getRequestService().create(loggedUser, request);
+        return getRequestService().persist(loggedUser, request);
     }
 
     public ReservationRequest update(User loggedUser, Integer id, ReservationRequest request) {

@@ -5,16 +5,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Period;
+
 /**
- * Created by Iaroslav on 11/23/2016.
+ * Created by Iaroslav on 11/27/2016.
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Bill extends BaseEntity {
-    private User owner;
+public class Reservation extends BaseEntity {
+
+    private User user;
+
     private Room room;
-    private Reservation reservation;
-    private boolean paid;
+
+    private Period period;
+
+    private ReservationRequest request;
+
 }

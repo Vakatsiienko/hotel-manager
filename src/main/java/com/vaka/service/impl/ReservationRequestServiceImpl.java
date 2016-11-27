@@ -5,6 +5,7 @@ import com.vaka.domain.User;
 import com.vaka.repository.ReservationRequestRepository;
 import com.vaka.service.ReservationRequestService;
 import com.vaka.util.ApplicationContext;
+import com.vaka.util.exception.AuthorizationException;
 
 import java.util.List;
 
@@ -15,27 +16,38 @@ public class ReservationRequestServiceImpl implements ReservationRequestService 
     private ReservationRequestRepository requestRepository;
     @Override
     public List<ReservationRequest> list(User loggedUser) {
-        return getRequestRepository().list();
+        if (loggedUser.isAdmin())
+            return getRequestRepository().list();
+        else throw new AuthorizationException();
+
     }
 
     @Override
-    public ReservationRequest create(User loggedUser, ReservationRequest entity) {
-        return getRequestRepository().create(entity);
+    public ReservationRequest persist(User loggedUser, ReservationRequest entity) {
+        if (loggedUser.isAdmin())
+            return getRequestRepository().persist(entity);
+        else throw new AuthorizationException();
     }
 
     @Override
     public ReservationRequest getById(User loggedUser, Integer id) {
-        return getRequestRepository().getById(id);
+        if (loggedUser.isAdmin())
+            return getRequestRepository().getById(id);
+        else throw new AuthorizationException();
     }
 
     @Override
     public boolean delete(User loggedUser, Integer id) {
-        return getRequestRepository().delete(id);
+        if (loggedUser.isAdmin())
+            return getRequestRepository().delete(id);
+        else throw new AuthorizationException();
     }
 
     @Override
     public ReservationRequest update(User loggedUser, Integer id, ReservationRequest entity) {
-        return getRequestRepository().update(id, entity);
+        if (loggedUser.isAdmin())
+            return getRequestRepository().update(id, entity);
+        else throw new AuthorizationException();
     }
 
     public ReservationRequestRepository getRequestRepository() {

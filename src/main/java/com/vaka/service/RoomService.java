@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface RoomService extends CrudService<Room> {
 
-    List<Room> getForRequestId(User loggedUser, Integer id);
+    List<Room> findForRequestId(User loggedUser, Integer id);
     
-    List<Room> getForRequest(User loggedUser, ReservationRequest request);
+    List<Room> findForRequest(User loggedUser, ReservationRequest request);
 }
