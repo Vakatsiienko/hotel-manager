@@ -2,7 +2,7 @@ package com.vaka.service;
 
 import com.vaka.domain.ReservationRequest;
 import com.vaka.domain.Room;
-import com.vaka.domain.User;
+import com.vaka.domain.Manager;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface RoomService extends CrudService<Room> {
 
-    List<Room> findForRequestId(User loggedUser, Integer id);
+    List<Room> findForRequestId(Integer id);
     
-    List<Room> findForRequest(User loggedUser, ReservationRequest request);
+    List<Room> findForRequest(ReservationRequest request);
 }

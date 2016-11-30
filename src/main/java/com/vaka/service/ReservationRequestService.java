@@ -1,7 +1,7 @@
 package com.vaka.service;
 
 import com.vaka.domain.ReservationRequest;
-import com.vaka.domain.User;
+import com.vaka.domain.Manager;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface ReservationRequestService extends CrudService<ReservationRequest>{
 
-    List<ReservationRequest> list(User loggedUser);
+    List<ReservationRequest> list(Manager loggedUser);
 
 
 

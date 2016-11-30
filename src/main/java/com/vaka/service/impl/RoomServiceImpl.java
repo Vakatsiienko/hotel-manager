@@ -2,12 +2,10 @@ package com.vaka.service.impl;
 
 import com.vaka.domain.ReservationRequest;
 import com.vaka.domain.Room;
-import com.vaka.domain.User;
 import com.vaka.repository.ReservationRequestRepository;
 import com.vaka.repository.RoomRepository;
 import com.vaka.service.RoomService;
 import com.vaka.util.ApplicationContext;
-import com.vaka.util.exception.AuthorizationException;
 
 import java.util.List;
 
@@ -19,46 +17,34 @@ public class RoomServiceImpl implements RoomService {
     private ReservationRequestRepository requestRepository;
 
     @Override
-    public List<Room> findForRequestId(User loggedUser, Integer id) {
-        if (loggedUser.isAdmin()) {
-            ReservationRequest request = getRequestRepository().getById(id);
-            return findForRequest(loggedUser, request);
-        } else throw new AuthorizationException();
+    public List<Room> findForRequestId(Integer id) {
+        ReservationRequest request = getRequestRepository().getById(id);
+        return findForRequest(request);
     }
 
     @Override
-    public List<Room> findForRequest(User loggedUser, ReservationRequest request) {
-        if (loggedUser.isAdmin())
-            return getRoomRepository().findForRequest(request);
-        else throw new AuthorizationException();
+    public List<Room> findForRequest(ReservationRequest request) {
+        return getRoomRepository().findForRequest(request);
     }
 
     @Override
-    public Room persist(User loggedUser, Room entity) {
-        if (loggedUser.isAdmin())
-            return getRoomRepository().persist(entity);
-        else throw new AuthorizationException();
+    public Room create(Room entity) {
+        return getRoomRepository().persist(entity);
     }
 
     @Override
-    public Room getById(User loggedUser, Integer id) {
-        if (loggedUser.isAdmin())
-            return getRoomRepository().getById(id);
-        else throw new AuthorizationException();
+    public Room getById(Integer id) {
+        return getRoomRepository().getById(id);
     }
 
     @Override
-    public boolean delete(User loggedUser, Integer id) {
-        if (loggedUser.isAdmin())
-            return getRoomRepository().delete(id);
-        else throw new AuthorizationException();
+    public boolean delete(Integer id) {
+        return getRoomRepository().delete(id);
     }
 
     @Override
-    public Room update(User loggedUser, Integer id, Room entity) {
-        if (loggedUser.isAdmin())
-            return getRoomRepository().update(id, entity);
-        else throw new AuthorizationException();
+    public Room update(Integer id, Room entity) {
+        return getRoomRepository().update(id, entity);
     }
 
     public RoomRepository getRoomRepository() {

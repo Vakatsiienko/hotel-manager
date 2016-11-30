@@ -1,9 +1,9 @@
 package com.vaka.service;
 
-import com.vaka.domain.User;
+import com.vaka.domain.Manager;
 
 /**
  * Created by Iaroslav on 11/26/2016.
  */
-public interface UserService extends CrudService<User> {
+public interface UserService extends CrudService<Manager> {
 }

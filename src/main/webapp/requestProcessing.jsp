@@ -31,39 +31,67 @@
 <div>
     <table id="reservationRequestTable" class="display" cellpadding="0" width="100%">
         <jsp:useBean id="request.customer" scope="page"
-                     type="com.vaka.domain.User"/>
+                     type="com.vaka.domain.Customer"/>
         <thead>
         <tr>
             <th>Request Id:</th>
-            <th>${request.id}</th>
+            <th>${requestRes.id}</th>
         </tr>
         <tr>
             <th>Client Name</th>
+            <th>Phone Number</th>
             <th>Beds</th>
             <th>Room Class</th>
-            <th>Bathroom Type</th>
             <th>Cost</th>
+            <th>Arrival Date</th>
+            <th>Departure Date</th>
             <th>Commentary</th>
             <th>Action</th>
         </tr>
         </thead>
-        <tbody>
-        <tr>
-            <td>${request.customer.name}</td>
-            <td>${request.numOfBeds}</td>
-            <td>${request.roomClass}</td>
-            <td>${request.bathroomType}</td>
-            <td>${request.totalCost}</td>
-            <td>${request.commentary}</td>
-            <td></td>
-        </tr>
-        <%--<form>--%>
-            <%--<tr>--%>
-                <%--<td>--%>
-                <%--</td>--%>
-            <%--</tr>--%>
-        <%--</form>--%>
-        </tbody>
+        <form action="/requests/process?id=${requestRes.id}" method="post">
+            <tbody>
+            <tr>
+                <td>${requestRes.customer.name}</td>
+                <td>${requestRes.customer.phoneNumber}</td>
+                <td>${requestRes.numOfBeds}</td>
+                <td>${requestRes.roomClass}</td>
+                <td>${requestRes.totalCost}</td>
+                <td>${requestRes.arrivalDate}</td>
+                <td>${requestRes.departureDate}</td>
+                <td>${requestRes.commentary}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <%--customer name--%>
+                </td>
+                <td>
+                    <%--customer phone number--%>
+                </td>
+                <td>
+                    <input id="numOfBeds" name="numOfBeds" type="number" min="0">
+                </td>
+                <td>
+                    <%--TODO add room class option--%>
+                </td>
+                <td>
+                    <input id="totalCost" name="totalCost" type="number" min="0">
+                </td>
+                <td>
+                    <input id="arrivalDate" name="arrivalDate" type="date">
+                </td>
+                <td>
+                    <input id="departureDate" name="departureDate" type="date">
+                </td>
+                <td>
+                </td>
+                <td>
+                    <input id="submit" name="submit" type="submit">
+                </td>
+            </tr>
+            </tbody>
+        </form>
     </table>
 </div>
 <br>
@@ -76,7 +104,6 @@
         <tr>
             <th>Room Number</th>
             <th>Room Class</th>
-            <th>Bathroom Type</th>
             <th>Beds</th>
             <th>Cost Per Day</th>
             <th>Action</th>
@@ -89,10 +116,9 @@
             <tr>
                 <td>${room.number}</td>
                 <td>${room.clazz}</td>
-                <td>${room.bathroomType}</td>
                 <td>${room.numOfBeds}</td>
                 <td>${room.costPerDay}</td>
-                <td><a href="requests/apply?reqId=${request.id}&roomId=${room.id}">Apply</a><%--TODO add apply process--%>
+                <td><a href="/rooms/applyForRequest?roomId=${room.id}&reqId=${requestRes.id}">Apply</a><%--TODO add apply process--%>
                 </td>
             </tr>
         </c:forEach>

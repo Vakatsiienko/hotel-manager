@@ -1,6 +1,7 @@
 package com.vaka.util;
 
 import com.vaka.config.ApplicationContextConfig;
+import com.vaka.domain.Manager;
 import com.vaka.util.exception.ApplicationContextInitException;
 import lombok.Getter;
 
@@ -18,7 +19,8 @@ public class ApplicationContext {
 
 //    private static ApplicationContext instance;
 
-    @Getter private static AtomicInteger idCounter;
+    @Getter
+    private static AtomicInteger idCounter;
     private static ApplicationContextConfig contextConfig;
 
     static {

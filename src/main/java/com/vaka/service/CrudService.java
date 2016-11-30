@@ -1,18 +1,18 @@
 package com.vaka.service;
 
 import com.vaka.domain.BaseEntity;
-import com.vaka.domain.User;
+import com.vaka.domain.Manager;
 
 /**
  * Created by Iaroslav on 11/24/2016.
  */
 public interface CrudService<T extends BaseEntity> {
-    T persist(User loggedUser, T entity);
+    T create(T entity);
 
-    T getById(User loggedUser, Integer id);
+    T getById(Integer id);
 
-    boolean delete(User loggedUser, Integer id);
+    boolean delete(Integer id);
 
-    T update(User loggedUser, Integer id, T entity);
+    T update(Integer id, T entity);
 
 }

@@ -1,7 +1,7 @@
 package com.vaka.service.impl;
 
 import com.vaka.domain.Reservation;
-import com.vaka.domain.User;
+import com.vaka.domain.Manager;
 import com.vaka.repository.ReservationRepository;
 import com.vaka.service.ReservationService;
 import com.vaka.util.ApplicationContext;
@@ -14,32 +14,24 @@ public class ReservationServiceImpl implements ReservationService {
     private ReservationRepository reservationRepository;
 
     @Override
-    public Reservation persist(User loggedUser, Reservation entity) {
-        if (loggedUser.isAdmin())
+    public Reservation create(Reservation entity) {
             return getReservationRepository().persist(entity);
-        else throw new AuthorizationException();
 
     }
 
     @Override
-    public Reservation getById(User loggedUser, Integer id) {
-        if (loggedUser.isAdmin())
+    public Reservation getById(Integer id) {
             return getReservationRepository().getById(id);
-        else throw new AuthorizationException();
     }
 
     @Override
-    public boolean delete(User loggedUser, Integer id) {
-        if (loggedUser.isAdmin())
+    public boolean delete(Integer id) {
             return getReservationRepository().delete(id);
-        else throw new AuthorizationException();
     }
 
     @Override
-    public Reservation update(User loggedUser, Integer id, Reservation entity) {
-        if (loggedUser.isAdmin())
+    public Reservation update(Integer id, Reservation entity) {
             return getReservationRepository().update(id, entity);
-        else throw new AuthorizationException();
     }
 
     public ReservationRepository getReservationRepository() {

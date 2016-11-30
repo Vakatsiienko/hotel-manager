@@ -2,11 +2,11 @@ package com.vaka.service.impl;
 
 import com.vaka.domain.Bill;
 import com.vaka.domain.Reservation;
-import com.vaka.domain.User;
+import com.vaka.domain.Manager;
 import com.vaka.repository.BillRepository;
 import com.vaka.service.BillService;
 import com.vaka.util.ApplicationContext;
-import com.vaka.util.DomainFactory;
+import com.vaka.util.ServletDomainExtractor;
 import com.vaka.util.exception.AuthorizationException;
 
 /**
@@ -20,41 +20,31 @@ public class BillServiceImpl implements BillService {
     private BillRepository billRepository;
 
     @Override
-    public Bill createFromReservationAndPersist(User loggedUser, Reservation reservation) {
-        if (loggedUser.isAdmin())
-            return persist(loggedUser, DomainFactory.createFromReservation(reservation));
-        else throw new AuthorizationException();
+    public Bill createFromReservationAndPersist(Reservation reservation) {
+            return create(ServletDomainExtractor.createFromReservation(reservation));
     }
 
     @Override
-    public Bill persist(User loggedUser, Bill entity) {
-        if (loggedUser.isAdmin())
+    public Bill create(Bill entity) {
             return getBillRepository().persist(entity);
-        else throw new AuthorizationException();
 
     }
 
     @Override
-    public Bill getById(User loggedUser, Integer id) {
-        if (loggedUser.isAdmin())
+    public Bill getById(Integer id) {
             return getBillRepository().getById(id);
-        else throw new AuthorizationException();
 
     }
 
     @Override
-    public boolean delete(User loggedUser, Integer id) {
-        if (loggedUser.isAdmin())
+    public boolean delete(Integer id) {
             return getBillRepository().delete(id);
-        else throw new AuthorizationException();
 
     }
 
     @Override
-    public Bill update(User loggedUser, Integer id, Bill entity) {
-        if (loggedUser.isAdmin())
+    public Bill update( Integer id, Bill entity) {
             return getBillRepository().update(id, entity);
-        else throw new AuthorizationException();
 
     }
 

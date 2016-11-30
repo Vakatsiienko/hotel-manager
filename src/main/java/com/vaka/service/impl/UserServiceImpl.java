@@ -1,6 +1,6 @@
 package com.vaka.service.impl;
 
-import com.vaka.domain.User;
+import com.vaka.domain.Manager;
 import com.vaka.repository.UserRepository;
 import com.vaka.service.UserService;
 import com.vaka.util.ApplicationContext;
@@ -12,24 +12,25 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public User persist(User loggedUser, User entity) {
+    public Manager create(Manager entity) {
         return getUserRepository().persist(entity);
     }
 
     @Override
-    public User getById(User loggedUser, Integer id) {
+    public Manager getById(Integer id) {
         return getUserRepository().getById(id);
     }
 
     @Override
-    public boolean delete(User loggedUser, Integer id) {
+    public boolean delete(Integer id) {
         return getUserRepository().delete(id);
     }
 
     @Override
-    public User update(User loggedUser, Integer id, User entity) {
+    public Manager update(Integer id, Manager entity) {
         return getUserRepository().update(id, entity);
     }
+
 
     public UserRepository getUserRepository() {
         if (userRepository == null) {

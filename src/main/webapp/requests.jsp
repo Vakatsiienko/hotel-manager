@@ -43,27 +43,23 @@
             <th>Client Name</th>
             <th>Beds</th>
             <th>Class Type</th>
-            <th>Bathroom Type</th>
             <th>Created Date</th>
             <th>Status</th>
             <th>Action</th>
         </tr>
         </thead>
         <tbody>
-<c:forEach items="${requestList}" var="request">
-    <jsp:useBean id="request" scope="page"
+<c:forEach items="${requestList}" var="requestRes">
+    <jsp:useBean id="requestRes" scope="page"
                  type="com.vaka.domain.ReservationRequest"/>
-    <jsp:useBean id="request.customer" scope="page"
-                 type="com.vaka.domain.User"/>
         <tr>
-            <th>${request.id}</th>
-            <th>${request.customer.name}</th>
-            <th>${request.numOfBeds}</th>
-            <th>${request.roomClass}</th>
-            <th>${request.bathroomType}</th>
-            <th>${request.createdDate}</th>
-            <th>${request.status}</th>
-            <th> <a href="rooms?forRequest&id=${request.id}">Process</a><%--TODO add process request button--%></th>
+            <th>${requestRes.id}</th>
+            <th>${requestRes.customer.name}</th>
+            <th>${requestRes.numOfBeds}</th>
+            <th>${requestRes.roomClass}</th>
+            <th>${requestRes.createdDate}</th>
+            <th>${requestRes.status}</th>
+            <th> <a href="/requests/process?id=${requestRes.id}">Process</a><%--TODO add process request button--%></th>
         </tr>
 </c:forEach>
 

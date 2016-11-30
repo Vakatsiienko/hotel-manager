@@ -1,11 +1,10 @@
 package com.vaka.service.impl;
 
+import com.vaka.domain.Manager;
 import com.vaka.domain.ReservationRequest;
-import com.vaka.domain.User;
 import com.vaka.repository.ReservationRequestRepository;
 import com.vaka.service.ReservationRequestService;
 import com.vaka.util.ApplicationContext;
-import com.vaka.util.exception.AuthorizationException;
 
 import java.util.List;
 
@@ -14,45 +13,36 @@ import java.util.List;
  */
 public class ReservationRequestServiceImpl implements ReservationRequestService {
     private ReservationRequestRepository requestRepository;
+
     @Override
-    public List<ReservationRequest> list(User loggedUser) {
-        if (loggedUser.isAdmin())
-            return getRequestRepository().list();
-        else throw new AuthorizationException();
+    public List<ReservationRequest> list(Manager loggedUser) {
+        return getRequestRepository().list();
 
     }
 
     @Override
-    public ReservationRequest persist(User loggedUser, ReservationRequest entity) {
-        if (loggedUser.isAdmin())
-            return getRequestRepository().persist(entity);
-        else throw new AuthorizationException();
+    public ReservationRequest create(ReservationRequest entity) {
+        return getRequestRepository().persist(entity);
     }
 
     @Override
-    public ReservationRequest getById(User loggedUser, Integer id) {
-        if (loggedUser.isAdmin())
-            return getRequestRepository().getById(id);
-        else throw new AuthorizationException();
+    public ReservationRequest getById(Integer id) {
+        return getRequestRepository().getById(id);
     }
 
     @Override
-    public boolean delete(User loggedUser, Integer id) {
-        if (loggedUser.isAdmin())
-            return getRequestRepository().delete(id);
-        else throw new AuthorizationException();
+    public boolean delete(Integer id) {
+        return getRequestRepository().delete(id);
     }
 
     @Override
-    public ReservationRequest update(User loggedUser, Integer id, ReservationRequest entity) {
-        if (loggedUser.isAdmin())
-            return getRequestRepository().update(id, entity);
-        else throw new AuthorizationException();
+    public ReservationRequest update(Integer id, ReservationRequest entity) {
+        return getRequestRepository().update(id, entity);
     }
 
     public ReservationRequestRepository getRequestRepository() {
         if (requestRepository == null) {
-            synchronized (this){
+            synchronized (this) {
                 if (requestRepository == null) {
                     requestRepository = ApplicationContext.getBean(ReservationRequestRepository.class);
                 }

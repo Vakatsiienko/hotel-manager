@@ -2,7 +2,7 @@ package com.vaka.web.controller;
 
 import com.vaka.domain.ReservationRequest;
 import com.vaka.domain.Room;
-import com.vaka.domain.User;
+import com.vaka.domain.Manager;
 import com.vaka.service.RoomService;
 import com.vaka.util.ApplicationContext;
 
@@ -14,11 +14,11 @@ import java.util.List;
 public class RoomController {
     private RoomService roomService;
 
-    public List<Room> getForRequestById(User loggedUser, Integer reqId) {
-        return getRoomService().findForRequestId(loggedUser, reqId);
+    public List<Room> getForRequestById(Integer reqId) {
+        return getRoomService().findForRequestId(reqId);
     }
-    public List<Room> getForRequest(User loggedUser, ReservationRequest request) {
-        return getRoomService().findForRequest(loggedUser, request);
+    public List<Room> getForRequest(ReservationRequest request) {
+        return getRoomService().findForRequest(request);
     }
 
 

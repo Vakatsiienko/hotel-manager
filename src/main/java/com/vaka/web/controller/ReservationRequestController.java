@@ -1,7 +1,7 @@
 package com.vaka.web.controller;
 
 import com.vaka.domain.ReservationRequest;
-import com.vaka.domain.User;
+import com.vaka.domain.Manager;
 import com.vaka.service.ReservationRequestService;
 import com.vaka.util.ApplicationContext;
 
@@ -14,24 +14,24 @@ public class ReservationRequestController {
 
     private ReservationRequestService requestService;
 
-    public List<ReservationRequest> list(User loggedUser) {
+    public List<ReservationRequest> list(Manager loggedUser) {
         return getRequestService().list(loggedUser);
     }
 
-    public ReservationRequest getById(User loggedUser, Integer id) {
-        return getRequestService().getById(loggedUser, id);
+    public ReservationRequest getById(Integer id) {
+        return getRequestService().getById(id);
     }
 
-    public ReservationRequest create(User loggedUser, ReservationRequest request) {
-        return getRequestService().persist(loggedUser, request);
+    public ReservationRequest create( ReservationRequest request) {
+        return getRequestService().create(request);
     }
 
-    public ReservationRequest update(User loggedUser, Integer id, ReservationRequest request) {
-        return getRequestService().update(loggedUser, id, request);
+    public ReservationRequest update(Integer id, ReservationRequest request) {
+        return getRequestService().update(id, request);
     }
 
-    public boolean delete(User loggedUser, Integer id) {
-        return getRequestService().delete(loggedUser, id);
+    public boolean delete(Integer id) {
+        return getRequestService().delete(id);
     }
 
     public ReservationRequestService getRequestService() {

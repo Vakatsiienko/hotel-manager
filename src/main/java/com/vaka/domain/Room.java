@@ -18,6 +18,5 @@ public class Room extends BaseEntity {
     private Long costPerDay;
     private RoomClass clazz;
     private String description;
-    private BathroomType bathroomType;
     private Integer area;
 }

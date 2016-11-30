@@ -25,10 +25,8 @@ public class RoomRepositoryImpl implements RoomRepository {
         Stream<Room> rooms = roomById.values().stream()
                 .filter(r -> r.getClazz() == reservationRequest.getRoomClass() &&
                         r.getNumOfBeds() >= reservationRequest.getNumOfBeds() &&
-                        (r.getCostPerDay() * reservationRequest.getPeriod().getDays()) <= reservationRequest.getTotalCost());
-        if (reservationRequest.getBathroomType() != BathroomType.ANY) {
-            rooms.filter(r -> r.getBathroomType() == reservationRequest.getBathroomType());
-        }
+                        (r.getCostPerDay() * (reservationRequest.getDepartureDate().toEpochDay()
+                                - reservationRequest.getArrivalDate().toEpochDay())) <= reservationRequest.getTotalCost());
 
         return rooms.collect(Collectors.toList());
     }

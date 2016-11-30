@@ -16,7 +16,7 @@ import java.time.Period;
 @AllArgsConstructor
 public class Reservation extends BaseEntity {
 
-    private User user;
+    private Manager user;
 
     private Room room;
 

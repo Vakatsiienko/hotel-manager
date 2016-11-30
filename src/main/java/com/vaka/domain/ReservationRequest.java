@@ -16,14 +16,12 @@ import java.time.Period;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReservationRequest extends BaseEntity {
-    private User customer;
+    private Customer customer;
     private Integer numOfBeds;
     private RoomClass roomClass;
-    private BathroomType bathroomType;
-    private Period period;
+    private LocalDate arrivalDate;
+    private LocalDate departureDate;
     private Integer totalCost;
     private String commentary;
     private ReservationRequestStatus status;
-
-
 }

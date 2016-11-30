@@ -6,15 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Created by Iaroslav on 11/23/2016.
+ * Created by Iaroslav on 11/29/2016.
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Bill extends BaseEntity {
-    private Manager owner;
-    private Room room;
-    private Reservation reservation;
-    private boolean paid;
+public class Customer extends BaseEntity {
+    private String email;
+    private String name;
+    private String phoneNumber;
 }

@@ -1,7 +1,7 @@
 package com.vaka.service.impl;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-import com.vaka.domain.User;
+import com.vaka.domain.Manager;
 import com.vaka.repository.SecurityRepository;
 import com.vaka.service.SecurityService;
 import com.vaka.util.ApplicationContext;
@@ -17,8 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 public class SecurityServiceImpl implements SecurityService {
     private SecurityRepository securityRepository;
     @Override
-    public User authenticate(HttpServletRequest req, HttpServletResponse resp) throws AuthenticateException {
-        User user = new User("name", 20, true, "user", Base64.encode("user".getBytes()));
+    public Manager authenticate(HttpServletRequest req, HttpServletResponse resp) throws AuthenticateException {
+        Manager user = new Manager("name", 20, "user", Base64.encode("user".getBytes()));
         user.setId(0);
         return user;
     }
@@ -29,7 +29,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public boolean logout(HttpServletRequest req, HttpServletResponse resp, User user) {
+    public boolean logout(HttpServletRequest req, HttpServletResponse resp, Manager user) {
         return false;
     }
 
