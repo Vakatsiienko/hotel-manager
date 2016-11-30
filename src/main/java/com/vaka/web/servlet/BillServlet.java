@@ -18,6 +18,7 @@ public class BillServlet extends HttpServlet {
         } else if (req.getRequestURI().startsWith("/payments?userId=")) {
             //return all unpaid payments by specific user
         }
+        System.out.println("BILL GET");
         super.doGet(req, resp);
     }
 
@@ -27,6 +28,8 @@ public class BillServlet extends HttpServlet {
         if ("/payments/pay".equals(req.getRequestURI())) {
             //return paid bill
         }
+        System.out.println("BILL POST");
+
         super.doPost(req, resp);
     }
 }

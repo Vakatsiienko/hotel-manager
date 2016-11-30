@@ -34,7 +34,7 @@
 </head>
 <body>
 <div id="test">
-    <div><button id = "addRequestButton">Add Request</button><p id = "manual">To edit or delete request just click on his row.</p></div>
+    <div><button id = "addRequestButton">Add Request</button></div>
 
     <table id="myTable" class="display" cellspacing="0" width="100%">
         <thead>

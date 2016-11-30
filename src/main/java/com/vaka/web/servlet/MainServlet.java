@@ -20,5 +20,6 @@ public class MainServlet extends HttpServlet {
             req.setAttribute("roomClazzez", RoomClass.values());
             req.getRequestDispatcher("/index2.jsp").forward(req, resp);
         }
+        System.out.println("Main");
     }
 }

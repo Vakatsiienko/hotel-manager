@@ -29,6 +29,8 @@ public class UserServlet extends HttpServlet {
         } else if ("/login/register".equals(req.getRequestURI())) {
             //add new user and set token
         }
+        System.out.println("USER GET");
+
 
         super.doPost(req, resp);
     }

@@ -22,7 +22,7 @@
         })
 
     </script>
-    <jsp:useBean id="request" scope="page"
+    <jsp:useBean id="requestRes" scope="page"
                  type="com.vaka.domain.ReservationRequest"/>
     <jsp:useBean id="rooms" scope="page"
                  type="java.util.List"/>
@@ -30,7 +30,7 @@
 <body>
 <div>
     <table id="reservationRequestTable" class="display" cellpadding="0" width="100%">
-        <jsp:useBean id="request.customer" scope="page"
+        <jsp:useBean id="requestRes.customer" scope="page"
                      type="com.vaka.domain.Customer"/>
         <thead>
         <tr>

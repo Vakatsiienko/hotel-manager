@@ -30,7 +30,7 @@ public class ReservationRequestServlet extends HttpServlet {
             req.setAttribute("requestList", getReservationRequestController().list(loggedUser));
             req.getRequestDispatcher("requests.jsp").forward(req, resp);
             //return list of requests
-        } else if (req.getRequestURI().matches("/requests/process\\?id=[0-9]+")) {
+        } else if (req.getRequestURI().matches("/requests/process")) {
             Integer reqId = Integer.parseInt(req.getParameter("id"));
             req.setAttribute("requestInfo", getReservationRequestController().getById(reqId));
             req.setAttribute("rooms", getRoomController().getForRequestById(reqId));
@@ -39,6 +39,7 @@ public class ReservationRequestServlet extends HttpServlet {
         } else {
             resp.setStatus(400);
         }
+        System.out.println("REQ GET");
 //        super.doGet(req, resp);
     }
 
@@ -60,6 +61,8 @@ public class ReservationRequestServlet extends HttpServlet {
         else {
             resp.setStatus(400);
         }
+        System.out.println("REQ POST");
+
 //        super.doPost(req, resp);
     }
 

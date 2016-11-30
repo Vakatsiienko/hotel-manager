@@ -11,7 +11,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>ReservationRequestServlet</servlet-name>
-        <url-pattern>/requests</url-pattern>
+        <url-pattern>/requests/*</url-pattern>
     </servlet-mapping>
 
     <servlet>

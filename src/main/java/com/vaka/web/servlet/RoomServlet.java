@@ -18,6 +18,7 @@ public class RoomServlet extends HttpServlet {
             
             //return list of suitable rooms
         }
+        System.out.println("ROOM GET");
         super.doGet(req, resp);
     }
 }
