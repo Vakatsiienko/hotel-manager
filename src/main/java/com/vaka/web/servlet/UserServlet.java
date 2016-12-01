@@ -1,7 +1,5 @@
 package com.vaka.web.servlet;
 
-import com.vaka.util.ApplicationContext;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,18 +10,13 @@ import java.io.IOException;
  * Created by Iaroslav on 11/24/2016.
  */
 public class UserServlet extends HttpServlet {
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        ApplicationContext.init();
-    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if ("/login".equals(req.getRequestURI())){
             //login.jsp
         }
-        else if ("/login/authenticate".equals(req.getRequestURI())) {
+        else if ("/login/createToken".equals(req.getRequestURI())) {
             //get credentials and set token
 
         } else if ("/login/register".equals(req.getRequestURI())) {
@@ -31,7 +24,5 @@ public class UserServlet extends HttpServlet {
         }
         System.out.println("USER GET");
 
-
-        super.doPost(req, resp);
     }
 }

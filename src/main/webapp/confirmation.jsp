@@ -11,7 +11,10 @@
     <title>Confirmation</title>
 </head>
 <body>
-
+<a href="/">/ (request reservation)</a> <br>
+<a href="/reservations/confirmed">/confirmed</a> <br>
+<a href="/login">/login</a> <br>
+<a href="/reservations/requested">/requests</a> <br>
 
 </body>
 </html>

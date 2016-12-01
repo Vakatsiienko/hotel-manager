@@ -12,13 +12,13 @@ import java.io.IOException;
 public class RoomServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if ("/rooms".equals(req.getRequestURI())) {
-            //return list of rooms
-        } else if (req.getRequestURI().startsWith("/rooms/findForRequest?")) {
-            
-            //return list of suitable rooms
-        }
         System.out.println("ROOM GET");
         super.doGet(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doPost(req, resp);
+        System.out.println("ROOM POST");
     }
 }

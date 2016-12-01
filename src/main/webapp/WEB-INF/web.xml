@@ -5,23 +5,13 @@
          version="3.1">
 
     <servlet>
-        <servlet-name>ReservationRequestServlet</servlet-name>
-        <servlet-class>com.vaka.web.servlet.ReservationRequestServlet</servlet-class>
-        <load-on-startup>0</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ReservationRequestServlet</servlet-name>
-        <url-pattern>/requests/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>RoomServlet</servlet-name>
         <servlet-class>com.vaka.web.servlet.RoomServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>RoomServlet</servlet-name>
-        <url-pattern>/rooms</url-pattern>
+        <url-pattern>/rooms*</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -31,7 +21,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>userServlet</servlet-name>
-        <url-pattern>/users</url-pattern>
+        <url-pattern>/users*</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -41,7 +31,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>billServlet</servlet-name>
-        <url-pattern>/bill</url-pattern>
+        <url-pattern>/bill*</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -52,6 +42,24 @@
     <servlet-mapping>
         <servlet-name>MainServlet</servlet-name>
         <url-pattern>/</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ReservationServlet</servlet-name>
+        <servlet-class>com.vaka.web.servlet.ReservationServlet</servlet-class>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReservationServlet</servlet-name>
+        <url-pattern>/reservations*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>AuthenticationServlet</servlet-name>
+        <servlet-class>com.vaka.web.servlet.AuthenticationServlet</servlet-class>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AuthenticationServlet</servlet-name>
+        <url-pattern>/signin*</url-pattern>
     </servlet-mapping>
 
 </web-app>

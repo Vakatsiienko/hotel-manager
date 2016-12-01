@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.Period;
 
 /**
@@ -12,16 +13,22 @@ import java.time.Period;
  */
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class Reservation extends BaseEntity {
+    public Reservation(){}
 
-    private Manager user;
+    private User user;
 
     private Room room;
 
-    private Period period;
+    private Integer guests;
 
-    private ReservationRequest request;
+    private RoomClass requestedRoomClass;
+
+    private ReservationStatus status;
+
+    private LocalDate arrivalDate;
+
+    private LocalDate departureDate;
 
 }

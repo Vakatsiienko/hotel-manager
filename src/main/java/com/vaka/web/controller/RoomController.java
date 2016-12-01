@@ -1,26 +1,21 @@
 package com.vaka.web.controller;
 
-import com.vaka.domain.ReservationRequest;
-import com.vaka.domain.Room;
-import com.vaka.domain.Manager;
+import com.vaka.service.ReservationService;
 import com.vaka.service.RoomService;
 import com.vaka.util.ApplicationContext;
 
-import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Created by Iaroslav on 11/25/2016.
  */
 public class RoomController {
     private RoomService roomService;
-
-    public List<Room> getForRequestById(Integer reqId) {
-        return getRoomService().findForRequestId(reqId);
-    }
-    public List<Room> getForRequest(ReservationRequest request) {
-        return getRoomService().findForRequest(request);
-    }
-
+    private ReservationService reservationService;
+    
 
     public RoomService getRoomService() {
         if (roomService == null)
@@ -30,5 +25,16 @@ public class RoomController {
                 }
             }
         return roomService;
+    }
+
+    public ReservationService getReservationService() {
+        if (reservationService == null) {
+            synchronized (this) {
+                if (reservationService == null) {
+                    reservationService = ApplicationContext.getBean(ReservationService.class);
+                }
+            }
+        }
+        return reservationService;
     }
 }

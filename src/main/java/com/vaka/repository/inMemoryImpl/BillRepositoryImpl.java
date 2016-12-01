@@ -17,7 +17,7 @@ public class BillRepositoryImpl implements BillRepository {
     private AtomicInteger idCounter = ApplicationContext.getIdCounter();
 
     @Override
-    public Bill persist(Bill entity) {
+    public Bill create(Bill entity) {
         entity.setId(idCounter.getAndIncrement());
         billById.put(entity.getId(), entity);
         return entity;

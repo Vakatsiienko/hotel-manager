@@ -7,7 +7,7 @@ import com.vaka.domain.BaseEntity;
  */
 public interface CrudRepository<T extends BaseEntity> {
 
-    T persist(T entity);
+    T create(T entity);
 
     T getById(Integer id);
 

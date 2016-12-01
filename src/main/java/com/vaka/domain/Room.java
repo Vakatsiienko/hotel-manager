@@ -14,9 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Room extends BaseEntity {
     private Integer number;
-    private Integer numOfBeds;
-    private Long costPerDay;
-    private RoomClass clazz;
+    private Integer capacity;
+    private Integer costPerDay;
+    private RoomClass roomClazz;
     private String description;
-    private Integer area;
 }

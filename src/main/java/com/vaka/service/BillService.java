@@ -8,6 +8,6 @@ import com.vaka.domain.Manager;
  * Created by Iaroslav on 11/24/2016.
  */
 public interface BillService extends CrudService<Bill> {
-    Bill createFromReservationAndPersist(Reservation reservation);
+    Bill createFromReservation(Reservation reservation);
 
 }

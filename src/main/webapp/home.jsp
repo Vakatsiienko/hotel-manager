@@ -15,29 +15,34 @@
     </script>
     <style type="text/css">
 
-        th{
+        th {
             /*text-align: left;*/
             text-align: right;
         }
-        .ftitle{
+
+        .ftitle {
             text-align: center;
             border-bottom: 1px solid #ccc
         }
     </style>
 </head>
 <body>
+<a href="/">/ (request reservation)</a> <br>
+<a href="/reservations/confirmed">/confirmed</a> <br>
+<a href="/login">/login</a> <br>
+<a href="/reservations/requested">/requests</a> <br>
 <div id="addForm">
-    <form action="/requests" method="post" id="createForm">
+    <form action="/reservations" method="post" id="createForm">
         <table>
             <tr>
                 <th class="ftitle" colspan="2">Customer contact info</th>
             </tr>
             <tr class="fitem">
                 <th>
-                    <label for="fullName">Full Name:</label>
+                    <label for="name">Name:</label>
                 </th>
                 <td>
-                    <input id="fullName" name="name" required>
+                    <input id="name" name="name" required>
                 </td>
             </tr>
             <tr class="fitem">
@@ -56,15 +61,15 @@
                     <input id="phoneNumber" name="phoneNumber" type="text">
                 </td>
             </tr>
-            <tr >
+            <tr>
                 <th class="ftitle" colspan="2">Request Information</th>
             </tr>
             <tr class="fitem">
                 <th>
-                    <label for="numOfBeds">Beds:</label>
+                    <label for="guests">Guests:</label>
                 </th>
                 <td>
-                    <input id="numOfBeds" name="numOfBeds" type="number" min="1">
+                    <input id="guests" name="guests" type="number" min="1">
                 </td>
             </tr>
             <tr class="fitem">
@@ -95,24 +100,6 @@
                 </th>
                 <td>
                     <input id="departureDate" name="departureDate" type="date">
-                </td>
-            </tr>
-            <tr class="fitem">
-                <th><label for="totalCost">Total Cost:</label>
-
-                </th>
-                <td><input id="totalCost" name="totalCost" type="number" min="0">
-
-                </td>
-            </tr>
-            <tr class="fitem">
-                <th><label for="commentary">Addition Commentaries:</label>
-
-                </th>
-                <td>
-                                <textarea id="commentary" dirname="commentary" rows="5"
-                                          cols="45"
-                                          name="text"></textarea>
                 </td>
             </tr>
             <tr>

@@ -12,8 +12,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer extends BaseEntity {
+public class User extends BaseEntity {
     private String email;
+    private String password;
     private String name;
+    private Role role;
     private String phoneNumber;
 }

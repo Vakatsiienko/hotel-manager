@@ -21,8 +21,7 @@ public class BillServlet extends HttpServlet {
         System.out.println("BILL GET");
         super.doGet(req, resp);
     }
-
-
+    
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if ("/payments/pay".equals(req.getRequestURI())) {

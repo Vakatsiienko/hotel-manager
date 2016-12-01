@@ -4,7 +4,6 @@ import com.vaka.domain.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 /**
  * Created by Iaroslav on 11/26/2016.
@@ -13,28 +12,26 @@ public class ServletDomainExtractor {
     private ServletDomainExtractor() {
     }
 
-    public static ReservationRequest extractReservationRequest(HttpServletRequest req) {
-        ReservationRequest reservation = new ReservationRequest();
-        reservation.setCustomer(extractCustomer(req));
+    public static Reservation extractReservation(HttpServletRequest req) {
+        Reservation reservation = new Reservation();
+        reservation.setUser(extractCustomer(req));
         String strId = req.getParameter("id");
         if (strId != null)
             reservation.setId(Integer.valueOf(strId));
-        reservation.setNumOfBeds(Integer.valueOf(req.getParameter("numOfBeds")));
-        reservation.setRoomClass(RoomClass.valueOf(req.getParameter("roomClazz")));
+        reservation.setGuests(Integer.valueOf(req.getParameter("guests")));
+        reservation.setRequestedRoomClass(RoomClass.valueOf(req.getParameter("roomClazz")));
         reservation.setArrivalDate(LocalDate.parse(req.getParameter("arrivalDate")));
         reservation.setDepartureDate(LocalDate.parse(req.getParameter("departureDate")));
-        reservation.setTotalCost(Integer.valueOf(req.getParameter("totalCost")));
-        reservation.setCommentary(req.getParameter("commentary"));
-        reservation.setStatus(ReservationRequestStatus.WAITING);
+        reservation.setStatus(ReservationStatus.REQUESTED);
         return reservation;
     }
 
-    public static Customer extractCustomer(HttpServletRequest req) {
-        Customer customer = new Customer();
-        customer.setEmail(req.getParameter("email"));
-        customer.setPhoneNumber(req.getParameter("phoneNumber"));
-        customer.setName(req.getParameter("name"));
-        return customer;
+    public static User extractCustomer(HttpServletRequest req) {
+        User user = new User();
+        user.setEmail(req.getParameter("email"));
+        user.setPhoneNumber(req.getParameter("phoneNumber"));
+        user.setName(req.getParameter("name"));
+        return user;
     }
 
     //TODO move to other "factory" class
@@ -42,8 +39,6 @@ public class ServletDomainExtractor {
         Bill bill = new Bill();
         bill.setOwner(reservation.getUser());
         bill.setReservation(reservation);
-        bill.setRoom(reservation.getRoom());
-        bill.setCreatedDate(LocalDateTime.now());
         return bill;
     }
 }

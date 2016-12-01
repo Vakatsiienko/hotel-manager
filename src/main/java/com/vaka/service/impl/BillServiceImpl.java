@@ -2,12 +2,10 @@ package com.vaka.service.impl;
 
 import com.vaka.domain.Bill;
 import com.vaka.domain.Reservation;
-import com.vaka.domain.Manager;
 import com.vaka.repository.BillRepository;
 import com.vaka.service.BillService;
 import com.vaka.util.ApplicationContext;
 import com.vaka.util.ServletDomainExtractor;
-import com.vaka.util.exception.AuthorizationException;
 
 /**
  * Created by Iaroslav on 11/26/2016.
@@ -20,13 +18,13 @@ public class BillServiceImpl implements BillService {
     private BillRepository billRepository;
 
     @Override
-    public Bill createFromReservationAndPersist(Reservation reservation) {
+    public Bill createFromReservation(Reservation reservation) {
             return create(ServletDomainExtractor.createFromReservation(reservation));
     }
 
     @Override
     public Bill create(Bill entity) {
-            return getBillRepository().persist(entity);
+            return getBillRepository().create(entity);
 
     }
 

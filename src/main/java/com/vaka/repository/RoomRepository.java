@@ -1,7 +1,8 @@
 package com.vaka.repository;
 
+import com.vaka.domain.Reservation;
 import com.vaka.domain.Room;
-import com.vaka.domain.ReservationRequest;
+import com.vaka.domain.RoomClass;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,5 +12,5 @@ import java.util.List;
  */
 public interface RoomRepository extends CrudRepository<Room> {
 
-    List<Room> findForRequest(ReservationRequest reservationRequest);
+    List<Room> findAvailableForReservation(RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate);
 }

@@ -14,7 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Manager extends BaseEntity{
     private String name;
-    private Integer age;
     private String login;
     private String password;
 }

@@ -1,8 +1,8 @@
 package com.vaka.service.impl;
 
-import com.vaka.domain.ReservationRequest;
+import com.vaka.domain.Reservation;
 import com.vaka.domain.Room;
-import com.vaka.repository.ReservationRequestRepository;
+import com.vaka.repository.ReservationRepository;
 import com.vaka.repository.RoomRepository;
 import com.vaka.service.RoomService;
 import com.vaka.util.ApplicationContext;
@@ -14,22 +14,18 @@ import java.util.List;
  */
 public class RoomServiceImpl implements RoomService {
     private RoomRepository roomRepository;
-    private ReservationRequestRepository requestRepository;
+    private ReservationRepository reservationRepository;
 
     @Override
-    public List<Room> findForRequestId(Integer id) {
-        ReservationRequest request = getRequestRepository().getById(id);
-        return findForRequest(request);
-    }
-
-    @Override
-    public List<Room> findForRequest(ReservationRequest request) {
-        return getRoomRepository().findForRequest(request);
+    public List<Room> findAvailableForReservation(Integer reservationId) {
+        Reservation request = getReservationRepository().getById(reservationId);
+        return getRoomRepository().findAvailableForReservation(request.getRequestedRoomClass(),
+                request.getArrivalDate(), request.getDepartureDate());
     }
 
     @Override
     public Room create(Room entity) {
-        return getRoomRepository().persist(entity);
+        return getRoomRepository().create(entity);
     }
 
     @Override
@@ -58,14 +54,14 @@ public class RoomServiceImpl implements RoomService {
         return roomRepository;
     }
 
-    public ReservationRequestRepository getRequestRepository() {
-        if (requestRepository == null) {
+    public ReservationRepository getReservationRepository() {
+        if (reservationRepository == null) {
             synchronized (this) {
-                if (requestRepository == null) {
-                    requestRepository = ApplicationContext.getBean(ReservationRequestRepository.class);
+                if (reservationRepository == null) {
+                    reservationRepository = ApplicationContext.getBean(ReservationRepository.class);
                 }
             }
         }
-        return requestRepository;
+        return reservationRepository;
     }
 }
