@@ -24,10 +24,18 @@
                 "dom": "<lftip>",
             });
         })
-
     </script>
+    <style type="text/css">
+        #loggedUser {
+            position: static;
+            top: 0px;
+            right: 0px;
+            background: gainsboro;
+        }
+    </style>
 </head>
 <body>
+<div id="loggedUser">${loggedUser.name} <a href="/signin/logout">logout</a></div>
 <a href="/">/ (request reservation)</a> <br>
 <a href="/reservations/confirmed">/confirmed</a> <br>
 <a href="/login">/login</a> <br>

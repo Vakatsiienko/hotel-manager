@@ -27,9 +27,11 @@ public class AuthenticationController {
     }
 
     public void signinPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("user", getSecurityService().authenticate(req, resp));
+        req.setAttribute("loggedUser", getSecurityService().authenticate(req, resp));
         req.getRequestDispatcher("/signin.jsp").forward(req, resp);
     }
+
+
 
 
     private SecurityService getSecurityService() {

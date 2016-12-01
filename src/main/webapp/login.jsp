@@ -11,14 +11,27 @@
 <head>
     <title>Authentication</title>
 </head>
+<style type="text/css">
+    #welcome{
+        position: static;
+        left: 45%;
+    }
+    #loggedUser {
+        position: static;
+        top: 0px;
+        right: 0px;
+        background: gainsboro;
+    }
+</style>
 <body>
+<div id="loggedUser">${loggedUser.name} <a href="/signin/logout">logout</a></div>
 <a href="/">/ (request reservation)</a> <br>
 <a href="/reservations/confirmed">/confirmed</a> <br>
 <a href="/login">/login</a> <br>
 <a href="/reservations/requested">/requests</a> <br>
-<jsp:useBean id="user" scope="request" beanName="com.vaka.domain.User"/>
+<jsp:useBean id="loggedUser" scope="request" beanName="com.vaka.domain.User"/>
 <c:choose>
-    <c:when test="${empty user.name}">
+    <c:when test="${empty loggedUser.name}">
         <form action="/signin" method="post">
             <table>
                 <tr>
@@ -36,8 +49,8 @@
             </table>
         </form>
     </c:when>
-    <c:when test="${!empty user}">
-        <h2>Welcome ${user.name}</h2>
+    <c:when test="${!empty loggedUser.name}">
+        <div id="welcome"><h2>Welcome ${loggedUser.name}</h2></div>
     </c:when>
 </c:choose>
 

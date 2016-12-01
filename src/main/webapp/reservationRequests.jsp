@@ -28,11 +28,11 @@
     </style>
 </head>
 <body>
+<div id="loggedUser">${loggedUser.name} <a href="/signin/logout">logout</a></div>
 <a href="/">/ (request reservation)</a> <br>
 <a href="/reservations/confirmed">/confirmed</a> <br>
 <a href="/login">/login</a> <br>
 <a href="/reservations/requested">/requests</a> <br> <br>
-<div id="loggedUser">${loggedUser.name} <a href="/signin/logout">logout</a></div>
 
 
 <table id="myTable" class="display" cellspacing="0" width="100%">

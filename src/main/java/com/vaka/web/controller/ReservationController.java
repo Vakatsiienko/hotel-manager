@@ -3,6 +3,7 @@ package com.vaka.web.controller;
 import com.vaka.domain.Reservation;
 import com.vaka.service.ReservationService;
 import com.vaka.service.RoomService;
+import com.vaka.service.SecurityService;
 import com.vaka.util.ApplicationContext;
 import com.vaka.util.ServletDomainExtractor;
 
@@ -17,26 +18,28 @@ import java.io.IOException;
 public class ReservationController {
     private ReservationService reservationService;
     private RoomService roomService;
+    private SecurityService securityService;
 
 
-    public void create(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
+    public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Reservation reservation = ServletDomainExtractor.extractReservation(req);
         reservation = getReservationService().create(reservation);
-        response.sendRedirect("/reservations/" + reservation.getId());
+        resp.sendRedirect("/reservations/" + reservation.getId());
     }
 
-    public void getById(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
+    public void getById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             Integer reservationId = Integer.valueOf(req.getRequestURI().substring(req.getRequestURI().lastIndexOf('/') + 1));
             Reservation reservation = getReservationService().getById(reservationId);
             if (reservation == null) {
-                response.setStatus(400);
+                resp.setStatus(400);
                 return;
             }
+            req.setAttribute("loggedUser", getSecurityService().authenticate(req, resp));
             req.setAttribute("reservation", reservation);
-            req.getRequestDispatcher("/reservationInfo.jsp").forward(req, response);
+            req.getRequestDispatcher("/reservationInfo.jsp").forward(req, resp);
         } catch (NumberFormatException ex) {
-            response.setStatus(400);
+            resp.setStatus(400);
         }
     }
 
@@ -52,11 +55,13 @@ public class ReservationController {
     }
 
     public void confirmedList(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("loggedUser", getSecurityService().authenticate(req, resp));
         req.setAttribute("reservationList", getReservationService().findConfirmed());
         req.getRequestDispatcher("/confirmedReservations.jsp").forward(req, resp);
     }
 
     public void requestsList(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("loggedUser", getSecurityService().authenticate(req, resp));
         req.setAttribute("reservationList", getReservationService().findRequested());
         req.getRequestDispatcher("/reservationRequests.jsp").forward(req, resp);
     }
@@ -64,6 +69,7 @@ public class ReservationController {
     public void requestProcess(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             Integer reservationId = Integer.valueOf(req.getRequestURI().substring(req.getRequestURI().lastIndexOf('/') + 1));
+            req.setAttribute("loggedUser", getSecurityService().authenticate(req, resp));
             req.setAttribute("reservation", getReservationService().getById(reservationId));
             req.setAttribute("rooms", getRoomService().findAvailableForReservation(reservationId));
             req.getRequestDispatcher("/reservationProcessing.jsp").forward(req, resp);
@@ -72,6 +78,16 @@ public class ReservationController {
         }
     }
 
+    private SecurityService getSecurityService() {
+        if (securityService == null) {
+            synchronized (this) {
+                if (securityService == null) {
+                    securityService = ApplicationContext.getBean(SecurityService.class);
+                }
+            }
+        }
+        return securityService;
+    }
     private ReservationService getReservationService() {
         if (reservationService == null) {
             synchronized (this) {
