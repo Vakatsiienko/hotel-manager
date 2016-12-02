@@ -2,10 +2,7 @@ package com.vaka.service;
 
 import com.vaka.domain.Role;
 import com.vaka.domain.User;
-import com.vaka.domain.Manager;
-import com.vaka.domain.User;
 import com.vaka.util.exception.AuthenticateException;
-import com.vaka.util.exception.AuthorizationException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

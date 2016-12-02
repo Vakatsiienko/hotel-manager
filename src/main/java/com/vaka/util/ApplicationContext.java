@@ -1,7 +1,6 @@
 package com.vaka.util;
 
 import com.vaka.config.ApplicationContextConfig;
-import com.vaka.domain.Manager;
 import com.vaka.util.exception.ApplicationContextInitException;
 import lombok.Getter;
 

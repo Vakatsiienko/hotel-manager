@@ -1,7 +1,6 @@
 package com.vaka.service;
 
 import com.vaka.domain.BaseEntity;
-import com.vaka.domain.Manager;
 
 /**
  * Created by Iaroslav on 11/24/2016.

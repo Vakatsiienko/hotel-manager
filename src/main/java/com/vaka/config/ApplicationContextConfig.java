@@ -31,7 +31,6 @@ public class ApplicationContextConfig {
         //Services
         implClassByBeanName.put(RoomService.class, RoomServiceImpl.class);
         implClassByBeanName.put(BillService.class, BillServiceImpl.class);
-        implClassByBeanName.put(ManagerService.class, ManagerServiceImpl.class);
         implClassByBeanName.put(CustomerService.class, CustomerServiceImpl.class);
         implClassByBeanName.put(SecurityService.class, SecurityServiceImpl.class);
         implClassByBeanName.put(ReservationService.class, ReservationServiceImpl.class);
@@ -39,7 +38,6 @@ public class ApplicationContextConfig {
         //Repository
         implClassByBeanName.put(RoomRepository.class, RoomRepositoryImpl.class);
         implClassByBeanName.put(BillRepository.class, BillRepositoryImpl.class);
-        implClassByBeanName.put(ManagerRepository.class, ManagerRepositoryImpl.class);
         implClassByBeanName.put(CustomerRepository.class, CustomerRepositoryImpl.class);
         implClassByBeanName.put(SecurityRepository.class, SecurityRepositoryImpl.class);
         implClassByBeanName.put(ReservationRepository.class, ReservationRepositoryImpl.class);

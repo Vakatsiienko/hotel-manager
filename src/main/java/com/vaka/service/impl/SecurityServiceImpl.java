@@ -3,7 +3,6 @@ package com.vaka.service.impl;
 import com.vaka.domain.Role;
 import com.vaka.domain.User;
 import com.vaka.repository.CustomerRepository;
-import com.vaka.repository.ManagerRepository;
 import com.vaka.repository.SecurityRepository;
 import com.vaka.service.SecurityService;
 import com.vaka.util.ApplicationContext;

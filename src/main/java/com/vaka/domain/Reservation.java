@@ -14,8 +14,8 @@ import java.time.Period;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class Reservation extends BaseEntity {
-    public Reservation(){}
 
     private User user;
 
