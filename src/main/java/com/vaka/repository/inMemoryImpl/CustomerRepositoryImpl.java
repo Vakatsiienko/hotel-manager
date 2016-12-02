@@ -6,6 +6,7 @@ import com.vaka.repository.CustomerRepository;
 import com.vaka.util.ApplicationContext;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,7 +26,10 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
     @Override
     public User getByEmail(String email) {
-        return customerById.values().stream().filter(c -> c.getEmail().equals(email)).findFirst().get();
+        Optional<User> user = customerById.values().stream().filter(c -> c.getEmail().equals(email)).findFirst();
+        if (user.isPresent())
+            return user.get();
+        else return null;
     }
 
     @Override

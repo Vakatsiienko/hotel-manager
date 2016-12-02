@@ -11,7 +11,9 @@
 <head>
     <title>Make Request</title>
     <script type="text/javascript">
-
+        function compareTime(arrival, departure) {
+            return new Date(arrival) < new Date(departure); // true if time1 is later
+        }
     </script>
     <style type="text/css">
 
@@ -24,16 +26,19 @@
             text-align: center;
             border-bottom: 1px solid #ccc
         }
+
         #loggedUser {
-            position: static;
-            top: 0px;
+            position: absolute;
             right: 0px;
+            top: 0px;
             background: gainsboro;
         }
     </style>
 </head>
 <body>
-<div id="loggedUser">${loggedUser.name} <a href="/signin/logout">logout</a></div>
+<%--<jsp:useBean id="loggedUser" scope="request"--%>
+<%--beanName="com.vaka.domain.User"/>--%>
+<span id="loggedUser">${loggedUser.name} <a href="/signin/logout">logout</a></span>
 <a href="/">/ (request reservation)</a> <br>
 <a href="/reservations/confirmed">/confirmed</a> <br>
 <a href="/login">/login</a> <br>
@@ -49,7 +54,9 @@
                     <label for="name">Name:</label>
                 </th>
                 <td>
-                    <input id="name" name="name" required>
+                    <input id="name" name="name"
+                    <c:if test="${!empty loggedUser.name}"> value="${loggedUser.name}"</c:if>
+                           required>
                 </td>
             </tr>
             <tr class="fitem">
@@ -57,7 +64,8 @@
                     <label for="email">Email:</label>
                 </th>
                 <td>
-                    <input id="email" name="email" type="email" required>
+                    <input id="email" name="email" type="email" value="${loggedUser.email}"
+                           required>
                 </td>
             </tr>
             <tr class="fitem">
@@ -65,7 +73,13 @@
                     <label for="phoneNumber">Phone Number:</label>
                 </th>
                 <td>
-                    <input id="phoneNumber" name="phoneNumber" type="text">
+                    <input id="phoneNumber" type="tel" pattern="[\+][0-9]{10, 20}"
+                    <c:choose>
+                           <c:when test="${!empty loggedUser.email}">value="${loggedUser.phoneNumber}"</c:when>
+                            <c:otherwise>value = "+380"</c:otherwise>
+                    </c:choose>
+                           title="Phone number should be in format '+38044567890'"
+                           name="phoneNumber" required>
                 </td>
             </tr>
             <tr>
@@ -113,7 +127,7 @@
                 <th></th>
                 <td>
                     <input type="submit" name="submit" value="submit"/>
-                    <button class="add_cancel">Cancel</button>
+                    <a href="/">Cancel</a>
                 </td>
             </tr>
         </table>

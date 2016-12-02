@@ -1,6 +1,7 @@
 package com.vaka.web.controller;
 
 import com.vaka.domain.RoomClass;
+import com.vaka.domain.User;
 import com.vaka.service.SecurityService;
 import com.vaka.util.ApplicationContext;
 
@@ -16,7 +17,9 @@ public class MainController {
     private SecurityService securityService;
 
     public void toRoot(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("loggedUser", getSecurityService().authenticate(req, resp));
+        User user = getSecurityService().authenticate(req, resp);
+        System.out.println(user.getRole());
+        req.setAttribute("loggedUser", user);
         req.setAttribute("roomClazzez", RoomClass.values());
         req.getRequestDispatcher("/home.jsp").forward(req, resp);
     }

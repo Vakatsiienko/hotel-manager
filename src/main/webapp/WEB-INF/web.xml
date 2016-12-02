@@ -50,7 +50,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>ReservationServlet</servlet-name>
-        <url-pattern>/reservations*</url-pattern>
+        <url-pattern>/reservations/*</url-pattern>
     </servlet-mapping>
     <servlet>
         <servlet-name>AuthenticationServlet</servlet-name>

@@ -15,7 +15,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface SecurityService {
 
-    void createToken(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticateException;
+    void createToken(HttpServletRequest req, HttpServletResponse resp, User loggedUser);
+
+    User checkCredentials(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticateException;
 
     User authenticate(HttpServletRequest req, HttpServletResponse resp);
 

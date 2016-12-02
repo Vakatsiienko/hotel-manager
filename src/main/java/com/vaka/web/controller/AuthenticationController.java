@@ -20,7 +20,8 @@ public class AuthenticationController {
         String email = req.getParameter("email");
         String password = req.getParameter("password");
         if (email != null && password != null) {
-            getSecurityService().createToken(req, resp, email, password);
+            User loggedUser = getSecurityService().checkCredentials(req, resp, email, password);
+            getSecurityService().createToken(req, resp, loggedUser);
             resp.sendRedirect("/");
         }
         else resp.setStatus(400);

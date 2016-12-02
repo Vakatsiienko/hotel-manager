@@ -1,6 +1,8 @@
 package com.vaka.web.controller;
 
 import com.vaka.domain.Reservation;
+import com.vaka.domain.User;
+import com.vaka.service.CustomerService;
 import com.vaka.service.ReservationService;
 import com.vaka.service.RoomService;
 import com.vaka.service.SecurityService;
@@ -17,12 +19,17 @@ import java.io.IOException;
  */
 public class ReservationController {
     private ReservationService reservationService;
+    private CustomerService customerService;
     private RoomService roomService;
     private SecurityService securityService;
 
 
     public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Reservation reservation = ServletDomainExtractor.extractReservation(req);
+        User user = ServletDomainExtractor.extractCustomer(req);
+        user = getCustomerService().createOrUpdate(user);
+        getSecurityService().createToken(req, resp, user);
+        reservation.setUser(user);
         reservation = getReservationService().create(reservation);
         resp.sendRedirect("/reservations/" + reservation.getId());
     }
@@ -76,6 +83,17 @@ public class ReservationController {
         } catch (NumberFormatException ex) {
             resp.setStatus(400);
         }
+    }
+
+    public CustomerService getCustomerService() {
+        if (customerService == null) {
+            synchronized (this) {
+                if (customerService == null) {
+                    customerService = ApplicationContext.getBean(CustomerService.class);
+                }
+            }
+        }
+        return customerService;
     }
 
     private SecurityService getSecurityService() {

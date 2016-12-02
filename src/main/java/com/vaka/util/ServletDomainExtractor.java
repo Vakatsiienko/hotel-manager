@@ -14,7 +14,6 @@ public class ServletDomainExtractor {
 
     public static Reservation extractReservation(HttpServletRequest req) {
         Reservation reservation = new Reservation();
-        reservation.setUser(extractCustomer(req));
         String strId = req.getParameter("id");
         if (strId != null)
             reservation.setId(Integer.valueOf(strId));
@@ -31,6 +30,7 @@ public class ServletDomainExtractor {
         user.setEmail(req.getParameter("email"));
         user.setPhoneNumber(req.getParameter("phoneNumber"));
         user.setName(req.getParameter("name"));
+        user.setRole(Role.CUSTOMER);
         return user;
     }
 

@@ -5,6 +5,9 @@ import com.vaka.domain.User;
 import com.vaka.repository.CustomerRepository;
 import com.vaka.service.CustomerService;
 import com.vaka.util.ApplicationContext;
+import com.vaka.util.exception.CreatingException;
+
+import java.util.Base64;
 
 /**
  * Created by Iaroslav on 12/1/2016.
@@ -15,8 +18,29 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public User create(User entity) {
+        if (getCustomerRepository().getByEmail(entity.getEmail()) != null) {
+            throw new CreatingException("User with such email already exist.");
+        }
+        entity.setPassword(Base64.getEncoder().encode(String.join(":", entity.getEmail(), entity.getPassword()).getBytes()).toString());
         return getCustomerRepository().create(entity);
     }
+
+    @Override
+    public User createOrUpdate(User user) {
+        User registered = getCustomerRepository().getByEmail(user.getEmail());
+        if (registered != null) {
+            registered.setPhoneNumber(user.getPhoneNumber());
+            registered.setName(user.getName());
+            //update password if user contains it
+            if (user.getPassword() != null)
+                registered.setPassword(Base64.getEncoder().encode(String.join(":", registered.getEmail(), registered.getPassword()).getBytes()).toString());
+            return getCustomerRepository().update(registered.getId(), registered);
+        } else {
+            user.setPassword(Base64.getEncoder().encode(String.join(":", user.getEmail(), user.getPassword()).getBytes()).toString());
+            return getCustomerRepository().create(user);
+        }
+    }
+
 
     @Override
     public User getById(Integer id) {

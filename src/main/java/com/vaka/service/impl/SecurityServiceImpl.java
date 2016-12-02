@@ -31,26 +31,33 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public void createToken(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticateException {
-        User user = getCustomerRepository().getByEmail(email);
-        password = Base64.getEncoder().encodeToString((email + ":" + password).getBytes());
-
-        if ((user == null) || (!user.getPassword().equals(password))) {
-            req.setAttribute("exception", "Login or/and password are incorrect");
-            throw new AuthenticateException("Login or/and password are incorrect");
-        }
-
+    public void createToken(HttpServletRequest req, HttpServletResponse resp, User loggedUser) throws AuthenticateException {
         String token = UUID.randomUUID().toString();
-        getSecurityRepository().create(token, user.getId());
+        getSecurityRepository().create(token, loggedUser.getId());
         Cookie cookie = new Cookie("TOKEN", token);
         cookie.setPath("/");
         resp.addCookie(cookie);
     }
 
     @Override
+    public User checkCredentials(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticateException{
+        User user = getCustomerRepository().getByEmail(email);
+        password = Base64.getEncoder().encodeToString(String.join(":", email, password).getBytes());
+
+        if ((user == null) || (!user.getPassword().equals(password))) {
+            req.setAttribute("exception", "Login or/and password are incorrect");
+            throw new AuthenticateException("Login or/and password are incorrect");
+        }
+        return user;
+    }
+
+    @Override
     public User authenticate(HttpServletRequest req, HttpServletResponse resp) {
-        Optional<Cookie> token = Arrays.stream(req.getCookies())
-                .filter(cookie -> cookie.getName().equals("TOKEN")).findFirst();
+        Cookie[] cookies = req.getCookies();
+        if (cookies == null)
+            return anonymous;
+            Optional<Cookie> token = Arrays.stream(cookies)
+                    .filter(cookie -> cookie.getName().equals("TOKEN")).findFirst();
         if (!token.isPresent())
             return anonymous;
         Integer userId = getSecurityRepository().getByToken(token.get().getValue());

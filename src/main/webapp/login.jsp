@@ -17,9 +17,9 @@
         left: 45%;
     }
     #loggedUser {
-        position: static;
-        top: 0px;
+        position: absolute;
         right: 0px;
+        top:0px;
         background: gainsboro;
     }
 </style>
