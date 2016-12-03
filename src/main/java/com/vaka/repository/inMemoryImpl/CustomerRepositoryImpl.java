@@ -5,6 +5,7 @@ import com.vaka.domain.User;
 import com.vaka.repository.CustomerRepository;
 import com.vaka.util.ApplicationContext;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,6 +21,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     @Override
     public User create(User entity) {
         entity.setId(idCounter.getAndIncrement());
+        entity.setCreatedDate(LocalDateTime.now());
         customerById.put(entity.getId(), entity);
         return entity;
     }

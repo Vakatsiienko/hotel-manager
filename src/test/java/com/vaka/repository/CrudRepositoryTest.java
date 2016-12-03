@@ -14,7 +14,7 @@ import org.junit.Test;
 public abstract class CrudRepositoryTest<Entity extends BaseEntity> {
 
     @BeforeClass
-    private void init(){
+    public static void init(){
         ApplicationContext.init();
     }
     @Test

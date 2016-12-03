@@ -4,6 +4,7 @@ import com.vaka.domain.Bill;
 import com.vaka.repository.BillRepository;
 import com.vaka.util.ApplicationContext;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,6 +20,7 @@ public class BillRepositoryImpl implements BillRepository {
     @Override
     public Bill create(Bill entity) {
         entity.setId(idCounter.getAndIncrement());
+        entity.setCreatedDate(LocalDateTime.now());
         billById.put(entity.getId(), entity);
         return entity;
     }

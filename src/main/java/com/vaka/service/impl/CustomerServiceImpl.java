@@ -21,7 +21,7 @@ public class CustomerServiceImpl implements CustomerService {
         if (getCustomerRepository().getByEmail(entity.getEmail()) != null) {
             throw new CreatingException("User with such email already exist.");
         }
-        entity.setPassword(Base64.getEncoder().encode(String.join(":", entity.getEmail(), entity.getPassword()).getBytes()).toString());
+        entity.setPassword(Base64.getEncoder().encodeToString(String.join(":", entity.getEmail(), entity.getPassword()).getBytes()));
         return getCustomerRepository().create(entity);
     }
 
@@ -33,13 +33,13 @@ public class CustomerServiceImpl implements CustomerService {
             registered.setName(user.getName());
             //update password if user contains it
             if (user.getPassword() != null)
-                registered.setPassword(Base64.getEncoder().encode(String.join(":", registered.getEmail(), registered.getPassword()).getBytes()).toString());
+                registered.setPassword(Base64.getEncoder().encodeToString(String.join(":", registered.getEmail(), registered.getPassword()).getBytes()));
             return getCustomerRepository().update(registered.getId(), registered);
         } else {
-            user.setPassword(Base64.getEncoder().encode(String.join(":", user.getEmail(), user.getPassword()).getBytes()).toString());
+            user.setPassword(Base64.getEncoder().encodeToString(String.join(":", user.getEmail(), user.getPassword()).getBytes()));
             return getCustomerRepository().create(user);
         }
-    }
+    }//TODO split changing password to separate methods
 
 
     @Override

@@ -2,7 +2,9 @@ package com.vaka.util;
 
 import com.vaka.config.ApplicationContextConfig;
 import com.vaka.util.exception.ApplicationContextInitException;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Initializing in UserServlet
  * Created by Iaroslav on 11/24/2016.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApplicationContext {
 
     private static Map<Class<?>, Object> beanByInterface;
@@ -26,10 +29,6 @@ public class ApplicationContext {
         beanByInterface = new ConcurrentHashMap<>();
         contextConfig = new ApplicationContextConfig();
         idCounter = new AtomicInteger(0);
-    }
-
-    private ApplicationContext() {
-
     }
 
     public static void init() {

@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Bill extends BaseEntity {
-    private User owner;
     private Reservation reservation;
+    private Integer totalCost;
     private boolean paid;
 }

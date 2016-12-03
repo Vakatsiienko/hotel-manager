@@ -1,6 +1,8 @@
 package com.vaka.util;
 
 import com.vaka.domain.*;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -8,9 +10,8 @@ import java.time.LocalDate;
 /**
  * Created by Iaroslav on 11/26/2016.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ServletDomainExtractor {
-    private ServletDomainExtractor() {
-    }
 
     public static Reservation extractReservation(HttpServletRequest req) {
         Reservation reservation = new Reservation();
@@ -37,8 +38,8 @@ public class ServletDomainExtractor {
     //TODO move to other "factory" class
     public static Bill createFromReservation(Reservation reservation) {
         Bill bill = new Bill();
-        bill.setOwner(reservation.getUser());
         bill.setReservation(reservation);
+        bill.setTotalCost((int) (reservation.getRoom().getCostPerDay() * (reservation.getDepartureDate().toEpochDay() - reservation.getArrivalDate().toEpochDay())));
         return bill;
     }
 }

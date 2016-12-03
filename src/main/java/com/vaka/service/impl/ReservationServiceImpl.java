@@ -41,7 +41,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         if (room == null || request == null)
             throw new NotFoundException(String.format("Not found room or request by given id, founded room: %s, request: %s", room, request));
-        boolean datesOverlap = reservationRepository.findByRoomId(roomId).stream().filter(//TODO get boolean from bd, existsByRoomIdAndDates()
+        boolean datesOverlap = reservationRepository.findConfirmedByRoomId(roomId).stream().filter(//TODO get boolean from bd, existsByRoomIdAndDates()
                 reservation -> DateUtil.areDatesOverlap(reservation.getArrivalDate(),
                         reservation.getDepartureDate(), request.getArrivalDate(), request.getDepartureDate())
         ).count() > 0;
