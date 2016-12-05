@@ -1,15 +1,20 @@
 package com.vaka;
 
 import com.vaka.domain.*;
-import com.vaka.repository.CustomerRepository;
+import com.vaka.repository.BillRepository;
+import com.vaka.repository.UserRepository;
 import com.vaka.repository.ReservationRepository;
 import com.vaka.repository.RoomRepository;
-import com.vaka.util.ApplicationContext;
-import com.vaka.util.ServletDomainExtractor;
+import com.vaka.context.ApplicationContext;
+import com.vaka.util.DomainExtractor;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Random;
 
@@ -18,14 +23,18 @@ import java.util.Random;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EntityProviderUtil {
-    private static ReservationRepository reservationRepository = ApplicationContext.getBean(ReservationRepository.class);
-    private static CustomerRepository customerRepository = ApplicationContext.getBean(CustomerRepository.class);
-    private static RoomRepository roomRepository = ApplicationContext.getBean(RoomRepository.class);
+    private static ReservationRepository reservationRepository = ApplicationContext.getInstance().getBean(ReservationRepository.class);
+    private static UserRepository userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
+    private static RoomRepository roomRepository = ApplicationContext.getInstance().getBean(RoomRepository.class);
+    private static BillRepository billRepository = ApplicationContext.getInstance().getBean(BillRepository.class);
     private static Random random = new Random();
 
 
     public static Room createRoom(){
         Room room = new Room();
+        Timestamp timestamp = Timestamp.from(Instant.now());
+        timestamp.setNanos(0);
+        room.setCreatedDatetime(timestamp.toLocalDateTime());
         room.setCapacity(4);
         room.setCostPerDay(200);
         room.setDescription("Description");
@@ -34,8 +43,13 @@ public class EntityProviderUtil {
         return room;
     }
 
-    public static Reservation createReservation(){
+
+    public static Reservation createReservationWithoutRoom(){
         Reservation reservation = new Reservation();
+        Timestamp timestamp = Timestamp.from(Instant.now());
+        timestamp.setNanos(0);;
+        reservation.setCreatedDatetime(timestamp.toLocalDateTime());
+
         int arrivalYear = random.nextInt(2017) + 1;
         int arrivalMonth = random.nextInt(12) + 1;
         int arrivalDay = random.nextInt(25) + 1;
@@ -44,15 +58,19 @@ public class EntityProviderUtil {
                 arrivalMonth + random.nextInt(13 - arrivalMonth), arrivalDay + random.nextInt(26 - arrivalDay)));
         reservation.setRequestedRoomClass(RoomClass.FIRST_CLASS);
         reservation.setGuests(random.nextInt(10));
-        reservation.setUser(customerRepository.create(new User("email@mail.m", "password", "name", Role.CUSTOMER, "+30987654321")));
+        reservation.setUser(userRepository.create(createUser()));
         reservation.setStatus(ReservationStatus.REQUESTED);
         return reservation;
     }
 
     public static User createUser() {
         User user = new User();
+        Random random = new Random();
+        Timestamp timestamp = Timestamp.from(Instant.now());
+        timestamp.setNanos(0);
+        user.setCreatedDatetime(timestamp.toLocalDateTime());
         user.setName("name");
-        user.setEmail("email@mail");
+        user.setEmail(random.nextInt(100000) + "goodmanmen@gmail.com" + random.nextInt(100000));
         user.setPhoneNumber("+398641423");
         user.setRole(Role.CUSTOMER);
 
@@ -61,9 +79,16 @@ public class EntityProviderUtil {
     }
 
     public static Bill createBill() {
-        Reservation reservation = createReservation();
-        Room room = createRoom();
-        reservation.setRoom(room);
-        return ServletDomainExtractor.createFromReservation(reservation);
+        Reservation reservation = createReservationWithoutRoom();
+        reservation = reservationRepository.create(reservation);
+        reservation.setRoom(roomRepository.create(createRoom()));
+        reservationRepository.update(reservation.getId(), reservation);
+        Bill bill = DomainExtractor.createBillFromReservation(reservation);
+        Timestamp timestamp = Timestamp.from(Instant.now());
+        timestamp.setNanos(0);
+
+        bill.setCreatedDatetime(timestamp.toLocalDateTime());
+        bill.setPaid(true);
+        return bill;
     }
 }

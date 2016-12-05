@@ -3,6 +3,7 @@ package com.vaka.repository.inMemoryImpl;
 import com.vaka.repository.SecurityRepository;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -23,7 +24,9 @@ public class SecurityRepositoryImpl implements SecurityRepository {
     }
 
     @Override
-    public Integer getByToken(String token) {
-        return userIdByToken.get(token);
+    public Optional<Integer> getByToken(String token) {
+        if (userIdByToken.containsKey(token))
+            return Optional.of(userIdByToken.get(token));
+        else return Optional.empty();
     }
 }

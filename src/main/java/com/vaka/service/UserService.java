@@ -6,8 +6,8 @@ import com.vaka.domain.User;
 /**
  * Created by Iaroslav on 12/1/2016.
  */
-public interface CustomerService extends CrudService<User> {
+public interface UserService extends CrudService<User> {
 
-    User createOrUpdate(User user);
+    User createOrUpdate(User loggedUser, User user);
 
 }

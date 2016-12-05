@@ -1,6 +1,8 @@
 package com.vaka.service;
 
 import com.vaka.domain.Reservation;
+import com.vaka.domain.ReservationStatus;
+import com.vaka.domain.User;
 
 import java.util.List;
 
@@ -9,9 +11,9 @@ import java.util.List;
  */
 public interface ReservationService extends CrudService<Reservation> {
 
-    Reservation applyRoomForReservation(Integer roomId, Integer requestId);
+    Reservation applyRoomForReservation(User loggedUser, Integer roomId, Integer requestId);
 
-    List<Reservation> findConfirmed();
+    List<Reservation> findByStatus(User loggedUser, ReservationStatus status);
 
-    List<Reservation> findRequested();
+//    List<Reservation> findRequested();
 }

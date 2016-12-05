@@ -1,17 +1,16 @@
 package com.vaka.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * Created by Iaroslav on 11/23/2016.
  */
 @Getter
 @Setter
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Bill extends BaseEntity {
     private Reservation reservation;
     private Integer totalCost;

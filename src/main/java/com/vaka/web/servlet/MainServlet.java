@@ -1,7 +1,8 @@
 package com.vaka.web.servlet;
 
-import com.vaka.util.ApplicationContext;
-import com.vaka.web.controller.AuthenticationController;
+import com.vaka.context.ApplicationContext;
+import com.vaka.context.config.ApplicationContextConfig;
+import com.vaka.context.config.PersistenceConfig;
 import com.vaka.web.controller.MainController;
 
 import javax.servlet.ServletException;
@@ -15,11 +16,13 @@ import java.io.IOException;
  */
 public class MainServlet extends HttpServlet {
     private MainController mainController;
+    private ApplicationContext applicationContext;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        ApplicationContext.init();
+        applicationContext = ApplicationContext.getInstance()
+                .init(new ApplicationContextConfig(), new PersistenceConfig());
     }
 
     @Override
@@ -35,7 +38,7 @@ public class MainServlet extends HttpServlet {
         if (mainController == null) {
             synchronized (this) {
                 if (mainController == null) {
-                    mainController = ApplicationContext.getBean(MainController.class);
+                    mainController = ApplicationContext.getInstance().getBean(MainController.class);
                 }
             }
         }

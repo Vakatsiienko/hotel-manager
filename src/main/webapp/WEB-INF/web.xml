@@ -11,27 +11,27 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>RoomServlet</servlet-name>
-        <url-pattern>/rooms*</url-pattern>
+        <url-pattern>/rooms/*</url-pattern>
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>userServlet</servlet-name>
+        <servlet-name>UserServlet</servlet-name>
         <servlet-class>com.vaka.web.servlet.UserServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>userServlet</servlet-name>
-        <url-pattern>/users*</url-pattern>
+        <servlet-name>UserServlet</servlet-name>
+        <url-pattern>/users/*</url-pattern>
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>billServlet</servlet-name>
+        <servlet-name>BillServlet</servlet-name>
         <servlet-class>com.vaka.web.servlet.BillServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>billServlet</servlet-name>
-        <url-pattern>/bill*</url-pattern>
+        <servlet-name>BillServlet</servlet-name>
+        <url-pattern>/bill/*</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -51,15 +51,6 @@
     <servlet-mapping>
         <servlet-name>ReservationServlet</servlet-name>
         <url-pattern>/reservations/*</url-pattern>
-    </servlet-mapping>
-    <servlet>
-        <servlet-name>AuthenticationServlet</servlet-name>
-        <servlet-class>com.vaka.web.servlet.AuthenticationServlet</servlet-class>
-        <load-on-startup>0</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>AuthenticationServlet</servlet-name>
-        <url-pattern>/signin*</url-pattern>
     </servlet-mapping>
 
 </web-app>

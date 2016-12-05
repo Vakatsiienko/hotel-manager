@@ -1,6 +1,6 @@
 package com.vaka.web.servlet;
 
-import com.vaka.util.ApplicationContext;
+import com.vaka.context.ApplicationContext;
 import com.vaka.web.controller.ReservationController;
 
 import javax.servlet.ServletException;
@@ -48,7 +48,7 @@ public class ReservationServlet extends HttpServlet {
         if (reservationController == null)
             synchronized (this) {
                 if (reservationController == null) {
-                    reservationController = ApplicationContext.getBean(ReservationController.class);
+                    reservationController = ApplicationContext.getInstance().getBean(ReservationController.class);
                 }
             }
         return reservationController;

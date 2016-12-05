@@ -2,6 +2,8 @@ package com.vaka.repository;
 
 import com.vaka.domain.BaseEntity;
 
+import java.util.Optional;
+
 /**
  * Created by Iaroslav on 11/24/2016.
  */
@@ -9,10 +11,10 @@ public interface CrudRepository<T extends BaseEntity> {
 
     T create(T entity);
 
-    T getById(Integer id);
+    Optional<T> getById(Integer id);
 
     boolean delete(Integer id);
 
-    T update(Integer id, T entity);
+    boolean update(Integer id, T entity);
 
 }

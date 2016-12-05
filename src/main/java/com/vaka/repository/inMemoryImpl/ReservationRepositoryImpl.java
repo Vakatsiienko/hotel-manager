@@ -1,15 +1,14 @@
 package com.vaka.repository.inMemoryImpl;
 
 import com.vaka.domain.*;
-import com.vaka.repository.CustomerRepository;
+import com.vaka.repository.UserRepository;
 import com.vaka.repository.ReservationRepository;
-import com.vaka.util.ApplicationContext;
+import com.vaka.context.ApplicationContext;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -19,8 +18,8 @@ import java.util.stream.Collectors;
  */
 public class ReservationRepositoryImpl implements ReservationRepository {
     private Map<Integer, Reservation> reservationById = new ConcurrentHashMap<>();
-    private AtomicInteger idCounter = ApplicationContext.getIdCounter();
-    private CustomerRepository customerRepository;
+    private AtomicInteger idCounter = ApplicationContext.getInstance().getIdCounter();
+    private UserRepository userRepository;
 
 //    {
 //        Random random = new Random();
@@ -36,7 +35,7 @@ public class ReservationRepositoryImpl implements ReservationRepository {
 //            reservation.setArrivalDate(LocalDate.of(2017, arrivalMonth, arrivalDay));
 //            reservation.setDepartureDate(LocalDate.of(2017, random.nextInt(13 - arrivalMonth) + arrivalMonth,
 //                    random.nextInt(26 - arrivalDay) + arrivalDay));
-//            reservation.setCreatedDate(LocalDateTime.now());
+//            reservation.setCreatedDatetime(LocalDateTime.now());
 //            reservationById.put(reservation.getId(), reservation);
 //        }
 //        Reservation reservation1 = new Reservation();
@@ -52,7 +51,7 @@ public class ReservationRepositoryImpl implements ReservationRepository {
 //        reservation1.setArrivalDate(LocalDate.of(2017, arrivalMonth, arrivalDay));
 //        reservation1.setDepartureDate(LocalDate.of(2017, departureMonth = random.nextInt(13 - arrivalMonth) + arrivalMonth,
 //                departureDay = random.nextInt(26 - arrivalDay) + arrivalDay));
-//        reservation1.setCreatedDate(LocalDateTime.now());
+//        reservation1.setCreatedDatetime(LocalDateTime.now());
 //        reservationById.put(reservation1.getId(), reservation1);
 //        Reservation reservation2 = new Reservation();
 //        reservation2.setRequestedRoomClass(RoomClass.FIRST_CLASS);
@@ -64,7 +63,7 @@ public class ReservationRepositoryImpl implements ReservationRepository {
 //        arrivalDay = random.nextInt(25) + 1;
 //        reservation2.setArrivalDate(LocalDate.of(2017, arrivalMonth, arrivalDay));
 //        reservation2.setDepartureDate(LocalDate.of(2017, departureMonth, departureDay));
-//        reservation2.setCreatedDate(LocalDateTime.now());
+//        reservation2.setCreatedDatetime(LocalDateTime.now());
 //        reservationById.put(reservation2.getId(), reservation2);
 //
 //    }
@@ -72,36 +71,40 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     @Override
     public Reservation create(Reservation entity) {
         entity.setId(idCounter.getAndIncrement());
-        entity.setCreatedDate(LocalDateTime.now());
+        entity.setCreatedDatetime(LocalDateTime.now());
         reservationById.put(entity.getId(), entity);
         return entity;
     }
+//
+//    @Override
+//    public List<Reservation> findRequested() {
+//        return reservationById.values().stream().filter(r -> r.getStatus() == ReservationStatus.REQUESTED).collect(Collectors.toList());
+//    }
+//
+//    @Override
+//    public List<Reservation> findByStatus() {
+//        return reservationById.values().stream().filter(r -> r.getStatus() == ReservationStatus.CONFIRMED).collect(Collectors.toList());
+//    }
+//
+//    @Override
+//    public List<Reservation> findRejected() {
+//        return reservationById.values().stream().filter(r -> r.getStatus() == ReservationStatus.REJECTED).collect(Collectors.toList());
+//    }
 
     @Override
-    public List<Reservation> findRequested() {
-        return reservationById.values().stream().filter(r -> r.getStatus() == ReservationStatus.REQUESTED).collect(Collectors.toList());
+    public List<Reservation> findByStatus(ReservationStatus status) {
+        return reservationById.values().stream().filter(r -> r.getStatus() == status).collect(Collectors.toList());
     }
-
     @Override
-    public List<Reservation> findConfirmed() {
-        return reservationById.values().stream().filter(r -> r.getStatus() == ReservationStatus.CONFIRMED).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Reservation> findRejected() {
-        return reservationById.values().stream().filter(r -> r.getStatus() == ReservationStatus.REJECTED).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Reservation> findConfirmedByRoomId(Integer roomId) {
+    public List<Reservation> findByRoomIdAndStatus(Integer roomId, ReservationStatus status) {
         return reservationById.values().stream()
                 .filter(r -> r.getStatus() == ReservationStatus.CONFIRMED && r.getRoom().getId().equals(roomId))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Reservation getById(Integer id) {
-        return reservationById.get(id);
+    public Optional<Reservation> getById(Integer id) {
+        return Optional.of(reservationById.get(id));
     }
 
     @Override
@@ -110,20 +113,22 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     }
 
     @Override
-    public Reservation update(Integer id, Reservation entity) {
+    public boolean update(Integer id, Reservation entity) {
         entity.setId(id);
-        reservationById.put(id, entity);
-        return entity;
+        if (reservationById.containsKey(id)) {
+            reservationById.put(id, entity);
+            return true;
+        } else return false;
     }
 
-    public CustomerRepository getCustomerRepository() {
-        if (customerRepository == null) {
+    public UserRepository getUserRepository() {
+        if (userRepository == null) {
             synchronized (this) {
-                if (customerRepository == null) {
-                    customerRepository = ApplicationContext.getBean(CustomerRepository.class);
+                if (userRepository == null) {
+                    userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
                 }
             }
         }
-        return customerRepository;
+        return userRepository;
     }
 }

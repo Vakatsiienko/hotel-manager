@@ -1,11 +1,14 @@
 package com.vaka.repository.inMemoryImpl;
 
+import com.vaka.context.ApplicationContext;
 import com.vaka.domain.Bill;
+import com.vaka.domain.Reservation;
 import com.vaka.repository.BillRepository;
-import com.vaka.util.ApplicationContext;
+import com.vaka.repository.ReservationRepository;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,19 +18,29 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class BillRepositoryImpl implements BillRepository {
     private Map<Integer, Bill> billById = new ConcurrentHashMap<>();
-    private AtomicInteger idCounter = ApplicationContext.getIdCounter();
+    private AtomicInteger idCounter = ApplicationContext.getInstance().getIdCounter();
+    private ReservationRepository reservationRepository;
+
 
     @Override
     public Bill create(Bill entity) {
         entity.setId(idCounter.getAndIncrement());
-        entity.setCreatedDate(LocalDateTime.now());
+        entity.setCreatedDatetime(LocalDateTime.now());
         billById.put(entity.getId(), entity);
         return entity;
     }
 
     @Override
-    public Bill getById(Integer id) {
-        return billById.get(id);
+    public Optional<Bill> getByReservationId(Integer id) {
+        Optional<Reservation> reservation = getReservationRepository().getById(id);
+        if (!reservation.isPresent())
+            return null;
+        return billById.values().stream().filter(b -> b.getReservation().getId().equals(id)).findFirst();
+    }
+
+    @Override
+    public Optional<Bill> getById(Integer id) {
+        return Optional.of(billById.get(id));
     }
 
     @Override
@@ -36,9 +49,22 @@ public class BillRepositoryImpl implements BillRepository {
     }
 
     @Override
-    public Bill update(Integer id, Bill entity) {
+    public boolean update(Integer id, Bill entity) {
         entity.setId(id);
-        billById.put(id, entity);
-        return entity;
+        if (billById.containsKey(id)) {
+            billById.put(id, entity);
+            return true;
+        } else return false;
+    }
+
+    public ReservationRepository getReservationRepository() {
+        if (reservationRepository == null) {
+            synchronized (this) {
+                if (reservationRepository == null) {
+                    reservationRepository = ApplicationContext.getInstance().getBean(ReservationRepository.class);
+                }
+            }
+        }
+        return reservationRepository;
     }
 }

@@ -1,8 +1,12 @@
-package com.vaka.config;
+package com.vaka.context.config;
 
 
 import com.vaka.repository.*;
 import com.vaka.repository.inMemoryImpl.*;
+import com.vaka.repository.jdbcImpl.BillRepositoryJdbcImpl;
+import com.vaka.repository.jdbcImpl.ReservationRepositoryJdbcImpl;
+import com.vaka.repository.jdbcImpl.RoomRepositoryJdbcImpl;
+import com.vaka.repository.jdbcImpl.UserRepositoryJdbcImpl;
 import com.vaka.service.*;
 import com.vaka.service.impl.*;
 import com.vaka.web.controller.*;
@@ -25,22 +29,21 @@ public class ApplicationContextConfig {
         implClassByBeanName.put(BillController.class, BillController.class);
         implClassByBeanName.put(UserController.class, UserController.class);
         implClassByBeanName.put(ReservationController.class, ReservationController.class);
-        implClassByBeanName.put(AuthenticationController.class, AuthenticationController.class);
         implClassByBeanName.put(MainController.class, MainController.class);
 
         //Services
         implClassByBeanName.put(RoomService.class, RoomServiceImpl.class);
         implClassByBeanName.put(BillService.class, BillServiceImpl.class);
-        implClassByBeanName.put(CustomerService.class, CustomerServiceImpl.class);
+        implClassByBeanName.put(UserService.class, UserServiceImpl.class);
         implClassByBeanName.put(SecurityService.class, SecurityServiceImpl.class);
         implClassByBeanName.put(ReservationService.class, ReservationServiceImpl.class);
 
         //Repository
-        implClassByBeanName.put(RoomRepository.class, RoomRepositoryImpl.class);
-        implClassByBeanName.put(BillRepository.class, BillRepositoryImpl.class);
-        implClassByBeanName.put(CustomerRepository.class, CustomerRepositoryImpl.class);
+        implClassByBeanName.put(RoomRepository.class, RoomRepositoryJdbcImpl.class);
+        implClassByBeanName.put(BillRepository.class, BillRepositoryJdbcImpl.class);
+        implClassByBeanName.put(UserRepository.class, UserRepositoryJdbcImpl.class);
         implClassByBeanName.put(SecurityRepository.class, SecurityRepositoryImpl.class);
-        implClassByBeanName.put(ReservationRepository.class, ReservationRepositoryImpl.class);
+        implClassByBeanName.put(ReservationRepository.class, ReservationRepositoryJdbcImpl.class);
 
         //Other
     }

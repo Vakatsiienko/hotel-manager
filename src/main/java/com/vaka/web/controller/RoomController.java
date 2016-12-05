@@ -3,12 +3,7 @@ package com.vaka.web.controller;
 import com.vaka.service.ReservationService;
 import com.vaka.service.RoomService;
 import com.vaka.service.SecurityService;
-import com.vaka.util.ApplicationContext;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import com.vaka.context.ApplicationContext;
 
 /**
  * Created by Iaroslav on 11/25/2016.
@@ -22,7 +17,7 @@ public class RoomController {
         if (securityService == null) {
             synchronized (this) {
                 if (securityService == null) {
-                    securityService = ApplicationContext.getBean(SecurityService.class);
+                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
                 }
             }
         }
@@ -33,7 +28,7 @@ public class RoomController {
         if (roomService == null)
             synchronized (this){
                 if (roomService == null) {
-                    roomService = ApplicationContext.getBean(RoomService.class);
+                    roomService = ApplicationContext.getInstance().getBean(RoomService.class);
                 }
             }
         return roomService;
@@ -43,7 +38,7 @@ public class RoomController {
         if (reservationService == null) {
             synchronized (this) {
                 if (reservationService == null) {
-                    reservationService = ApplicationContext.getBean(ReservationService.class);
+                    reservationService = ApplicationContext.getInstance().getBean(ReservationService.class);
                 }
             }
         }

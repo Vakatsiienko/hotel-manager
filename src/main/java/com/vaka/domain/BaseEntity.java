@@ -4,6 +4,7 @@ package com.vaka.domain;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * Created by Iaroslav on 11/23/2016.
@@ -11,15 +12,29 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
+@ToString
+//@EqualsAndHashCode(exclude = "createdDatetime") //mysql timestamp problem
 @NoArgsConstructor
 @AllArgsConstructor
 public abstract class BaseEntity {
     private Integer id;
 
-    private LocalDateTime createdDate;
+    private LocalDateTime createdDatetime;
 
     public boolean isNew() {
         return id == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseEntity that = (BaseEntity) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, createdDatetime);
     }
 }

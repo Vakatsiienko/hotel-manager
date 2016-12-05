@@ -1,6 +1,7 @@
 package com.vaka.repository;
 
 import com.vaka.domain.Reservation;
+import com.vaka.domain.ReservationStatus;
 
 import java.util.List;
 
@@ -9,12 +10,13 @@ import java.util.List;
  */
 public interface ReservationRepository extends CrudRepository<Reservation> {
 
-    List<Reservation> findConfirmedByRoomId(Integer roomId);
+    List<Reservation> findByRoomIdAndStatus(Integer roomId, ReservationStatus status);
 
-    List<Reservation> findConfirmed();
-
-    List<Reservation> findRequested();
-
-    List<Reservation> findRejected();
+    //    List<Reservation> findByStatus();
+//
+//    List<Reservation> findRequested();
+//
+//    List<Reservation> findRejected();
+    List<Reservation> findByStatus(ReservationStatus status);
 
 }

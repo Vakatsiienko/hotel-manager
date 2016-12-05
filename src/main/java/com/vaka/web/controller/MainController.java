@@ -3,7 +3,7 @@ package com.vaka.web.controller;
 import com.vaka.domain.RoomClass;
 import com.vaka.domain.User;
 import com.vaka.service.SecurityService;
-import com.vaka.util.ApplicationContext;
+import com.vaka.context.ApplicationContext;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +28,7 @@ public class MainController {
         if (securityService == null) {
             synchronized (this) {
                 if (securityService == null) {
-                    securityService = ApplicationContext.getBean(SecurityService.class);
+                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
                 }
             }
         }

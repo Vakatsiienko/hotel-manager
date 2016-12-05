@@ -2,10 +2,10 @@ package com.vaka.service.impl;
 
 import com.vaka.domain.Role;
 import com.vaka.domain.User;
-import com.vaka.repository.CustomerRepository;
+import com.vaka.repository.UserRepository;
 import com.vaka.repository.SecurityRepository;
 import com.vaka.service.SecurityService;
-import com.vaka.util.ApplicationContext;
+import com.vaka.context.ApplicationContext;
 import com.vaka.util.exception.AuthenticateException;
 import com.vaka.util.exception.AuthorizationException;
 
@@ -22,15 +22,14 @@ import java.util.UUID;
  */
 public class SecurityServiceImpl implements SecurityService {
     private SecurityRepository securityRepository;
-    private CustomerRepository customerRepository;
+    private UserRepository userRepository;
     private User anonymous = new User();
 
     {
         anonymous.setRole(Role.ANONYMOUS);
     }
 
-    @Override
-    public void createToken(HttpServletRequest req, HttpServletResponse resp, User loggedUser) throws AuthenticateException {
+    private void createToken(HttpServletRequest req, HttpServletResponse resp, User loggedUser) throws AuthenticateException {
         String token = UUID.randomUUID().toString();
         getSecurityRepository().create(token, loggedUser.getId());
         Cookie cookie = new Cookie("TOKEN", token);
@@ -38,16 +37,21 @@ public class SecurityServiceImpl implements SecurityService {
         resp.addCookie(cookie);
     }
 
-    @Override
-    public User checkCredentials(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticateException{
-        User user = getCustomerRepository().getByEmail(email);
+    private User checkCredentials(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticateException{
+        Optional<User> user = getUserRepository().getByEmail(email);
         password = Base64.getEncoder().encodeToString(String.join(":", email, password).getBytes());
 
-        if ((user == null) || (!user.getPassword().equals(password))) {
+        if (!user.isPresent() || (!user.get().getPassword().equals(password))) {
             req.setAttribute("exception", "Login or/and password are incorrect");
             throw new AuthenticateException("Login or/and password are incorrect");
         }
-        return user;
+        return  user.get();
+    }
+
+    @Override
+    public void signIn(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticateException{
+        User user = checkCredentials(req, resp, email, password);
+        createToken(req, resp, user);
     }
 
     @Override
@@ -59,12 +63,19 @@ public class SecurityServiceImpl implements SecurityService {
                     .filter(cookie -> cookie.getName().equals("TOKEN")).findFirst();
         if (!token.isPresent())
             return anonymous;
-        Integer userId = getSecurityRepository().getByToken(token.get().getValue());
-        User user = getCustomerRepository().getById(userId);
-        if (user != null)
-            return user;
+        Optional<Integer> userId = getSecurityRepository().getByToken(token.get().getValue());
+        if (userId.isPresent()) {
+            Optional<User> user = getUserRepository().getById(userId.get());
+            if (user.isPresent())
+                return erazeCredentials(user.get());
+        }
         token.get().setMaxAge(0);
         return anonymous;
+    }
+
+    private User erazeCredentials(User user) {
+        user.setPassword("");
+        return user;
     }
 
     @Override
@@ -75,29 +86,37 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public void logout(HttpServletRequest req, HttpServletResponse resp, String token) {
-        getSecurityRepository().delete(token);
+    public void logout(HttpServletRequest req, HttpServletResponse resp, User loggedUser) {
+        Cookie[] cookies = req.getCookies();
+        String userToken = "";
+        for (Cookie cookie : cookies)
+            if (cookie.getName().equals("TOKEN")) userToken = cookie.getValue();
+        getSecurityRepository().delete(userToken);
+        Cookie cookie = new Cookie("TOKEN", "deleted");
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        resp.addCookie(cookie);
     }
 
     public SecurityRepository getSecurityRepository() {
         if (securityRepository == null) {
             synchronized (this) {
                 if (securityRepository == null) {
-                    securityRepository = ApplicationContext.getBean(SecurityRepository.class);
+                    securityRepository = ApplicationContext.getInstance().getBean(SecurityRepository.class);
                 }
             }
         }
         return securityRepository;
     }
 
-    public CustomerRepository getCustomerRepository() {
-        if (customerRepository == null) {
+    public UserRepository getUserRepository() {
+        if (userRepository == null) {
             synchronized (this) {
-                if (customerRepository == null) {
-                    customerRepository = ApplicationContext.getBean(CustomerRepository.class);
+                if (userRepository == null) {
+                    userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
                 }
             }
         }
-        return customerRepository;
+        return userRepository;
     }
 }

@@ -41,7 +41,8 @@
 <span id="loggedUser">${loggedUser.name} <a href="/signin/logout">logout</a></span>
 <a href="/">/ (request reservation)</a> <br>
 <a href="/reservations/confirmed">/confirmed</a> <br>
-<a href="/login">/login</a> <br>
+<a href="/users/signin">/signin</a> <br>
+<a href="/users/signup">/signup</a> <br>
 <a href="/reservations/requested">/requests</a> <br>
 <div id="addForm">
     <form action="/reservations" method="post" id="createForm">

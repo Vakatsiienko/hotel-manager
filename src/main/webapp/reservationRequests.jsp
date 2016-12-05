@@ -56,7 +56,7 @@
             <th>${reservation.user.name}</th>
             <th>${reservation.guests}</th>
             <th>${reservation.requestedRoomClass}</th>
-            <th>${reservation.createdDate}</th>
+            <th>${reservation.createdDatetime}</th>
             <th>${reservation.status}</th>
             <th><a href="/reservations/process/${reservation.id}">Process</a><%--TODO add process request button--%>
             </th>

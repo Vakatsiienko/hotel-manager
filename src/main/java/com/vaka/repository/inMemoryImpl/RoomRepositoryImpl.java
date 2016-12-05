@@ -1,16 +1,18 @@
 package com.vaka.repository.inMemoryImpl;
 
+import com.vaka.domain.ReservationStatus;
 import com.vaka.domain.Room;
 import com.vaka.domain.RoomClass;
 import com.vaka.repository.ReservationRepository;
 import com.vaka.repository.RoomRepository;
-import com.vaka.util.ApplicationContext;
+import com.vaka.context.ApplicationContext;
 import com.vaka.util.DateUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -22,7 +24,8 @@ import java.util.stream.Stream;
 public class RoomRepositoryImpl implements RoomRepository {
     private ReservationRepository reservationRepository;
     private Map<Integer, Room> roomById = new ConcurrentHashMap<>();
-    private AtomicInteger idCounter = ApplicationContext.getIdCounter();
+    private AtomicInteger idCounter = ApplicationContext.getInstance().getIdCounter();
+
 
 //    {
 //        Random random = new Random();
@@ -37,7 +40,7 @@ public class RoomRepositoryImpl implements RoomRepository {
     public List<Room> findAvailableForReservation(RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate) {
         Stream<Room> rooms = roomById.values().stream()
                 .filter(r -> r.getRoomClazz() == roomClass &&
-                        !getReservationRepository().findConfirmedByRoomId(r.getId()).stream()
+                        !getReservationRepository().findByRoomIdAndStatus(r.getId(), ReservationStatus.CONFIRMED).stream()
                                 .filter(reservation -> !DateUtil.areDatesOverlap(
                                         reservation.getArrivalDate(), reservation.getDepartureDate(),
                                         arrivalDate, departureDate)
@@ -51,14 +54,14 @@ public class RoomRepositoryImpl implements RoomRepository {
     @Override
     public Room create(Room entity) {
         entity.setId(idCounter.getAndIncrement());
-        entity.setCreatedDate(LocalDateTime.now());
+        entity.setCreatedDatetime(LocalDateTime.now());
         roomById.put(entity.getId(), entity);
         return entity;
     }
 
     @Override
-    public Room getById(Integer id) {
-        return roomById.get(id);
+    public Optional<Room> getById(Integer id) {
+        return Optional.of(roomById.get(id));
     }
 
     @Override
@@ -67,17 +70,19 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
-    public Room update(Integer id, Room entity) {
+    public boolean update(Integer id, Room entity) {
         entity.setId(id);
-        roomById.put(id, entity);
-        return entity;
+        if (roomById.containsKey(id)) {
+            roomById.put(id, entity);
+            return true;
+        } else return false;
     }
 
     public ReservationRepository getReservationRepository() {
         if (reservationRepository == null) {
             synchronized (this) {
                 if (reservationRepository == null) {
-                    reservationRepository = ApplicationContext.getBean(ReservationRepository.class);
+                    reservationRepository = ApplicationContext.getInstance().getBean(ReservationRepository.class);
                 }
             }
         }

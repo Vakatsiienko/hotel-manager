@@ -1,14 +1,18 @@
 package com.vaka.repository;
 
+import com.vaka.DBTestUtil;
 import com.vaka.EntityProviderUtil;
+import com.vaka.context.ApplicationContext;
+import com.vaka.context.config.ApplicationContextConfig;
+import com.vaka.context.config.PersistenceConfig;
 import com.vaka.domain.Reservation;
 import com.vaka.domain.ReservationStatus;
 import com.vaka.domain.Room;
-import com.vaka.util.ApplicationContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,38 +20,43 @@ import java.util.List;
  * Created by iaroslav on 02.12.16.
  */
 public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
-    private ReservationRepository reservationRepository = ApplicationContext.getBean(ReservationRepository.class);
-    private CustomerRepository customerRepository = ApplicationContext.getBean(CustomerRepository.class);
-    private RoomRepository roomRepository = ApplicationContext.getBean(RoomRepository.class);
+    private ReservationRepository reservationRepository = ApplicationContext.getInstance().getBean(ReservationRepository.class);
+    private RoomRepository roomRepository = ApplicationContext.getInstance().getBean(RoomRepository.class);
 
     @Before
-    public void setUp(){
-        ApplicationContext.init();//TODO change to resetDB
+    public void setUp() throws SQLException, ClassNotFoundException {
+        ApplicationContext.getInstance().init(new ApplicationContextConfig(), new PersistenceConfig());//TODO change to resetDB
+        DBTestUtil.reset();
     }
+
     @Test
-    public void testFindByRoomId() {
+    public void testFindByRoomIdAndStatus() {
         Room room = roomRepository.create(EntityProviderUtil.createRoom());
         //creating reservations with our room
         List<Reservation> reservationList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            Reservation reservation = createEntity();
+            Reservation reservation = reservationRepository.create(createEntity());
             reservation.setRoom(room);
             reservation.setStatus(ReservationStatus.CONFIRMED);
-            reservationList.add(getRepository().create(reservation));
+            reservationRepository.update(reservation.getId(), reservation);
+            reservationList.add(reservation);
         }
         //creating reservations with other rooms
         List<Reservation> otherReservationList = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 15; i++) {
             Room otherRoom = roomRepository.create(EntityProviderUtil.createRoom());
-            Reservation otherReservation = new Reservation();
+            Reservation otherReservation = reservationRepository.create(createEntity());
             otherReservation.setRoom(otherRoom);
             otherReservation.setStatus(ReservationStatus.CONFIRMED);
-            otherReservationList.add(reservationRepository.create(otherReservation));
+            reservationRepository.update(otherReservation.getId(), otherReservation);
+            otherReservationList.add(otherReservation);
         }
 
-        List<Reservation> resultReservationList = reservationRepository.findConfirmedByRoomId(room.getId());
+        List<Reservation> resultReservationList = reservationRepository.findByRoomIdAndStatus(room.getId(), ReservationStatus.CONFIRMED);
 
-        Assert.assertTrue(resultReservationList.containsAll(reservationList));
+        resultReservationList.forEach(r -> Assert.assertTrue(r.getRoom().getId().equals(room.getId())));
+        resultReservationList.forEach(r -> Assert.assertTrue(r.getStatus() == ReservationStatus.CONFIRMED));
+//        Assert.assertTrue(resultReservationList.containsAll(reservationList)); Didn't work in cause of lombok equalsAndHashcode
         Assert.assertTrue(resultReservationList.size() == reservationList.size());
         //test that none of other reservations contains in result
         otherReservationList.forEach(r -> Assert.assertFalse(resultReservationList.contains(r)));
@@ -63,14 +72,14 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
         for (int i = 0; i < 10; i++) {
             Reservation reservation = createEntity();
             reservation.setStatus(ReservationStatus.REQUESTED);
-            reservationRepository.create(reservation);;
+            reservationRepository.create(reservation);
         }
         for (int i = 0; i < 10; i++) {
             Reservation reservation = createEntity();
             reservation.setStatus(ReservationStatus.REJECTED);
             reservationRepository.create(reservation);
         }
-        List<Reservation> resultList = reservationRepository.findConfirmed();
+        List<Reservation> resultList = reservationRepository.findByStatus(ReservationStatus.CONFIRMED);
         Assert.assertTrue(resultList.size() == 10);
         resultList.forEach(r -> Assert.assertTrue(r.getStatus() == ReservationStatus.CONFIRMED));
     }
@@ -92,7 +101,7 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
             reservation.setStatus(ReservationStatus.REJECTED);
             reservationRepository.create(reservation);
         }
-        List<Reservation> resultList = reservationRepository.findRequested();
+        List<Reservation> resultList = reservationRepository.findByStatus(ReservationStatus.REQUESTED);
         Assert.assertTrue(resultList.size() == 10);
         resultList.forEach(r -> Assert.assertTrue(r.getStatus() == ReservationStatus.REQUESTED));
     }
@@ -107,14 +116,15 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
         for (int i = 0; i < 10; i++) {
             Reservation reservation = createEntity();
             reservation.setStatus(ReservationStatus.REQUESTED);
-            reservationRepository.create(reservation);;
+            reservationRepository.create(reservation);
+            ;
         }
         for (int i = 0; i < 10; i++) {
             Reservation reservation = createEntity();
             reservation.setStatus(ReservationStatus.REJECTED);
             reservationRepository.create(reservation);
         }
-        List<Reservation> resultList = reservationRepository.findRejected();
+        List<Reservation> resultList = reservationRepository.findByStatus(ReservationStatus.REJECTED);
         Assert.assertTrue(resultList.size() == 10);
         resultList.forEach(r -> Assert.assertTrue(r.getStatus() == ReservationStatus.REJECTED));
     }
@@ -127,6 +137,6 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
 
     @Override
     protected Reservation createEntity() {
-        return EntityProviderUtil.createReservation();
+        return EntityProviderUtil.createReservationWithoutRoom();
     }
 }

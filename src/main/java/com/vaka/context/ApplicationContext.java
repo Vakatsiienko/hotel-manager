@@ -1,11 +1,13 @@
-package com.vaka.util;
+package com.vaka.context;
 
-import com.vaka.config.ApplicationContextConfig;
+import com.vaka.context.config.ApplicationContextConfig;
+import com.vaka.context.config.PersistenceConfig;
 import com.vaka.util.exception.ApplicationContextInitException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.sql.DataSource;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,19 +21,13 @@ public class ApplicationContext {
 
     private static Map<Class<?>, Object> beanByInterface;
 
-//    private static ApplicationContext instance;
+    private static ApplicationContext instance;
 
     @Getter
-    private static AtomicInteger idCounter;
-    private static ApplicationContextConfig contextConfig;
+    private AtomicInteger idCounter = new AtomicInteger();
 
-    static {
+    public ApplicationContext init(ApplicationContextConfig contextConfig, PersistenceConfig persistenceConfig) {
         beanByInterface = new ConcurrentHashMap<>();
-        contextConfig = new ApplicationContextConfig();
-        idCounter = new AtomicInteger(0);
-    }
-
-    public static void init() {
         Map<Class<?>, Class<?>> classByBeanName = contextConfig.getImplClassByBeanName();
         classByBeanName.keySet().stream().forEach(k -> {
             try {
@@ -41,20 +37,22 @@ public class ApplicationContext {
                 throw new ApplicationContextInitException(e);
             }
         });
+        beanByInterface.put(DataSource.class, persistenceConfig.dataSource());
+        return this;
     }
 
-//    public static ApplicationContext getInstance() {
-//        if (instance == null) {
-//            synchronized (ApplicationContext.class) {
-//                if (instance == null)
-//                    instance = new ApplicationContext();
-//            }
-//        }
-//        return instance;
-//    }
+    public static ApplicationContext getInstance() {
+        if (instance == null) {
+            synchronized (ApplicationContext.class) {
+                if (instance == null)
+                    instance = new ApplicationContext();
+            }
+        }
+        return instance;
+    }
 
     @SuppressWarnings("unchecked")
-    public static <T> T getBean(Class<?> clazz) {
+    public <T> T getBean(Class<?> clazz) {
         return (T) beanByInterface.get(clazz);
     }
 }
