@@ -1,8 +1,6 @@
 package com.vaka.hotel_manager.web.servlet;
 
 import com.vaka.hotel_manager.context.ApplicationContext;
-import com.vaka.hotel_manager.context.config.ApplicationContextConfig;
-import com.vaka.hotel_manager.context.config.PersistenceConfig;
 import com.vaka.hotel_manager.web.controller.MainController;
 
 import javax.servlet.ServletException;
@@ -20,8 +18,7 @@ public class MainServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        ApplicationContext.getInstance()
-                .init(new ApplicationContextConfig(), new PersistenceConfig());
+//        getServletContext().addListener(new ContextInitializer());
     }
 
     @Override

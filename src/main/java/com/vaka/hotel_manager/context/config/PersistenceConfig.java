@@ -5,8 +5,7 @@ import com.vaka.hotel_manager.util.exception.CreatingException;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 import java.util.Properties;
 
@@ -15,31 +14,25 @@ import java.util.Properties;
  */
 public class PersistenceConfig {
 
-    private Properties properties(String fileName) {
-        Properties properties = new Properties();
-        try {
-            FileInputStream propsStream = new FileInputStream(fileName);
-            properties.load(propsStream);
-        } catch (IOException e) {
-            throw new CreatingException(e);
-        }
-        return properties;
+    private String[] sqlFileURLs;
+
+    public PersistenceConfig(String... sqlFileURLs) {
+        this.sqlFileURLs = sqlFileURLs;
     }
 
-    public javax.sql.DataSource dataSource() {
+    public javax.sql.DataSource dataSource() throws IOException {
         DataSource datasource = new DataSource();
         datasource.setPoolProperties(poolProperties());
         return datasource;
     }
 
-    public Map<String, String> queryByClassAndMethodName() {
-        String filename = "C:\\Users\\Iaroslav\\IdeaProjects\\hotel-manager\\src\\main\\resources\\repository.sql";
-        SqlParser sqlParser = new SqlParser(filename);
-        return sqlParser.createAndGetQueryByClassAndMethodName();
+    public Map<String, String> queryByClassAndMethodName() throws IOException {
+        return new SqlParser(sqlFileURLs).createAndGetQueryByClassAndMethodName();
     }
 
-    public PoolProperties poolProperties() {
-        Properties props = properties("C:\\Users\\Iaroslav\\IdeaProjects\\hotel-manager\\src\\main\\resources\\persistence.properties");
+    public PoolProperties poolProperties() throws IOException {
+        Properties props = new Properties();
+        props.load(getClass().getClassLoader().getResourceAsStream("persistence.properties"));
 
         PoolProperties p = new PoolProperties();
         p.setUrl(props.getProperty("dataSource.url"));

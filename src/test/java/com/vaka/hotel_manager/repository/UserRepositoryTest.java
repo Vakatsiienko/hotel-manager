@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -19,7 +20,7 @@ import java.util.Optional;
 public class UserRepositoryTest extends CrudRepositoryTest<User> {
     private UserRepository userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
     @Before
-    public void setUp() throws SQLException, ClassNotFoundException {
+    public void setUp() throws SQLException, ClassNotFoundException, IOException {
         ApplicationContext.getInstance().init(new ApplicationContextConfig(), new PersistenceConfig());
         DBTestUtil.reset();
     }

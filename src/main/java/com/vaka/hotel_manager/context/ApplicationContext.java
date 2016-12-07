@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,10 +30,10 @@ public class ApplicationContext {
     @Getter
     private AtomicInteger idCounter = new AtomicInteger();
 
-    public ApplicationContext init(ApplicationContextConfig contextConfig, PersistenceConfig persistenceConfig) {
+    public ApplicationContext init(ApplicationContextConfig contextConfig, PersistenceConfig persistenceConfig) throws IOException {
         beanByInterface = new ConcurrentHashMap<>();
         Map<Class<?>, Class<?>> classByBeanName = contextConfig.getImplClassByBeanName();
-        classByBeanName.keySet().stream().forEach(k -> {
+        classByBeanName.keySet().forEach(k -> {
             try {
                 Object bean = classByBeanName.get(k).getConstructor().newInstance();
                 beanByInterface.put(k, bean);

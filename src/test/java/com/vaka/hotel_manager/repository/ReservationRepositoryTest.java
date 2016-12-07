@@ -13,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
     private UserRepository userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
 
     @Before
-    public void setUp() throws SQLException, ClassNotFoundException {
+    public void setUp() throws SQLException, ClassNotFoundException, IOException {
         ApplicationContext.getInstance().init(new ApplicationContextConfig(), new PersistenceConfig());//TODO change to resetDB
         DBTestUtil.reset();
     }
