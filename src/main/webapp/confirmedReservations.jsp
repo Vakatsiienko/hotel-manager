@@ -1,5 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="com.hotel_manager" %>
+<%@ taglib prefix="fn" uri="com.vaka.hotel_manager" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -57,7 +57,7 @@
         <tbody>
         <c:forEach items="${reservationList}" var="reservation">
             <jsp:useBean id="reservation" scope="page"
-                         type="com.vaka.domain.Reservation"/>
+                         type="com.vaka.hotel_manager.domain.Reservation"/>
             <tr>
                 <th>${reservation.id}</th>
                 <th>${reservation.user.name}</th>

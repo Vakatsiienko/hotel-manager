@@ -6,7 +6,7 @@
 
     <servlet>
         <servlet-name>RoomServlet</servlet-name>
-        <servlet-class>com.vaka.web.servlet.RoomServlet</servlet-class>
+        <servlet-class>com.vaka.hotel_manager.web.servlet.RoomServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
     <servlet-mapping>
@@ -16,7 +16,7 @@
 
     <servlet>
         <servlet-name>UserServlet</servlet-name>
-        <servlet-class>com.vaka.web.servlet.UserServlet</servlet-class>
+        <servlet-class>com.vaka.hotel_manager.web.servlet.UserServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
     <servlet-mapping>
@@ -26,7 +26,7 @@
 
     <servlet>
         <servlet-name>BillServlet</servlet-name>
-        <servlet-class>com.vaka.web.servlet.BillServlet</servlet-class>
+        <servlet-class>com.vaka.hotel_manager.web.servlet.BillServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
     <servlet-mapping>
@@ -36,7 +36,7 @@
 
     <servlet>
         <servlet-name>MainServlet</servlet-name>
-        <servlet-class>com.vaka.web.servlet.MainServlet</servlet-class>
+        <servlet-class>com.vaka.hotel_manager.web.servlet.MainServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
     <servlet-mapping>
@@ -45,7 +45,7 @@
     </servlet-mapping>
     <servlet>
         <servlet-name>ReservationServlet</servlet-name>
-        <servlet-class>com.vaka.web.servlet.ReservationServlet</servlet-class>
+        <servlet-class>com.vaka.hotel_manager.web.servlet.ReservationServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
     <servlet-mapping>

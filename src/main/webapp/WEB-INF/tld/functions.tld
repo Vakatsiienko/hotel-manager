@@ -6,16 +6,16 @@
 
     <tlib-version>1.0</tlib-version>
     <short-name>functions</short-name>
-    <uri>com.hotel_manager</uri>
+    <uri>com.vaka.hotel_manager</uri>
 
     <function>
         <name>formatDateTime</name>
-        <function-class>com.vaka.util.DateAndTimeUtil</function-class>
+        <function-class>com.vaka.hotel_manager.util.DateAndTimeUtil</function-class>
         <function-signature>java.lang.String toString(java.time.LocalDateTime)</function-signature>
     </function>
     <function>
         <name>formatDate</name>
-        <function-class>com.vaka.util.DateAndTimeUtil</function-class>
+        <function-class>com.vaka.hotel_manager.util.DateAndTimeUtil</function-class>
         <function-signature>java.lang.String toString(java.time.LocalDate)</function-signature>
     </function>
 </taglib>

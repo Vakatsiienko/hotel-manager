@@ -1,5 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="com.hotel_manager" %>
+<%@ taglib prefix="fn" uri="com.vaka.hotel_manager" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -27,7 +27,7 @@
 </c:if>
 
 <jsp:useBean id="reservation" scope="request"
-             type="com.vaka.domain.Reservation"/>
+             type="com.vaka.hotel_manager.domain.Reservation"/>
 <c:choose>
     <c:when test="${reservation.status.name() == 'REQUESTED'}"><h3>Reservation is submitted and waiting for process</h3></c:when>
     <c:when test="${reservation.status.name()== 'CONFIRMED'}"><h3>Reservation is

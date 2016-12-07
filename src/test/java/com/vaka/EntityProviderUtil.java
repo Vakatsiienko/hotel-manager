@@ -1,12 +1,12 @@
 package com.vaka;
 
-import com.vaka.domain.*;
-import com.vaka.repository.BillRepository;
-import com.vaka.repository.UserRepository;
-import com.vaka.repository.ReservationRepository;
-import com.vaka.repository.RoomRepository;
-import com.vaka.context.ApplicationContext;
-import com.vaka.util.DomainFactory;
+import com.vaka.hotel_manager.domain.*;
+import com.vaka.hotel_manager.repository.BillRepository;
+import com.vaka.hotel_manager.repository.UserRepository;
+import com.vaka.hotel_manager.repository.ReservationRepository;
+import com.vaka.hotel_manager.repository.RoomRepository;
+import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.util.DomainFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

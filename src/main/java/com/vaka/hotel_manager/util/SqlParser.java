@@ -1,0 +1,63 @@
+package com.vaka.hotel_manager.util;
+
+import com.vaka.hotel_manager.util.exception.CreatingException;
+
+import java.io.*;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created by Iaroslav on 12/5/2016.
+ */
+public class SqlParser {
+    private String[] fileNames;
+    private Map<String, String> queryByClassAndMethodName = new HashMap<>();
+    private String classAndMethodName;
+    String query = "";
+    private boolean readyToNextQuery = true;
+    int count = 0;
+
+    public SqlParser(String... fileNames) {
+        this.fileNames = fileNames;
+    }
+
+    /**
+     * @return true if given line is last in the query and you may retrieve queryByClassAndMethodName Map
+     * @throws ParseException
+     */
+    public void applyString(String line) {
+        count++;
+        if (readyToNextQuery) {
+            if (line.startsWith("#")) {
+                classAndMethodName = line.substring(2);
+                readyToNextQuery = false;
+            } else
+                throw new CreatingException("Incoming lines are not in appropriate format, check line: " + count);
+        } else if (line.endsWith(";")) {
+            query = String.join(" ", query, line.substring(0, line.length() - 1));
+            queryByClassAndMethodName.put(classAndMethodName, query);
+            readyToNextQuery = true;
+            query = "";
+        } else {
+            query = String.join(" ", query, line);
+        }
+
+    }
+
+    public Map<String, String> createAndGetQueryByClassAndMethodName() {
+        Arrays.stream(fileNames).forEach(fileName -> {
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+                reader.lines().forEach(this::applyString);
+            } catch (FileNotFoundException ex) {
+                throw new CreatingException(ex);
+            }
+        });
+        if (readyToNextQuery)
+            return Collections.unmodifiableMap(queryByClassAndMethodName);
+        else throw new CreatingException("file isn't in appropriate format");
+    }
+}

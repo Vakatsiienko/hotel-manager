@@ -1,5 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="com.hotel_manager" %>
+<%@ taglib prefix="fn" uri="com.vaka.hotel_manager" %>
 
 <%--
   Created by IntelliJ IDEA.
@@ -40,7 +40,7 @@
 </c:if>
 
 <jsp:useBean id="bill" scope="request"
-             type="com.vaka.domain.Bill"/>
+             type="com.vaka.hotel_manager.domain.Bill"/>
 
 
 <table id="billTable" class="display" cellpadding="0">

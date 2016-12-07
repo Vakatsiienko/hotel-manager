@@ -37,7 +37,7 @@
 </head>
 <body>
 <%--<jsp:useBean id="loggedUser" scope="request"--%>
-<%--beanName="com.vaka.domain.User"/>--%>
+<%--beanName="com.vaka.hotel_manager.domain.User"/>--%>
 <c:if test="${!empty loggedUser.name}">
     <span id="loggedUser">${loggedUser.name} <a href="/users/signout">logout</a></span>
 </c:if>
@@ -145,7 +145,7 @@
                     <select id="roomClass" name="roomClass">
                         <c:forEach items="${roomClasses}" var="clazz">
                             <jsp:useBean id="clazz" scope="page"
-                                         type="com.vaka.domain.RoomClass"/>
+                                         type="com.vaka.hotel_manager.domain.RoomClass"/>
                             <option selected>${clazz.toString()}</option>
                         </c:forEach>
                     </select>
