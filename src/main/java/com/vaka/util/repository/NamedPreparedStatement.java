@@ -1,4 +1,4 @@
-package com.vaka.util;
+package com.vaka.util.repository;
 
 import lombok.Getter;
 

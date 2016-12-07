@@ -6,7 +6,7 @@ import com.vaka.repository.UserRepository;
 import com.vaka.repository.SecurityRepository;
 import com.vaka.service.SecurityService;
 import com.vaka.context.ApplicationContext;
-import com.vaka.util.exception.AuthenticateException;
+import com.vaka.util.exception.AuthenticationException;
 import com.vaka.util.exception.AuthorizationException;
 
 import javax.servlet.http.Cookie;
@@ -29,7 +29,7 @@ public class SecurityServiceImpl implements SecurityService {
         anonymous.setRole(Role.ANONYMOUS);
     }
 
-    private void createToken(HttpServletRequest req, HttpServletResponse resp, User loggedUser) throws AuthenticateException {
+    private void createToken(HttpServletRequest req, HttpServletResponse resp, User loggedUser) throws AuthenticationException {
         String token = UUID.randomUUID().toString();
         getSecurityRepository().create(token, loggedUser.getId());
         Cookie cookie = new Cookie("TOKEN", token);
@@ -37,19 +37,19 @@ public class SecurityServiceImpl implements SecurityService {
         resp.addCookie(cookie);
     }
 
-    private User checkCredentials(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticateException{
+    private User checkCredentials(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticationException {
         Optional<User> user = getUserRepository().getByEmail(email);
         password = Base64.getEncoder().encodeToString(String.join(":", email, password).getBytes());
 
         if (!user.isPresent() || (!user.get().getPassword().equals(password))) {
             req.setAttribute("exception", "Login or/and password are incorrect");
-            throw new AuthenticateException("Login or/and password are incorrect");
+            throw new AuthenticationException("Login or/and password are incorrect");
         }
         return  user.get();
     }
 
     @Override
-    public void signIn(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticateException{
+    public void signIn(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticationException {
         User user = checkCredentials(req, resp, email, password);
         createToken(req, resp, user);
     }
@@ -67,13 +67,13 @@ public class SecurityServiceImpl implements SecurityService {
         if (userId.isPresent()) {
             Optional<User> user = getUserRepository().getById(userId.get());
             if (user.isPresent())
-                return erazeCredentials(user.get());
+                return eraseCredentials(user.get());
         }
         token.get().setMaxAge(0);
         return anonymous;
     }
 
-    private User erazeCredentials(User user) {
+    private User eraseCredentials(User user) {
         user.setPassword("");
         return user;
     }

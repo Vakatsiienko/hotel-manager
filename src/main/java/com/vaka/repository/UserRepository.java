@@ -9,4 +9,6 @@ import java.util.Optional;
  */
 public interface UserRepository extends CrudRepository<User> {
     Optional<User> getByEmail(String email);
+
+//    boolean updatePassword(Integer userId, String password);
 }

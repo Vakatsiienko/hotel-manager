@@ -4,6 +4,21 @@ package com.vaka.domain;
  * Created by Iaroslav on 11/26/2016.
  */
 public enum RoomClass {
-    FIRST_CLASS, SECOND_CLASS, THIRD_CLASS,
-    //TODO change to String
+    STANDARD, HALF_SUITE, SUITE, KING;
+
+    @Override
+    public String toString() {
+        switch (this) {
+            case STANDARD:
+                return "Standard";
+            case HALF_SUITE:
+                return "Half Suite";
+            case SUITE:
+                return "Suite";
+            case KING:
+                return "King";
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
 }

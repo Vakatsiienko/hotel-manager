@@ -41,7 +41,7 @@ public class RoomRepositoryTest extends CrudRepositoryTest<Room> {
 
 
         List<Room> actualList = roomRepository.findAvailableForReservation(
-                RoomClass.FIRST_CLASS, LocalDate.of(2000, 1, 24), LocalDate.of(2000, 2, 10));
+                RoomClass.STANDARD, LocalDate.of(2000, 1, 24), LocalDate.of(2000, 2, 10));
 
         Assert.assertTrue(expectedList.size() == actualList.size());
         Assert.assertTrue(actualList.containsAll(expectedList));
@@ -51,7 +51,7 @@ public class RoomRepositoryTest extends CrudRepositoryTest<Room> {
     private List<Room> createRoomsWithUnfitReservations(){
         List<Room> notExpectedList = new ArrayList<>();
         Room notExpected1 = createEntity();
-        notExpected1.setRoomClazz(RoomClass.FIRST_CLASS);
+        notExpected1.setRoomClazz(RoomClass.STANDARD);
         notExpected1 = roomRepository.create(notExpected1);
         Reservation unfitReservation1 = EntityProviderUtil.createReservationWithoutRoom();
         unfitReservation1.setRoom(notExpected1);
@@ -64,7 +64,7 @@ public class RoomRepositoryTest extends CrudRepositoryTest<Room> {
 
         //creating another overlap room and reservation
         Room notExpected2 = createEntity();
-        notExpected2.setRoomClazz(RoomClass.FIRST_CLASS);
+        notExpected2.setRoomClazz(RoomClass.STANDARD);
         notExpected2 = roomRepository.create(notExpected2);
         Reservation unfitReservation2 = EntityProviderUtil.createReservationWithoutRoom();
         unfitReservation2.setRoom(notExpected2);
@@ -82,7 +82,7 @@ public class RoomRepositoryTest extends CrudRepositoryTest<Room> {
         List<Room> expectedList = new ArrayList<>();
 
         Room expected1 = createEntity();
-        expected1.setRoomClazz(RoomClass.FIRST_CLASS);
+        expected1.setRoomClazz(RoomClass.STANDARD);
         expected1 = roomRepository.create(expected1);
         Reservation suitReservation1 = EntityProviderUtil.createReservationWithoutRoom();
         suitReservation1.setRoom(expected1);
@@ -101,7 +101,7 @@ public class RoomRepositoryTest extends CrudRepositoryTest<Room> {
         expectedList.add(expected1);
 
         Room expected2 = createEntity();
-        expected2.setRoomClazz(RoomClass.FIRST_CLASS);
+        expected2.setRoomClazz(RoomClass.STANDARD);
         expected2 = roomRepository.create(expected2);
         Reservation suitReservation3 = EntityProviderUtil.createReservationWithoutRoom();
         suitReservation3.setRoom(expected2);
@@ -126,11 +126,11 @@ public class RoomRepositoryTest extends CrudRepositoryTest<Room> {
     private List<Room> creatingRoomsWithUnfitClass(){
         List<Room> notExpectedList = new ArrayList<>();
         Room notExpected3 = createEntity();
-        notExpected3.setRoomClazz(RoomClass.SECOND_CLASS);
+        notExpected3.setRoomClazz(RoomClass.HALF_SUITE);
         notExpected3 = roomRepository.create(notExpected3);
         notExpectedList.add(notExpected3);
         Room notExpected4 = createEntity();
-        notExpected4.setRoomClazz(RoomClass.THIRD_CLASS);
+        notExpected4.setRoomClazz(RoomClass.KING);
         notExpected4 = roomRepository.create(notExpected4);
         notExpectedList.add(notExpected4);
         return notExpectedList;

@@ -12,11 +12,9 @@ public interface ReservationRepository extends CrudRepository<Reservation> {
 
     List<Reservation> findByRoomIdAndStatus(Integer roomId, ReservationStatus status);
 
-    //    List<Reservation> findByStatus();
-//
-//    List<Reservation> findRequested();
-//
-//    List<Reservation> findRejected();
     List<Reservation> findByStatus(ReservationStatus status);
 
+    List<Reservation> findByUserIdAndStatus(Integer userId, ReservationStatus status);
+    
+    List<Reservation> findActiveByUserId(Integer userId);
 }

@@ -16,22 +16,19 @@ import java.io.IOException;
  */
 public class MainServlet extends HttpServlet {
     private MainController mainController;
-    private ApplicationContext applicationContext;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        applicationContext = ApplicationContext.getInstance()
+        ApplicationContext.getInstance()
                 .init(new ApplicationContextConfig(), new PersistenceConfig());
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String url = req.getRequestURI();
         if ("/".equals(req.getRequestURI())) {
             getMainController().toRoot(req, resp);
         } else super.doGet(req, resp);
-        System.out.println("Main :" + url);
     }
 
     public MainController getMainController() {

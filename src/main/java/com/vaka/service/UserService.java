@@ -8,6 +8,5 @@ import com.vaka.domain.User;
  */
 public interface UserService extends CrudService<User> {
 
-    User createOrUpdate(User loggedUser, User user);
-
+    boolean updateWithoutPassword(User loggedUser, Integer id, User entity);
 }

@@ -4,8 +4,9 @@ import com.vaka.context.ApplicationContext;
 import com.vaka.domain.User;
 import com.vaka.repository.UserRepository;
 import com.vaka.util.DomainExtractor;
-import com.vaka.util.NamedPreparedStatement;
-import com.vaka.util.StatementExtractor;
+import com.vaka.util.repository.CrudRepositoryUtil;
+import com.vaka.util.repository.NamedPreparedStatement;
+import com.vaka.util.repository.StatementExtractor;
 import com.vaka.util.exception.RepositoryException;
 
 import javax.sql.DataSource;
@@ -13,6 +14,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -20,10 +22,11 @@ import java.util.Optional;
  */
 public class UserRepositoryJdbcImpl implements UserRepository {
     private DataSource dataSource;
+    private Map<String, String> queryByClassAndMethodName;
 
     @Override
     public Optional<User> getByEmail(String email) {
-        String strQuery = "SELECT * FROM user WHERE email = :email";
+        String strQuery = getQueryByClassAndMethodName().get("user.getByEmail");
 
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = createGetByEmailStatement(connection, strQuery, email);
@@ -44,7 +47,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
 
     @Override
     public User create(User entity) {
-        String strQuery = "INSERT INTO user (created_datetime, email, password, name, role, phone_number) VALUES (:createdDatetime , :email , :password , :name , :role , :phoneNumber )";
+        String strQuery = getQueryByClassAndMethodName().get("user.create");
         try (Connection connection = getDataSource().getConnection();//TODO move to JdbcUtil
              NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, entity, Statement.RETURN_GENERATED_KEYS);
              ResultSet resultSet = statement.getGenerationKeys()) {
@@ -64,12 +67,11 @@ public class UserRepositoryJdbcImpl implements UserRepository {
         return statement;
     }
 
-
     @Override
     public Optional<User> getById(Integer id) {
-        String strQuery = "SELECT * FROM user WHERE id = :id";
+        String strQuery = getQueryByClassAndMethodName().get("user.getById");
         try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createGetByIdStatement(connection, strQuery, id);
+             NamedPreparedStatement statement = CrudRepositoryUtil.createGetByIdStatement(connection, strQuery, id);
              ResultSet resultSet = statement.executeQuery()) {
 
             if (resultSet.next())
@@ -80,33 +82,19 @@ public class UserRepositoryJdbcImpl implements UserRepository {
         }
     }
 
-    private NamedPreparedStatement createGetByIdStatement(Connection connection, String strQuery, Integer id) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        statement.setStatement("id", id);
-        return statement;
-    }
 
     @Override
     public boolean delete(Integer id) {
-        String strQuery = "DELETE FROM user WHERE id = :id";
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createDeleteStatement(connection, strQuery, id)) {
-            return statement.executeUpdate() != 0;
-        } catch (SQLException e) {
-            throw new RepositoryException(e);
-        }
+        String strQuery = getQueryByClassAndMethodName().get("user.delete");
+        return CrudRepositoryUtil.delete(strQuery, id);
     }
 
-    private NamedPreparedStatement createDeleteStatement(Connection connection, String strQuery, Integer id) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        statement.setStatement("id", id);
-        return statement;
-    }
+
 
     @Override
     public boolean update(Integer id, User entity) {
         entity.setId(id);
-        String strQuery = "UPDATE user u SET email = :email, name = :name, password = :password, role = :role, phone_number = :phoneNumber WHERE u.id = :id";
+        String strQuery = getQueryByClassAndMethodName().get("user.update");
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = createUpdateStatement(connection, strQuery, entity)) {
             return statement.executeUpdate() != 0;
@@ -121,7 +109,6 @@ public class UserRepositoryJdbcImpl implements UserRepository {
         return statement;
     }
 
-
     public DataSource getDataSource() {
         if (dataSource == null) {
             synchronized (this) {
@@ -131,5 +118,16 @@ public class UserRepositoryJdbcImpl implements UserRepository {
             }
         }
         return dataSource;
+    }
+
+    public Map<String, String> getQueryByClassAndMethodName() {
+        if (queryByClassAndMethodName == null) {
+            synchronized (this) {
+                if (queryByClassAndMethodName == null) {
+                    queryByClassAndMethodName = ApplicationContext.getInstance().getQueryByClassAndMethodName();
+                }
+            }
+        }
+        return queryByClassAndMethodName;
     }
 }

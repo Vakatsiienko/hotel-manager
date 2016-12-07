@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="fn" uri="com.hotel_manager" %>
 <html>
 <head>
     <title>Processing</title>
@@ -29,11 +30,18 @@
     </style>
 </head>
 <body>
-<div id="loggedUser">${loggedUser.name} <a href="/signin/logout">logout</a></div>
-<a href="/">/ (request reservation)</a> <br>
+<div id="loggedUser">${loggedUser.name} <a href="/users/signout">logout</a></div>
+<a href="/users/signin">/signin</a> <br>
+<a href="/users/signup">/signup</a> <br>
+<a href="/">/ (make reservation request)</a> <br>
 <a href="/reservations/confirmed">/confirmed</a> <br>
-<a href="/login">/login</a> <br>
 <a href="/reservations/requested">/requests</a> <br>
+<p>For Bill go to the RequestInfo page</p>
+<a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
+<c:if test="${!empty message}">
+    <h3>${message}</h3>
+</c:if>
+
 <div>
     <jsp:useBean beanName="reservation" id="reservation" scope="request"
                  type="com.vaka.domain.Reservation"/>
@@ -65,12 +73,12 @@
 
         <tr>
             <th>Arrival Date</th>
-            <td>${reservation.arrivalDate}</td>
+            <td>${fn:formatDate(reservation.arrivalDate)}</td>
         </tr>
 
         <tr>
             <th>Departure Date</th>
-            <td>${reservation.departureDate}</td>
+            <td>${fn:formatDate(reservation.departureDate)}</td>
         </tr>
 
     </table>
@@ -98,8 +106,9 @@
                 <td>${room.number}</td>
                 <td>${room.roomClazz}</td>
                 <td>${room.capacity}</td>
-                <td>${room.costPerDay}</td>
-                <td><a href="/reservations/applyRoom?roomId=${room.id}&reqId=${reservation.id}">Apply</a><%--TODO add apply process--%>
+                <c:set var="cost" value="${room.costPerDay /100}"/>
+                <td>${cost}</td>
+                <td><a href="/reservations/applyRoom?roomId=${room.id}&reservationId=${reservation.id}">Apply</a><%--TODO add apply process--%>
                 </td>
             </tr>
         </c:forEach>

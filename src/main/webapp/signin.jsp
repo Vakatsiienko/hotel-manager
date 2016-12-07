@@ -13,8 +13,8 @@
 </head>
 <style type="text/css">
     #welcome {
-        position: static;
-        left: 45%;
+        position: absolute;
+        right: 45%;
     }
 
     #exception{
@@ -22,16 +22,22 @@
     }
 </style>
 <body>
-<a href="/">/ (request reservation)</a> <br>
-<a href="/reservations/confirmed">/confirmed</a> <br>
 <a href="/users/signin">/signin</a> <br>
 <a href="/users/signup">/signup</a> <br>
+<a href="/">/ (make reservation request)</a> <br>
+<a href="/reservations/confirmed">/confirmed</a> <br>
 <a href="/reservations/requested">/requests</a> <br>
-<form action="/users/signin" method="post">
-    <table>
+<p>For Bill go to the RequestInfo page</p>
+<a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
+<c:if test="${!empty message}">
+    <h3>${message}</h3>
+</c:if>
+
+<form action="${pageContext.request.contextPath}" id="welcome" method="post">
+    <table >
         <tr>
             <th><label for="email">Email:</label></th>
-            <td><input id="email" type="text" required maxlength="20" min="5" name="email">
+            <td><input id="email" type="email" required maxlength="20" min="5" name="email">
             </td>
         </tr>
         <tr>

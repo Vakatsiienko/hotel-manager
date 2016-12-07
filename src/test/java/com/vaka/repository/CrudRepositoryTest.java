@@ -1,7 +1,6 @@
 package com.vaka.repository;
 
 
-import com.vaka.DBTestUtil;
 import com.vaka.context.config.ApplicationContextConfig;
 import com.vaka.context.config.PersistenceConfig;
 import com.vaka.domain.BaseEntity;
@@ -11,9 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -52,9 +49,8 @@ public abstract class CrudRepositoryTest<Entity extends BaseEntity> {
         Entity created = getRepository().create(createEntity());
         Optional<Entity> read = getRepository().getById(created.getId());
 
-        Assert.assertNotNull(read);
-        Assert.assertEquals(read.get(), created);
-
+        Assert.assertTrue(read.isPresent());
+        Assert.assertEquals(created, read.get());
     }
 
     @Test
@@ -63,6 +59,7 @@ public abstract class CrudRepositoryTest<Entity extends BaseEntity> {
         Entity newEntity = createEntity();
         boolean updated = getRepository().update(oldEntity.getId(), newEntity);
         Optional<Entity> updatedEntity = getRepository().getById(newEntity.getId());
+        newEntity.setCreatedDatetime(updatedEntity.get().getCreatedDatetime());
 
         Assert.assertTrue(updated);
         Assert.assertEquals(newEntity, updatedEntity.get());

@@ -1,12 +1,12 @@
 package com.vaka.context.config;
 
+import com.vaka.util.SqlParser;
 import com.vaka.util.exception.CreatingException;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.sql.Connection;
+import java.io.*;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -29,6 +29,12 @@ public class PersistenceConfig {
         DataSource datasource = new DataSource();
         datasource.setPoolProperties(poolProperties());
         return datasource;
+    }
+
+    public Map<String, String> queryByClassAndMethodName() {
+            String filename = "C:\\Users\\Iaroslav\\IdeaProjects\\hotel-manager\\src\\main\\resources\\repository.sql";
+            SqlParser sqlParser = new SqlParser(filename);
+            return sqlParser.createAndGetQueryByClassAndMethodName();
     }
 
     public PoolProperties poolProperties() {

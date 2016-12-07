@@ -1,11 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%--
-  Created by IntelliJ IDEA.
-  User: Iaroslav
-  Date: 12/1/2016
-  Time: 6:32 PM
-  To change this template use File | Settings | File Templates.
---%>
+<%@ taglib prefix="fn" uri="com.hotel_manager" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -35,11 +29,17 @@
     </style>
 </head>
 <body>
-<div id="loggedUser">${loggedUser.name} <a href="/signin/logout">logout</a></div>
-<a href="/">/ (request reservation)</a> <br>
+<div id="loggedUser">${loggedUser.name} <a href="/users/signout">logout</a></div>
+<a href="/users/signin">/signin</a> <br>
+<a href="/users/signup">/signup</a> <br>
+<a href="/">/ (make reservation request)</a> <br>
 <a href="/reservations/confirmed">/confirmed</a> <br>
-<a href="/login">/login</a> <br>
-<a href="/reservations/requested">/requests</a> <br> <br>
+<a href="/reservations/requested">/requests</a> <br>
+<p>For Bill go to the RequestInfo page</p>
+<a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
+<c:if test="${!empty message}">
+    <h3>${message}</h3>
+</c:if>
 
     <table id="myTable" class="display" cellspacing="0" width="100%">
         <thead>
@@ -64,9 +64,10 @@
                 <th>${reservation.guests}</th>
                 <th>${reservation.requestedRoomClass}</th>
                 <th>${reservation.room.number}</th>
-                <th>${reservation.arrivalDate}</th>
-                <th>${reservation.departureDate}</th>
-                <th> <a href="/reservations/process/${reservation.id}">Process</a><%--TODO add process request button--%></th>
+                <th>${fn:formatDate(reservation.arrivalDate)}</th>
+                <th>${fn:formatDate(reservation.departureDate)}</th>
+                <th><a href="/reservations/reject?reservationId?${reservation.id}">Reject</a><%--TODO add process request button--%>
+                </th>
             </tr>
         </c:forEach>
 

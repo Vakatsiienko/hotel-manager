@@ -6,7 +6,7 @@ import com.vaka.domain.RoomClass;
 import com.vaka.repository.ReservationRepository;
 import com.vaka.repository.RoomRepository;
 import com.vaka.context.ApplicationContext;
-import com.vaka.util.DateUtil;
+import com.vaka.util.DateAndTimeUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,7 +41,7 @@ public class RoomRepositoryImpl implements RoomRepository {
         Stream<Room> rooms = roomById.values().stream()
                 .filter(r -> r.getRoomClazz() == roomClass &&
                         !getReservationRepository().findByRoomIdAndStatus(r.getId(), ReservationStatus.CONFIRMED).stream()
-                                .filter(reservation -> !DateUtil.areDatesOverlap(
+                                .filter(reservation -> !DateAndTimeUtil.areDatesOverlap(
                                         reservation.getArrivalDate(), reservation.getDepartureDate(),
                                         arrivalDate, departureDate)
                                 ).findFirst().isPresent());

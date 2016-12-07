@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 /**
  * Created by Iaroslav on 11/26/2016.
@@ -19,13 +20,13 @@ public class DomainExtractor {
     public static Reservation extractReservation(ResultSet resultSet) throws SQLException {
         Reservation reservation = new Reservation();
         if (resultSet.getString("room_class") != null) {
-            reservation.setRoom(extractRoom(resultSet)); //TODO hardcode or prefix to extraction methods
+            reservation.setRoom(extractRoom(resultSet)); //TODO add prefix to extraction methods for inner entities
             reservation.getRoom().setId(resultSet.getInt("room_id"));
         }
         reservation.setUser(extractUser(resultSet));
         reservation.getUser().setId(resultSet.getInt("user_id"));
         reservation.setId(resultSet.getInt("id"));
-        reservation.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toLocalDateTime());
+        reservation.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime());
         reservation.setGuests(resultSet.getInt("guests"));
         reservation.setRequestedRoomClass(RoomClass.valueOf(resultSet.getString("requested_room_class")));
         reservation.setStatus(ReservationStatus.valueOf(resultSet.getString("status")));
@@ -37,7 +38,7 @@ public class DomainExtractor {
     public static Room extractRoom(ResultSet resultSet) throws SQLException {
         Room room = new Room();
         room.setId(resultSet.getInt("id"));
-        room.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toLocalDateTime());
+        room.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime());
         room.setNumber(resultSet.getInt("number"));
         room.setCapacity(resultSet.getInt("capacity"));
         room.setCostPerDay(resultSet.getInt("cost_per_day"));
@@ -49,7 +50,7 @@ public class DomainExtractor {
     public static Bill extractBill(ResultSet resultSet) throws SQLException {
         Bill bill = new Bill();
         bill.setId(resultSet.getInt("id"));
-        bill.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toLocalDateTime());
+        bill.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime());
         bill.setReservation(extractReservation(resultSet));
         bill.getReservation().setId(resultSet.getInt("reservation_id"));
         bill.setTotalCost(resultSet.getInt("total_cost"));
@@ -60,7 +61,7 @@ public class DomainExtractor {
     public static User extractUser(ResultSet resultSet) throws SQLException {
         User user = new User();
         user.setId(resultSet.getInt("id"));
-        user.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toLocalDateTime());
+        user.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime());
         user.setRole(Role.valueOf(resultSet.getString("role")));
         user.setPassword(resultSet.getString("password"));
         user.setPhoneNumber(resultSet.getString("phone_number"));
@@ -75,7 +76,8 @@ public class DomainExtractor {
         if (strId != null)
             reservation.setId(Integer.valueOf(strId));
         reservation.setGuests(Integer.valueOf(req.getParameter("guests")));
-        reservation.setRequestedRoomClass(RoomClass.valueOf(req.getParameter("roomClazz")));
+        String[] roomClass = req.getParameter("roomClass").toUpperCase().split(" ");
+        reservation.setRequestedRoomClass(RoomClass.valueOf(String.join("_", roomClass)));
         reservation.setArrivalDate(LocalDate.parse(req.getParameter("arrivalDate")));
         reservation.setDepartureDate(LocalDate.parse(req.getParameter("departureDate")));
         reservation.setStatus(ReservationStatus.REQUESTED);
@@ -90,13 +92,5 @@ public class DomainExtractor {
         user.setPassword(req.getParameter("password"));
         user.setRole(Role.CUSTOMER);
         return user;
-    }
-
-    //TODO move to other "factory" class
-    public static Bill createBillFromReservation(Reservation reservation) {
-        Bill bill = new Bill();
-        bill.setReservation(reservation);
-        bill.setTotalCost((int) (reservation.getRoom().getCostPerDay() * (reservation.getDepartureDate().toEpochDay() - reservation.getArrivalDate().toEpochDay())));
-        return bill;
     }
 }

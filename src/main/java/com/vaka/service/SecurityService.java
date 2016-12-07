@@ -2,7 +2,7 @@ package com.vaka.service;
 
 import com.vaka.domain.Role;
 import com.vaka.domain.User;
-import com.vaka.util.exception.AuthenticateException;
+import com.vaka.util.exception.AuthenticationException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +14,7 @@ public interface SecurityService {
 
 
 
-    void signIn(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticateException;
+    void signIn(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticationException;
 
     User authenticate(HttpServletRequest req, HttpServletResponse resp);
 

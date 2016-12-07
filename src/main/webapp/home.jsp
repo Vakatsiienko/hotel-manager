@@ -38,51 +38,94 @@
 <body>
 <%--<jsp:useBean id="loggedUser" scope="request"--%>
 <%--beanName="com.vaka.domain.User"/>--%>
-<span id="loggedUser">${loggedUser.name} <a href="/signin/logout">logout</a></span>
-<a href="/">/ (request reservation)</a> <br>
-<a href="/reservations/confirmed">/confirmed</a> <br>
+<c:if test="${!empty loggedUser.name}">
+    <span id="loggedUser">${loggedUser.name} <a href="/users/signout">logout</a></span>
+</c:if>
 <a href="/users/signin">/signin</a> <br>
 <a href="/users/signup">/signup</a> <br>
+<a href="/">/ (make reservation request)</a> <br>
+<a href="/reservations/confirmed">/confirmed</a> <br>
 <a href="/reservations/requested">/requests</a> <br>
+<p>For Bill go to the RequestInfo page</p>
+<a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
+<c:if test="${!empty message}">
+    <h3>${message}</h3>
+</c:if>
+
 <div id="addForm">
     <form action="/reservations" method="post" id="createForm">
         <table>
             <tr>
                 <th class="ftitle" colspan="2">Customer contact info</th>
             </tr>
+            <c:choose>
+            <c:when test="${!empty loggedUser.name}">
             <tr class="fitem">
                 <th>
-                    <label for="name">Name:</label>
+                    <label for="nameReg">Name:</label>
                 </th>
                 <td>
-                    <input id="name" name="name"
-                    <c:if test="${!empty loggedUser.name}"> value="${loggedUser.name}"</c:if>
-                           required>
+                    <input id="nameReg" name="name"
+                           value="${loggedUser.name}"
+                           required readonly>
                 </td>
             </tr>
             <tr class="fitem">
                 <th>
-                    <label for="email">Email:</label>
+                    <label for="emailReg">Email:</label>
                 </th>
                 <td>
-                    <input id="email" name="email" type="email" value="${loggedUser.email}"
-                           required>
+                    <input id="emailReg" name="email" type="email" value="${loggedUser.email}"
+                           required readonly>
                 </td>
             </tr>
             <tr class="fitem">
                 <th>
-                    <label for="phoneNumber">Phone Number:</label>
+                    <label for="phoneNumberReg">Phone Number:</label>
                 </th>
                 <td>
-                    <input id="phoneNumber" type="tel" pattern="[\+][0-9]{10, 20}"
-                    <c:choose>
-                           <c:when test="${!empty loggedUser.email}">value="${loggedUser.phoneNumber}"</c:when>
-                            <c:otherwise>value = "+380"</c:otherwise>
-                    </c:choose>
-                           title="Phone number should be in format '+38044567890'"
-                           name="phoneNumber" required>
+                    <input id="phoneNumberReg" type="tel" pattern="[\+]\d{2}[\(]\d{3}[\)]\d{7}"
+                           value="${loggedUser.phoneNumber}"
+                           title="Phone number should be in format '+38(044)1234567'"
+                           name="phoneNumber" readonly required>
                 </td>
             </tr>
+            <tr>
+                </c:when>
+                <c:otherwise>
+                    <tr class="fitem">
+                        <th>
+                            <label for="name">Name:</label>
+                        </th>
+                        <td>
+                            <input id="name" name="name"
+                                   value="${loggedUser.name}"
+                                   required>
+                        </td>
+                    </tr>
+                    <tr class="fitem">
+                        <th>
+                            <label for="email">Email:</label>
+                        </th>
+                        <td>
+                            <input id="email" name="email" type="email"
+                                   required>
+                        </td>
+                    </tr>
+                    <tr class="fitem">
+                        <th>
+                            <label for="phoneNumber">Phone Number:</label>
+                        </th>
+                        <td>
+                            <input id="phoneNumber" type="tel" pattern="[\+]\d{2}[\(]?\s?\d{3}[\)]?\s?\d{7}"
+                                   value="+380"
+                                   title="Phone number should be in format '+38 044 1234567'"
+                                   name="phoneNumber" required>
+                        </td>
+                    </tr>
+                </c:otherwise>
+                </c:choose>
+
             <tr>
                 <th class="ftitle" colspan="2">Request Information</th>
             </tr>
@@ -91,19 +134,19 @@
                     <label for="guests">Guests:</label>
                 </th>
                 <td>
-                    <input id="guests" name="guests" type="number" min="1">
+                    <input id="guests" name="guests" type="number" min="1" required>
                 </td>
             </tr>
             <tr class="fitem">
                 <th>
-                    <label for="roomClazz">Room Class</label>
+                    <label for="roomClass">Room Class</label>
                 </th>
                 <td>
-                    <select id="roomClazz" name="roomClazz">
-                        <c:forEach items="${roomClazzez}" var="clazz">
+                    <select id="roomClass" name="roomClass">
+                        <c:forEach items="${roomClasses}" var="clazz">
                             <jsp:useBean id="clazz" scope="page"
                                          type="com.vaka.domain.RoomClass"/>
-                            <option selected>${clazz.name()}</option>
+                            <option selected>${clazz.toString()}</option>
                         </c:forEach>
                     </select>
                 </td>
@@ -113,7 +156,7 @@
                     <label for="arrivalDate">Arrival Date</label>
                 </th>
                 <td>
-                    <input id="arrivalDate" name="arrivalDate" type="date">
+                    <input id="arrivalDate" name="arrivalDate" type="date" required>
                 </td>
             </tr>
             <tr class="fitem">
@@ -127,7 +170,7 @@
             <tr>
                 <th></th>
                 <td>
-                    <input type="submit" name="submit" value="submit"/>
+                    <input type="submit" name="submit" value="submit" required/>
                     <a href="/">Cancel</a>
                 </td>
             </tr>

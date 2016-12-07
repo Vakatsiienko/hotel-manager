@@ -11,6 +11,8 @@ import com.vaka.context.ApplicationContext;
 import com.vaka.util.exception.AuthorizationException;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +35,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room create(User loggedUser, Room entity) {
-        entity.setCreatedDatetime(LocalDateTime.now());
+        entity.setCreatedDatetime(LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS));
          return getRoomRepository().create(entity);
     }
 

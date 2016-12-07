@@ -2,12 +2,11 @@ package com.vaka.repository.jdbcImpl;
 
 import com.vaka.context.ApplicationContext;
 import com.vaka.domain.Bill;
-import com.vaka.domain.Reservation;
-import com.vaka.domain.User;
 import com.vaka.repository.BillRepository;
+import com.vaka.util.repository.CrudRepositoryUtil;
 import com.vaka.util.DomainExtractor;
-import com.vaka.util.NamedPreparedStatement;
-import com.vaka.util.StatementExtractor;
+import com.vaka.util.repository.NamedPreparedStatement;
+import com.vaka.util.repository.StatementExtractor;
 import com.vaka.util.exception.RepositoryException;
 
 import javax.sql.DataSource;
@@ -15,6 +14,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -22,10 +22,11 @@ import java.util.Optional;
  */
 public class BillRepositoryJdbcImpl implements BillRepository {
     private DataSource dataSource;
+    private Map<String, String> queryByClassAndMethodName;
 
     @Override
     public Bill create(Bill entity) {
-        String strQuery = "INSERT INTO bill (created_datetime, reservation_id, total_cost, paid) VALUES (:createdDatetime, :reservationId, :totalCost, :paid)";
+        String strQuery = getQueryByClassAndMethodName().get("bill.create");
         try (Connection connection = getDataSource().getConnection();//TODO move to JdbcUtil
              NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, entity, Statement.RETURN_GENERATED_KEYS);
              ResultSet resultSet = statement.getGenerationKeys()) {
@@ -47,7 +48,7 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     public Optional<Bill> getByReservationId(Integer id) {
         try {
             Connection connection = getDataSource().getConnection();
-            String strQuery = "SELECT * FROM bill b INNER JOIN reservation res ON b.reservation_id = res.id LEFT JOIN room r ON res.room_id = r.id INNER JOIN user u ON res.user_id = u.id WHERE b.reservation_id = :reservationId";
+            String strQuery = getQueryByClassAndMethodName().get("bill.getByReservationId");
             NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
             statement.setStatement("reservationId", id);
             ResultSet resultSet = statement.executeQuery();
@@ -61,9 +62,9 @@ public class BillRepositoryJdbcImpl implements BillRepository {
 
     @Override
     public Optional<Bill> getById(Integer id) {
-        String strQuery = "SELECT * FROM bill b INNER JOIN reservation res ON b.reservation_id = res.id LEFT JOIN room r ON res.room_id = r.id INNER JOIN user u ON res.user_id = u.id WHERE b.id = :id";
+        String strQuery = getQueryByClassAndMethodName().get("bill.getById");
         try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createGetByIdStatement(connection, strQuery, id);
+             NamedPreparedStatement statement = CrudRepositoryUtil.createGetByIdStatement(connection, strQuery, id);
              ResultSet resultSet = statement.executeQuery()) {
 
             if (resultSet.next())
@@ -73,32 +74,17 @@ public class BillRepositoryJdbcImpl implements BillRepository {
             throw new RepositoryException(e);
         }
     }
-    private NamedPreparedStatement createGetByIdStatement(Connection connection, String strQuery, Integer id) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        statement.setStatement("id", id);
-        return statement;
-    }
+
     @Override
     public boolean delete(Integer id) {
-        String strQuery = "DELETE FROM bill WHERE id = :id";
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createDeleteStatement(connection, strQuery, id)) {
-            return statement.executeUpdate() != 0;
-        } catch (SQLException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    private NamedPreparedStatement createDeleteStatement(Connection connection, String strQuery, Integer id) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        statement.setStatement("id", id);
-        return statement;
+        String strQuery = getQueryByClassAndMethodName().get("bill.delete");
+        return CrudRepositoryUtil.delete(strQuery, id);
     }
 
     @Override
     public boolean update(Integer id, Bill entity) {
         entity.setId(id);
-        String strQuery = "UPDATE bill SET reservation_id = :reservationId, total_cost = :totalCost, paid = :paid WHERE id = :id";
+        String strQuery = getQueryByClassAndMethodName().get("bill.update");
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = createUpdateStatement(connection, strQuery, entity)) {
             return statement.executeUpdate() != 0;
@@ -122,5 +108,15 @@ public class BillRepositoryJdbcImpl implements BillRepository {
             }
         }
         return dataSource;
+    }
+    public Map<String, String> getQueryByClassAndMethodName() {
+        if (queryByClassAndMethodName == null) {
+            synchronized (this) {
+                if (queryByClassAndMethodName == null) {
+                    queryByClassAndMethodName = ApplicationContext.getInstance().getQueryByClassAndMethodName();
+                }
+            }
+        }
+        return queryByClassAndMethodName;
     }
 }

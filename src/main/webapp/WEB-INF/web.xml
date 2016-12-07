@@ -31,7 +31,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>BillServlet</servlet-name>
-        <url-pattern>/bill/*</url-pattern>
+        <url-pattern>/bills/*</url-pattern>
     </servlet-mapping>
 
     <servlet>

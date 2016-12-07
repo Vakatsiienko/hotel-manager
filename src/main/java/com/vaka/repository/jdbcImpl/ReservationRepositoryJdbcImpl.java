@@ -4,9 +4,10 @@ import com.vaka.context.ApplicationContext;
 import com.vaka.domain.Reservation;
 import com.vaka.domain.ReservationStatus;
 import com.vaka.repository.ReservationRepository;
+import com.vaka.util.repository.CrudRepositoryUtil;
 import com.vaka.util.DomainExtractor;
-import com.vaka.util.NamedPreparedStatement;
-import com.vaka.util.StatementExtractor;
+import com.vaka.util.repository.NamedPreparedStatement;
+import com.vaka.util.repository.StatementExtractor;
 import com.vaka.util.exception.RepositoryException;
 
 import javax.sql.DataSource;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -23,11 +25,13 @@ import java.util.Optional;
  */
 public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     private DataSource dataSource;
+    private Map<String, String> queryByClassAndMethodName;
+
 
     @Override
     public List<Reservation> findByRoomIdAndStatus(Integer roomId, ReservationStatus status) {
-        String strCountRowsQuery = "SELECT COUNT(*) FROM reservation WHERE room_id = :roomId AND status = :status";
-        String strQuery = "SELECT * FROM reservation res INNER JOIN user u ON res.user_id = u.id INNER JOIN room r ON res.room_id = r.id WHERE res.room_id = :roomId AND res.status = :status";
+        String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findByRoomIdAndStatus_count");
+        String strQuery = getQueryByClassAndMethodName().get("reservation.findByRoomIdAndStatus");
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = getFindByRoomIdAndStatusStatement(connection, strQuery, roomId, status);
              ResultSet resultSet = statement.executeQuery();
@@ -42,7 +46,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
     private NamedPreparedStatement getFindByRoomIdAndStatusStatement(Connection connection, String query, Integer roomId, ReservationStatus status) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, query).init();
-        statement.setStatement("roomId", 1);
+        statement.setStatement("roomId", roomId);
         statement.setStatement("status", status.name());
         return statement;
     }
@@ -59,96 +63,33 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
         return reservations;
     }
 
-//    @Override
-//    public List<Reservation> findByStatus() {
-//        try {
-//            Connection connection = getDataSource().getConnection();
-//            String strCountRowsQuery = "SELECT COUNT(*) FROM reservation WHERE status = :status";
-//            NamedPreparedStatement countStatement = new NamedPreparedStatement(connection, strCountRowsQuery).init();
-//            countStatement.setStatement("status", "CONFIRMED");
-//            ResultSet countSet = countStatement.executeQuery();
-//            int count = 10;
-//            if (countSet.next())
-//                count = countSet.getInt(1);
-//
-//            String strQuery = "SELECT * FROM reservation res INNER JOIN user u ON res.user_id = u.id LEFT JOIN room r ON res.room_id = r.id WHERE res.status = :status";
-//            NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-//            statement.setStatement("status", "CONFIRMED");
-//            ResultSet resultSet = statement.executeQuery();
-//            List<Reservation> reservations = new ArrayList<>(count);
-//            while (resultSet.next()) {
-//                reservations.add(DomainExtractor.extractReservation(resultSet));
-//            }
-//            return reservations;
-//        } catch (SQLException e) {
-//            throw new RepositoryException(e);
-//        }
-//    }
-//
-//    @Override
-//    public List<Reservation> findRequested() {
-//        String strCountRowsQuery = "SELECT COUNT(*) FROM reservation WHERE status = :status";
-//        String strFindQuery = "SELECT * FROM reservation res INNER JOIN user u ON res.user_id = u.id LEFT JOIN room r ON res.room_id = r.id WHERE res.status = :status";
-//
-//        try (Connection connection = getDataSource().getConnection();
-//             NamedPreparedStatement countStatement = getRequestedCountStatement(connection, strCountRowsQuery);
-//             ResultSet countSet = countStatement.executeQuery();
-//             NamedPreparedStatement findStatement = getFindRequestedStatement(connection, strFindQuery);
-//             ResultSet resultSet = findStatement.executeQuery();) {
-//            int count = 0;
-//            if (countSet.next())
-//                count = countSet.getInt(1);
-//
-//            List<Reservation> reservations = new ArrayList<>(count);
-//            while (resultSet.next()) {
-//                reservations.add(DomainExtractor.extractReservation(resultSet));
-//            }
-//            return reservations;
-//        } catch (SQLException e) {
-//            throw new RepositoryException(e);
-//        }
-//    }
-//
-//    private NamedPreparedStatement getRequestedCountStatement(Connection connection, String query) throws SQLException {
-//        NamedPreparedStatement statement = new NamedPreparedStatement(connection, query).init();
-//        statement.setStatement("status", "REQUESTED");
-//        return statement;
-//    }
-//
-//    private NamedPreparedStatement getFindRequestedStatement(Connection connection, String query) throws SQLException {
-//        NamedPreparedStatement statement = new NamedPreparedStatement(connection, query).init();
-//        statement.setStatement("status", "REQUESTED");
-//        return statement;
-//    }
-//
-//    @Override
-//    public List<Reservation> findRejected() {
-//        String strCountRowsQuery = "SELECT COUNT(*) FROM reservation WHERE status = :status";
-//        String strQuery = "SELECT * FROM reservation res INNER JOIN user u ON res.user_id = u.id LEFT JOIN room r ON res.room_id = r.id WHERE res.status = :status";
-//
-//        try (Connection connection = getDataSource().getConnection();
-//             NamedPreparedStatement countStatement = getRejectedCountStatement(connection, strCountRowsQuery);
-//             ResultSet countSet = countStatement.executeQuery();
-//             NamedPreparedStatement statement = getFindRejectedStatement(connection, strQuery);
-//             ResultSet resultSet = statement.executeQuery()) {
-//            int count = 0;
-//            if (countSet.next())
-//                count = countSet.getInt(1);
-//
-//            List<Reservation> reservations = new ArrayList<>(count);
-//            while (resultSet.next()) {
-//                reservations.add(DomainExtractor.extractReservation(resultSet));
-//            }
-//            return reservations;
-//        } catch (SQLException e) {
-//            throw new RepositoryException(e);
-//        }
-//    }
+    @Override
+    public List<Reservation> findByUserIdAndStatus(Integer userId, ReservationStatus status) {
+        String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findByUserIdAndStatus_count");
+        String strQuery = getQueryByClassAndMethodName().get("reservation.findByUserIdAndStatus");
+        try (Connection connection = getDataSource().getConnection();
+             NamedPreparedStatement statement = getFindByUserIdAndStatusStatement(connection, strQuery, userId, status);
+             ResultSet resultSet = statement.executeQuery();
+             NamedPreparedStatement countStatement = getFindByUserIdAndStatusStatement(connection, strCountRowsQuery, userId, status);
+             ResultSet countSet = countStatement.executeQuery()) {
+
+            return fetchListFromResultSet(resultSet, countSet);
+        } catch (SQLException e) {
+            throw new RepositoryException(e);
+        }
+    }
+
+    private NamedPreparedStatement getFindByUserIdAndStatusStatement(Connection connection, String query, Integer userId, ReservationStatus status) throws SQLException {
+        NamedPreparedStatement statement = new NamedPreparedStatement(connection, query).init();
+        statement.setStatement("userId", userId);
+        statement.setStatement("status", status.name());
+        return statement;
+    }
 
     @Override
     public List<Reservation> findByStatus(ReservationStatus status) {
-        String strCountRowsQuery = "SELECT COUNT(*) FROM reservation WHERE status = :status";
-        String strQuery = "SELECT * FROM reservation res INNER JOIN user u ON res.user_id = u.id LEFT JOIN room r ON res.room_id = r.id WHERE res.status = :status";
+        String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findByStatus_count");
+        String strQuery = getQueryByClassAndMethodName().get("reservation.findByStatus");
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement countStatement = getStatusStatement(connection, strCountRowsQuery, status);
              ResultSet countSet = countStatement.executeQuery();
@@ -168,8 +109,30 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     }
 
     @Override
+    public List<Reservation> findActiveByUserId(Integer userId) {
+        String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findActiveByUserId_count");
+        String strQuery = getQueryByClassAndMethodName().get("reservation.findActiveByUserId");
+        try (Connection connection = getDataSource().getConnection();
+             NamedPreparedStatement statement = getFindActiveByUserIdStatement(connection, strQuery, userId);
+             ResultSet resultSet = statement.executeQuery();
+             NamedPreparedStatement countStatement = getFindActiveByUserIdStatement(connection, strCountRowsQuery, userId);
+             ResultSet countSet = countStatement.executeQuery()) {
+
+            return fetchListFromResultSet(resultSet, countSet);
+        } catch (SQLException e) {
+            throw new RepositoryException(e);
+        }
+    }
+    private NamedPreparedStatement getFindActiveByUserIdStatement(Connection connection, String query, Integer userId) throws SQLException {
+        NamedPreparedStatement statement = new NamedPreparedStatement(connection, query).init();
+        statement.setStatement("userId", userId);
+        statement.setStatement("status", ReservationStatus.REJECTED.name());
+        return statement;
+    }
+
+    @Override
     public Reservation create(Reservation reservation) {
-        String strQueryStrategy1 = "INSERT INTO reservation (created_datetime, user_id, guests, requested_room_class, status, arrival_date, departure_date) VALUES (:createdDatetime, :userId, :guests, :requestedRoomClass, :status, :arrivalDate, :departureDate)";
+        String strQueryStrategy1 = getQueryByClassAndMethodName().get("reservation.create");
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQueryStrategy1, reservation, Statement.RETURN_GENERATED_KEYS);
              ResultSet resultSet = statement.getGenerationKeys()) {
@@ -190,9 +153,9 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
     @Override
     public Optional<Reservation> getById(Integer id) {
-        String strQuery = "SELECT * FROM reservation res INNER JOIN user u ON res.user_id = u.id LEFT JOIN room r ON res.room_id = r.id WHERE res.id = :id";
+        String strQuery = getQueryByClassAndMethodName().get("reservation.getById");
         try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createGetByIdStatement(connection, strQuery, id);
+             NamedPreparedStatement statement = CrudRepositoryUtil.createGetByIdStatement(connection, strQuery, id);
              ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next())
                 return Optional.of(DomainExtractor.extractReservation(resultSet));
@@ -202,37 +165,16 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
         }
     }
 
-    private NamedPreparedStatement createGetByIdStatement(Connection connection, String strQuery, Integer id) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        statement.setStatement("id", id);
-        return statement;
-    }
 
-    @Override
-    public boolean delete(Integer id) {
-        String strQuery = "DELETE FROM reservation WHERE id = :id";
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createDeleteStatement(connection, strQuery, id)) {
-            return statement.executeUpdate() != 0;
-        } catch (SQLException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    private NamedPreparedStatement createDeleteStatement(Connection connection, String strQuery, Integer id) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        statement.setStatement("id", id);
-        return statement;
-    }
 
     @Override
     public boolean update(Integer id, Reservation entity) {
         entity.setId(id);
         String strQuery;
         if (entity.getRoom() != null)
-            strQuery = "UPDATE reservation SET user_id = :userId, room_id = :roomId, guests = :guests, requested_room_class = :requestedRoomClass, status = :status, arrival_date = :arrivalDate, departure_date = :departureDate WHERE id = :id";
+            strQuery = getQueryByClassAndMethodName().get("reservation.update_withRoom");
         else
-            strQuery = "UPDATE reservation SET user_id = :userId, guests = :guests, requested_room_class = :requestedRoomClass, status = :status, arrival_date = :arrivalDate, departure_date = :departureDate WHERE id = :id";
+            strQuery = getQueryByClassAndMethodName().get("reservation.update_withoutRoom");
         //TODO add strategies
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = createUpdateStatement(connection, strQuery, entity)) {
@@ -248,6 +190,12 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
         return statement;
     }
 
+    @Override
+    public boolean delete(Integer id) {
+        String strQuery = getQueryByClassAndMethodName().get("reservation.delete");
+        return CrudRepositoryUtil.delete(strQuery, id);
+    }
+
 
     public DataSource getDataSource() {
         if (dataSource == null) {
@@ -258,5 +206,16 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
             }
         }
         return dataSource;
+    }
+
+    public Map<String, String> getQueryByClassAndMethodName() {
+        if (queryByClassAndMethodName == null) {
+            synchronized (this) {
+                if (queryByClassAndMethodName == null) {
+                    queryByClassAndMethodName = ApplicationContext.getInstance().getQueryByClassAndMethodName();
+                }
+            }
+        }
+        return queryByClassAndMethodName;
     }
 }

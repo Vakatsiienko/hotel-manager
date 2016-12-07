@@ -3,11 +3,11 @@ package com.vaka.repository.jdbcImpl;
 import com.vaka.context.ApplicationContext;
 import com.vaka.domain.Room;
 import com.vaka.domain.RoomClass;
-import com.vaka.domain.User;
 import com.vaka.repository.RoomRepository;
 import com.vaka.util.DomainExtractor;
-import com.vaka.util.NamedPreparedStatement;
-import com.vaka.util.StatementExtractor;
+import com.vaka.util.repository.CrudRepositoryUtil;
+import com.vaka.util.repository.NamedPreparedStatement;
+import com.vaka.util.repository.StatementExtractor;
 import com.vaka.util.exception.RepositoryException;
 
 import javax.sql.DataSource;
@@ -15,6 +15,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -22,10 +23,12 @@ import java.util.Optional;
  */
 public class RoomRepositoryJdbcImpl implements RoomRepository {
     private DataSource dataSource;
+    private Map<String, String> queryByClassAndMethodName;
+
 
     @Override
     public List<Room> findAvailableForReservation(RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate) {
-        String strQuery = "SELECT * FROM room r WHERE room_class = :roomClass AND NOT EXISTS (SELECT * FROM reservation WHERE room_id = r.id AND arrival_date < :departureDate AND departure_date > :arrivalDate)";
+        String strQuery = getQueryByClassAndMethodName().get("room.findAvailableForReservation");
 
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = getFindAvailableForReservationStatement(connection, strQuery, roomClass, arrivalDate, departureDate);
@@ -50,7 +53,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
 
     @Override
     public Room create(Room entity) {
-        String strQuery = "INSERT INTO room (created_datetime, number, capacity, cost_per_day, room_class, description) VALUES (:createdDatetime, :number, :capacity, :costPerDay, :roomClass, :description)";
+        String strQuery = getQueryByClassAndMethodName().get("room.create");
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, entity, Statement.RETURN_GENERATED_KEYS);
              ResultSet resultSet = statement.getGenerationKeys()) {
@@ -72,9 +75,9 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
 
     @Override
     public Optional<Room> getById(Integer id) {
-        String strQuery = "SELECT * FROM room WHERE id = :id";
+        String strQuery = getQueryByClassAndMethodName().get("room.getById");
         try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createGetByIdStatement(connection, strQuery, id);
+             NamedPreparedStatement statement = CrudRepositoryUtil.createGetByIdStatement(connection, strQuery, id);
              ResultSet resultSet = statement.executeQuery()) {
 
             if (resultSet.next())
@@ -85,33 +88,18 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
         }
     }
 
-    private NamedPreparedStatement createGetByIdStatement(Connection connection, String strQuery, Integer id) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        statement.setStatement("id", id);
-        return statement;
-    }
+
 
     @Override
     public boolean delete(Integer id) {
-        String strQuery = "DELETE FROM room WHERE id = :id";
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createDeleteStatement(connection, strQuery, id)) {
-            return statement.executeUpdate() != 0;
-        } catch (SQLException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    private NamedPreparedStatement createDeleteStatement(Connection connection, String strQuery, Integer id) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        statement.setStatement("id", id);
-        return statement;
+        String strQuery = getQueryByClassAndMethodName().get("room.delete");
+        return CrudRepositoryUtil.delete(strQuery, id);
     }
 
     @Override
     public boolean update(Integer id, Room entity) {
         entity.setId(id);
-        String strQuery = "UPDATE room SET number = :number, capacity = :capacity, cost_per_day = :costPerDay, room_class = :roomClass, description = :description WHERE id = :id";
+        String strQuery = getQueryByClassAndMethodName().get("room.update");
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = createUpdateStatement(connection, strQuery, entity)) {
             return statement.executeUpdate() != 0;
@@ -135,5 +123,16 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
             }
         }
         return dataSource;
+    }
+
+    public Map<String, String> getQueryByClassAndMethodName() {
+        if (queryByClassAndMethodName == null) {
+            synchronized (this) {
+                if (queryByClassAndMethodName == null) {
+                    queryByClassAndMethodName = ApplicationContext.getInstance().getQueryByClassAndMethodName();
+                }
+            }
+        }
+        return queryByClassAndMethodName;
     }
 }

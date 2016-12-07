@@ -13,15 +13,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Initializing in UserServlet
+ * Initializing in MainServlet
  * Created by Iaroslav on 11/24/2016.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApplicationContext {
 
-    private static Map<Class<?>, Object> beanByInterface;
+    private Map<Class<?>, Object> beanByInterface;
 
     private static ApplicationContext instance;
+
+    @Getter
+    private Map<String, String> queryByClassAndMethodName;
 
     @Getter
     private AtomicInteger idCounter = new AtomicInteger();
@@ -38,6 +41,7 @@ public class ApplicationContext {
             }
         });
         beanByInterface.put(DataSource.class, persistenceConfig.dataSource());
+        queryByClassAndMethodName = persistenceConfig.queryByClassAndMethodName();
         return this;
     }
 

@@ -1,6 +1,9 @@
 package com.vaka.web.servlet;
 
 import com.vaka.context.ApplicationContext;
+import com.vaka.domain.Reservation;
+import com.vaka.util.exception.AuthorizationException;
+import com.vaka.web.controller.ReservationController;
 import com.vaka.web.controller.UserController;
 
 import javax.servlet.ServletException;
@@ -14,18 +17,24 @@ import java.io.IOException;
  */
 public class UserServlet extends HttpServlet {
     private UserController userController;
+    private ReservationController reservationController;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if ("/users/signin".equals(req.getRequestURI())) {
+        String uri = req.getRequestURI();
+        if ("/users/signin".equals(uri)) {
             getUserController().signinPage(req, resp);
-        } else if ("/users/signup".equals(req.getRequestURI())) {
+        } else if ("/users/signup".equals(uri)) {
             getUserController().signupPage(req, resp);
-        } else if ("users/signout".equals(req.getRequestURI())) {
+        } else if ("/users/signout".equals(uri)) {
             getUserController().signOut(req, resp);
-        }
-        if (resp.getStatus() == 400)
-            super.doGet(req, resp);
+        } else if (uri.matches("/users/[0-9]+/reservations") &&
+                uri.split("/").length == 3) {
+            getReservationController().getByUser(req, resp);
+        } else if (uri.matches("/users/[0-9]+") &&
+                uri.split("/").length == 3) {
+            getUserController().userPage(req, resp);
+        } else resp.sendError(404, "Not Found");
     }
 
     @Override
@@ -34,10 +43,7 @@ public class UserServlet extends HttpServlet {
             getUserController().signIn(req, resp);
         } else if ("/users/signup".equals(req.getRequestURI())) {
             getUserController().signUp(req, resp);
-        }
-        if (resp.getStatus() == 400)
-            super.doGet(req, resp);
-        System.out.println("USER GET");
+        } else resp.sendError(404, "Not Found");
     }
 
     public UserController getUserController() {
@@ -49,5 +55,16 @@ public class UserServlet extends HttpServlet {
             }
         }
         return userController;
+    }
+
+    public ReservationController getReservationController() {
+        if (reservationController == null) {
+            synchronized (this) {
+                if (reservationController == null) {
+                    reservationController = ApplicationContext.getInstance().getBean(ReservationController.class);
+                }
+            }
+        }
+        return reservationController;
     }
 }

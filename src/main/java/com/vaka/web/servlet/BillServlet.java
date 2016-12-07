@@ -1,5 +1,10 @@
 package com.vaka.web.servlet;
 
+import com.vaka.context.ApplicationContext;
+import com.vaka.domain.Bill;
+import com.vaka.util.exception.AuthorizationException;
+import com.vaka.web.controller.BillController;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -10,25 +15,32 @@ import java.io.IOException;
  * Created by Iaroslav on 11/24/2016.
  */
 public class BillServlet extends HttpServlet {
+    BillController billController;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if ("/payments".equals(req.getRequestURI())) {
-            //return all unpaid payments
-        } else if (req.getRequestURI().startsWith("/payments?userId=")) {
-            //return all unpaid payments by specific user
+        try {
+            if (req.getRequestURI().matches("/bills/[0-9]+") && req.getRequestURI().split("/").length == 3) {
+                getBillController().getById(req, resp);
+            } else if (req.getRequestURI().equals("/bills/byReservation")) {
+                getBillController().getByReservationId(req, resp);
+            } else {
+                resp.setStatus(404);
+                super.doGet(req, resp);
+            }
+        } catch (AuthorizationException ex) {
+            resp.sendError(401, "Unauthorized");
         }
-        System.out.println("BILL GET");
-        super.doGet(req, resp);
     }
-    
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if ("/payments/pay".equals(req.getRequestURI())) {
-            //return paid bill
-        }
-        System.out.println("BILL POST");
 
-        super.doPost(req, resp);
+    public BillController getBillController() {
+        if (billController == null) {
+            synchronized (this) {
+                if (billController == null) {
+                    billController = ApplicationContext.getInstance().getBean(BillController.class);
+                }
+            }
+        }
+        return billController;
     }
 }
