@@ -2,7 +2,7 @@ package com.vaka.hotel_manager.context.config;
 
 
 import com.vaka.hotel_manager.repository.*;
-import com.vaka.hotel_manager.repository.inMemoryImpl.*;
+import com.vaka.hotel_manager.repository.inMemoryImpl.SecurityRepositoryImpl;
 import com.vaka.hotel_manager.repository.jdbcImpl.BillRepositoryJdbcImpl;
 import com.vaka.hotel_manager.repository.jdbcImpl.ReservationRepositoryJdbcImpl;
 import com.vaka.hotel_manager.repository.jdbcImpl.RoomRepositoryJdbcImpl;
@@ -21,7 +21,8 @@ import java.util.Map;
 @Getter
 public class ApplicationContextConfig {
     private Map<Class<?>, Class<?>> implClassByBeanName;
-    public ApplicationContextConfig(){
+
+    public ApplicationContextConfig() {
         implClassByBeanName = new HashMap<>();
 
         //Controllers

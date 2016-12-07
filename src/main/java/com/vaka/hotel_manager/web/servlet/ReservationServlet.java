@@ -19,7 +19,7 @@ public class ReservationServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-        String uri = req.getRequestURI();
+            String uri = req.getRequestURI();
             if (uri.equals("/reservations/confirmed")) {
                 getReservationController().confirmedList(req, resp);
             } else if (uri.equals("/reservations/requested")) {
@@ -50,7 +50,7 @@ public class ReservationServlet extends HttpServlet {
                 super.doPost(req, resp);
             }
         } catch (AuthorizationException ex) {
-            resp.sendError(401,"Unauthorized");
+            resp.sendError(401, "Unauthorized");
         }
     }
 

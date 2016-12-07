@@ -1,10 +1,10 @@
 package com.vaka.hotel_manager.repository.inMemoryImpl;
 
+import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
-import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.repository.ReservationRepository;
-import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,6 +42,7 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     public List<Reservation> findByStatus(ReservationStatus status) {
         return reservationById.values().stream().filter(r -> r.getStatus() == status).collect(Collectors.toList());
     }
+
     @Override
     public List<Reservation> findByRoomIdAndStatus(Integer roomId, ReservationStatus status) {
         return reservationById.values().stream()
@@ -53,7 +54,7 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     public List<Reservation> findActiveByUserId(Integer userId) {
         return reservationById.values().stream()
                 .filter(reservation -> reservation.getUser().getId().equals(userId) &&
-                 reservation.getDepartureDate().isAfter(LocalDate.now()))
+                        reservation.getDepartureDate().isAfter(LocalDate.now()))
                 .collect(Collectors.toList());
     }
 

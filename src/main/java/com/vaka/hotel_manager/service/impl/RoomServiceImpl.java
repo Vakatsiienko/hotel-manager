@@ -1,5 +1,6 @@
 package com.vaka.hotel_manager.service.impl;
 
+import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.Room;
@@ -7,7 +8,6 @@ import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.ReservationRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
 import com.vaka.hotel_manager.service.RoomService;
-import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
 
 import java.time.LocalDateTime;
@@ -36,7 +36,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Room create(User loggedUser, Room entity) {
         entity.setCreatedDatetime(LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS));
-         return getRoomRepository().create(entity);
+        return getRoomRepository().create(entity);
     }
 
     @Override

@@ -5,10 +5,10 @@ import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.repository.RoomRepository;
 import com.vaka.hotel_manager.util.DomainExtractor;
+import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
 import com.vaka.hotel_manager.util.repository.StatementExtractor;
-import com.vaka.hotel_manager.util.exception.RepositoryException;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -43,6 +43,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
             throw new RepositoryException(e);
         }
     }
+
     private NamedPreparedStatement getFindAvailableForReservationStatement(Connection connection, String strQuery, RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
         statement.setStatement("roomClass", roomClass.name());
@@ -87,7 +88,6 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
             throw new RepositoryException(e);
         }
     }
-
 
 
     @Override

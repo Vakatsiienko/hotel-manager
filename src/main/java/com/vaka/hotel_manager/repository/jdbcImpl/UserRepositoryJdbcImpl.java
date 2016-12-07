@@ -4,10 +4,10 @@ import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.util.DomainExtractor;
+import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
 import com.vaka.hotel_manager.util.repository.StatementExtractor;
-import com.vaka.hotel_manager.util.exception.RepositoryException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -88,7 +88,6 @@ public class UserRepositoryJdbcImpl implements UserRepository {
         String strQuery = getQueryByClassAndMethodName().get("user.delete");
         return CrudRepositoryUtil.delete(strQuery, id);
     }
-
 
 
     @Override

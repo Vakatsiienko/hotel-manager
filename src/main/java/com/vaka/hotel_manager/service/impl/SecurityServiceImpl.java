@@ -1,11 +1,11 @@
 package com.vaka.hotel_manager.service.impl;
 
+import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
-import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.repository.SecurityRepository;
+import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.service.SecurityService;
-import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.util.exception.AuthenticationException;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
 
@@ -45,7 +45,7 @@ public class SecurityServiceImpl implements SecurityService {
             req.setAttribute("exception", "Login or/and password are incorrect");
             throw new AuthenticationException("Login or/and password are incorrect");
         }
-        return  user.get();
+        return user.get();
     }
 
     @Override
@@ -59,8 +59,8 @@ public class SecurityServiceImpl implements SecurityService {
         Cookie[] cookies = req.getCookies();
         if (cookies == null)
             return anonymous;
-            Optional<Cookie> token = Arrays.stream(cookies)
-                    .filter(cookie -> cookie.getName().equals("TOKEN")).findFirst();
+        Optional<Cookie> token = Arrays.stream(cookies)
+                .filter(cookie -> cookie.getName().equals("TOKEN")).findFirst();
         if (!token.isPresent())
             return anonymous;
         Optional<Integer> userId = getSecurityRepository().getByToken(token.get().getValue());

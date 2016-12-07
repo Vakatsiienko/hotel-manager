@@ -81,8 +81,7 @@ public class UserController {
                 getUserService().create(loggedUser, user);
                 getSecurityService().signIn(req, resp, user.getEmail(), req.getParameter("password"));
                 resp.sendRedirect("/");
-            }
-            else {
+            } else {
                 resp.setStatus(400);
             }
         } catch (CreatingException ex) {

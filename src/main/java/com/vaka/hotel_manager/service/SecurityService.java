@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 public interface SecurityService {
 
 
-
     void signIn(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticationException;
 
     User authenticate(HttpServletRequest req, HttpServletResponse resp);

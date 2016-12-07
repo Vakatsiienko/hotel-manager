@@ -3,11 +3,11 @@ package com.vaka.hotel_manager.repository.jdbcImpl;
 import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.repository.BillRepository;
-import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.DomainExtractor;
+import com.vaka.hotel_manager.util.exception.RepositoryException;
+import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
 import com.vaka.hotel_manager.util.repository.StatementExtractor;
-import com.vaka.hotel_manager.util.exception.RepositoryException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -38,12 +38,14 @@ public class BillRepositoryJdbcImpl implements BillRepository {
             throw new RepositoryException(e);
         }
     }
+
     private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Bill entity, int statementCode) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, statementCode).init();
         StatementExtractor.extract(entity, statement);
         statement.execute();
         return statement;
     }
+
     @Override
     public Optional<Bill> getByReservationId(Integer id) {
         try {
@@ -109,6 +111,7 @@ public class BillRepositoryJdbcImpl implements BillRepository {
         }
         return dataSource;
     }
+
     public Map<String, String> getQueryByClassAndMethodName() {
         if (queryByClassAndMethodName == null) {
             synchronized (this) {

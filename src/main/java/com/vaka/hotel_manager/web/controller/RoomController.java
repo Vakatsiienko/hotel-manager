@@ -1,9 +1,9 @@
 package com.vaka.hotel_manager.web.controller;
 
+import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomService;
 import com.vaka.hotel_manager.service.SecurityService;
-import com.vaka.hotel_manager.context.ApplicationContext;
 
 /**
  * Created by Iaroslav on 11/25/2016.
@@ -26,7 +26,7 @@ public class RoomController {
 
     public RoomService getRoomService() {
         if (roomService == null)
-            synchronized (this){
+            synchronized (this) {
                 if (roomService == null) {
                     roomService = ApplicationContext.getInstance().getBean(RoomService.class);
                 }

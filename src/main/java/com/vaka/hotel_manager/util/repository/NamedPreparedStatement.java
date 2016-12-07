@@ -38,7 +38,7 @@ public class NamedPreparedStatement implements AutoCloseable {
         return this;
     }
 
-    private void parseStringToStatement(){
+    private void parseStringToStatement() {
         int pos;
         List<Integer> punctuation = new ArrayList<>();
         while ((pos = strQuery.indexOf(":")) != -1) {

@@ -21,10 +21,10 @@ public class DateAndTimeUtil {
 
     public static Timestamp convertWithoutMilli(LocalDateTime dateTime) {
         long createdDateTimeSeconds = dateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli() / 1000;
-       return new Timestamp(createdDateTimeSeconds * 1000);
+        return new Timestamp(createdDateTimeSeconds * 1000);
     }
 
-    public static String toString(LocalDateTime dateTime){
+    public static String toString(LocalDateTime dateTime) {
         return dateTime == null ? "" : dateTime.format(DATE_TME_FORMATTER);
 
     }

@@ -4,11 +4,11 @@ import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.repository.ReservationRepository;
-import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.DomainExtractor;
+import com.vaka.hotel_manager.util.exception.RepositoryException;
+import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
 import com.vaka.hotel_manager.util.repository.StatementExtractor;
-import com.vaka.hotel_manager.util.exception.RepositoryException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -123,6 +123,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
             throw new RepositoryException(e);
         }
     }
+
     private NamedPreparedStatement getFindActiveByUserIdStatement(Connection connection, String query, Integer userId) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, query).init();
         statement.setStatement("userId", userId);
@@ -164,7 +165,6 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
             throw new RepositoryException(e);
         }
     }
-
 
 
     @Override

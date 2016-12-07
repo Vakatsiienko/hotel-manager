@@ -48,7 +48,6 @@ public class CrudRepositoryUtil {
     }
 
 
-
     public static NamedPreparedStatement createGetByIdStatement(Connection connection, String strQuery, Integer id) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
         statement.setStatement("id", id);

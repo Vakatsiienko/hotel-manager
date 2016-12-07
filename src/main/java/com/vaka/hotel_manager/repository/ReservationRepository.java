@@ -15,6 +15,6 @@ public interface ReservationRepository extends CrudRepository<Reservation> {
     List<Reservation> findByStatus(ReservationStatus status);
 
     List<Reservation> findByUserIdAndStatus(Integer userId, ReservationStatus status);
-    
+
     List<Reservation> findActiveByUserId(Integer userId);
 }
