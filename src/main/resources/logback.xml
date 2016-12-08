@@ -7,7 +7,7 @@
 
 
     <appender name="file" class="ch.qos.logback.core.FileAppender">
-        <file>${HOTEL_MANAGER_ROOT}/log/topjava.log</file>
+        <file>C:\Users\Iaroslav\IdeaProjects\hotel-manager\log\hotel_manager.log</file>
 
         <encoder>
             <charset>UTF-8</charset>
@@ -22,7 +22,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.vaka." level="debug"/>
+    <logger name="com.vaka.hotel_manager" level="debug"/>
 
     <root level="info">
         <appender-ref ref="file"/>

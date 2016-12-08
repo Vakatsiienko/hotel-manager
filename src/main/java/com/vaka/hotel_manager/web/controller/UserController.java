@@ -3,6 +3,7 @@ package com.vaka.hotel_manager.web.controller;
 import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.Role;
+import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.SecurityService;
@@ -58,6 +59,12 @@ public class UserController {
 
     }
 
+    public void toRoot(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        User user = getSecurityService().authenticate(req, resp);
+        req.setAttribute("loggedUser", user);
+        req.setAttribute("roomClasses", RoomClass.values());
+        req.getRequestDispatcher("/home.jsp").forward(req, resp);
+    }
 
     public void signupPage(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         User loggedUser = getSecurityService().authenticate(req, resp);
@@ -66,7 +73,7 @@ public class UserController {
         else
             resp.sendRedirect("/");
     }
-
+//TODO hash password bcrypt
     public void signUp(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         User loggedUser = getSecurityService().authenticate(req, resp);
         if (loggedUser.getRole() != Role.ANONYMOUS) {
@@ -103,6 +110,7 @@ public class UserController {
         if (userId.equals(loggedUser.getId())) {
             req.setAttribute("user", loggedUser);
         } else if (loggedUser.getRole() == Role.MANAGER) {
+            //if loggedUser isn't looking user - get him from bd
             Optional<User> user = getUserService().getById(loggedUser, userId);
             if (user.isPresent()) {
                 req.setAttribute("user", user.get());

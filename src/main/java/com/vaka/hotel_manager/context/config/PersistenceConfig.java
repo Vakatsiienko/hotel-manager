@@ -1,7 +1,6 @@
 package com.vaka.hotel_manager.context.config;
 
 import com.vaka.hotel_manager.util.SqlParser;
-import com.vaka.hotel_manager.util.exception.CreatingException;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
@@ -14,10 +13,12 @@ import java.util.Properties;
  */
 public class PersistenceConfig {
 
-    private String[] sqlFileURLs;
+    private String[] sqlPaths;
+    private String connectionPropertiesPath;
 
-    public PersistenceConfig(String... sqlFileURLs) {
-        this.sqlFileURLs = sqlFileURLs;
+    public PersistenceConfig(String connectionPropertiesPath, String... sqlPath) {
+        this.connectionPropertiesPath = connectionPropertiesPath;
+        this.sqlPaths = sqlPath;
     }
 
     public javax.sql.DataSource dataSource() throws IOException {
@@ -27,12 +28,12 @@ public class PersistenceConfig {
     }
 
     public Map<String, String> queryByClassAndMethodName() throws IOException {
-        return new SqlParser(sqlFileURLs).createAndGetQueryByClassAndMethodName();
+        return new SqlParser(sqlPaths).createAndGetQueryByClassAndMethodName();
     }
 
     public PoolProperties poolProperties() throws IOException {
         Properties props = new Properties();
-        props.load(getClass().getClassLoader().getResourceAsStream("persistence.properties"));
+        props.load(new FileInputStream(connectionPropertiesPath));
 
         PoolProperties p = new PoolProperties();
         p.setUrl(props.getProperty("dataSource.url"));

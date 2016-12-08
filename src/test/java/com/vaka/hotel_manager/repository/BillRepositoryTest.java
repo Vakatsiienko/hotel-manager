@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.repository;
 
-import com.vaka.EntityProviderUtil;
+import com.vaka.hotel_manager.EntityProviderUtil;
 import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Reservation;

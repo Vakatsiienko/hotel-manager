@@ -8,6 +8,11 @@ DROP TABLE IF EXISTS bill;
 DROP TABLE IF EXISTS room;
 DROP TABLE IF EXISTS reservation;
 
+DROP DATABASE hotel_manager;
+CREATE DATABASE hotel_manager DEFAULT CHARACTER SET utf8
+  DEFAULT COLLATE utf8_general_ci;
+USE hotel_manager;
+
 CREATE TABLE user
 (
   id               BIGINT(20) PRIMARY KEY AUTO_INCREMENT NOT NULL,

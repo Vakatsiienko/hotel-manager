@@ -7,9 +7,11 @@ import com.vaka.hotel_manager.repository.ReservationRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
 import com.vaka.hotel_manager.service.BillService;
 import com.vaka.hotel_manager.service.ReservationService;
-import com.vaka.hotel_manager.util.DateAndTimeUtil;
+import com.vaka.hotel_manager.util.SecurityUtil;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -21,50 +23,51 @@ import java.util.Optional;
  * Created by Iaroslav on 11/27/2016.
  */
 public class ReservationServiceImpl implements ReservationService {
+    private static final Logger LOG = LoggerFactory.getLogger(ReservationServiceImpl.class);
     private ReservationRepository reservationRepository;
     private RoomRepository roomRepository;
-    private BillRepository billRepository;
     private BillService billService;
 
     @Override
     public boolean applyRoomForReservation(User loggedUser, Integer roomId, Integer reservationId) {
-        if (loggedUser.getRole() != Role.MANAGER)
-            throw new AuthorizationException("Not Allowed.");
+        SecurityUtil.authorize(loggedUser, Role.MANAGER);
         Optional<Room> room = getRoomRepository().getById(roomId);
         Optional<Reservation> request = getReservationRepository().getById(reservationId);
 
         if (!room.isPresent() || !request.isPresent())
             throw new NotFoundException(String.format("Not found room or request by given id, founded room: %s, request: %s", room, request));
-        boolean datesOverlap = reservationRepository.findByRoomIdAndStatus(roomId, ReservationStatus.CONFIRMED).stream().filter(//TODO get boolean from bd, existsByRoomIdAndDates()
-                reservation -> DateAndTimeUtil.areDatesOverlap(reservation.getArrivalDate(),
-                        reservation.getDepartureDate(), request.get().getArrivalDate(), request.get().getDepartureDate())
-        ).count() > 0;
-        if (datesOverlap)
+        if (request.get().getStatus() != ReservationStatus.REQUESTED)
             return false;
-        //TODO implement isolation(synchronization)
-        request.get().setRoom(room.get());
-        request.get().setStatus(ReservationStatus.CONFIRMED);
+        synchronized (this) {
+            boolean datesOverlap = getReservationRepository().existOverlapReservation(roomId, request.get().getArrivalDate(), request.get().getDepartureDate());
+            if (datesOverlap)
+                return false;
+            //TODO implement isolation with transaction
+            request.get().setRoom(room.get());
+            request.get().setStatus(ReservationStatus.CONFIRMED);
+            update(loggedUser, reservationId, request.get());
+        }
         getBillService().createFromReservation(loggedUser, request.get());
-        update(loggedUser, reservationId, request.get());
         return true;
     }
 
     @Override
     public List<Reservation> findActiveByUserId(User loggedUser, Integer userId) {
+        if (!loggedUser.getId().equals(userId))
+            SecurityUtil.authorize(loggedUser, Role.MANAGER);
         return getReservationRepository().findActiveByUserId(userId);
     }
 
     @Override
     public List<Reservation> findByStatus(User loggedUser, ReservationStatus status) {
-        if (loggedUser.getRole() != Role.MANAGER)
-            throw new AuthorizationException("Not Allowed.");
+        SecurityUtil.authorize(loggedUser, Role.MANAGER);
         return getReservationRepository().findByStatus(status);
     }
 
     @Override
     public List<Reservation> findByStatusAndUserId(User loggedUser, ReservationStatus status, Integer userId) {
-        if (loggedUser.getRole() != Role.MANAGER || !userId.equals(loggedUser.getId()))
-            throw new AuthorizationException("Not Allowed.");
+        if (!userId.equals(loggedUser.getId()))
+            SecurityUtil.authorize(loggedUser, Role.MANAGER);
         return getReservationRepository().findByUserIdAndStatus(userId, status);
     }
 
@@ -72,14 +75,12 @@ public class ReservationServiceImpl implements ReservationService {
     public boolean reject(User loggedUser, Integer reservationId) {
         Optional<Reservation> reservationOptional = getReservationRepository().getById(reservationId);
         if (reservationOptional.isPresent()) {
-            if (loggedUser.getRole() == Role.MANAGER || reservationOptional.get().getUser().getId().equals(loggedUser.getId())) {
-                Room room = new Room();
-                room.setId(-1);
-                reservationOptional.get().setRoom(room);
-                reservationOptional.get().setStatus(ReservationStatus.REJECTED);
-                reservationRepository.update(reservationId, reservationOptional.get());
-                return true;
-            } else throw new AuthorizationException("Not Allowed.");
+            if (!reservationOptional.get().getUser().getId().equals(loggedUser.getId())) {
+                SecurityUtil.authorize(loggedUser, Role.MANAGER);
+            }
+            reservationOptional.get().setStatus(ReservationStatus.REJECTED);
+            reservationRepository.update(reservationId, reservationOptional.get());
+            return true;
         } else return false;
     }
 
@@ -92,24 +93,21 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Optional<Reservation> getById(User loggedUser, Integer id) {
         Optional<Reservation> reservation = getReservationRepository().getById(id);
-        if (loggedUser.getRole() == Role.MANAGER) {
-            return reservation;
-        }
         if (reservation.isPresent()) {
-            if (reservation.get().getUser().getId().equals(loggedUser.getId())) {
-                return reservation;
+            if (!reservation.get().getUser().getId().equals(loggedUser.getId())) {
+                SecurityUtil.authorize(loggedUser, Role.MANAGER);
             }
         }
-        throw new AuthorizationException("Not Allowed.");
+        return reservation;
     }
 
     @Override
     public boolean update(User loggedUser, Integer id, Reservation entity) {
-        if (loggedUser.getRole() == Role.MANAGER) {
-            return getReservationRepository().update(id, entity);
-        } else throw new AuthorizationException("Not Allowed.");
+        if (!entity.getUser().getId().equals(loggedUser.getId())) {
+            SecurityUtil.authorize(loggedUser, Role.MANAGER);
+        }
+        return getReservationRepository().update(id, entity);
     }
-
     @Override
     public boolean delete(User loggedUser, Integer id) {
         if (loggedUser.getRole() == Role.MANAGER) {
@@ -135,17 +133,6 @@ public class ReservationServiceImpl implements ReservationService {
             }
         }
         return roomRepository;
-    }
-
-    public BillRepository getBillRepository() {
-        if (billRepository == null) {
-            synchronized (this) {
-                if (billRepository == null) {
-                    billRepository = ApplicationContext.getInstance().getBean(BillRepository.class);
-                }
-            }
-        }
-        return billRepository;
     }
 
     public BillService getBillService() {

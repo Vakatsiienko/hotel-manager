@@ -36,7 +36,6 @@
 <a href="/">/ (make reservation request)</a> <br>
 <a href="/reservations/confirmed">/confirmed</a> <br>
 <a href="/reservations/requested">/requests</a> <br>
-<p>For Bill go to the RequestInfo page</p>
 <a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
 <c:if test="${!empty message}">
     <h3>${message}</h3>

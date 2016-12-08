@@ -1,6 +1,5 @@
 package com.vaka.hotel_manager.service;
 
-import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.util.exception.AuthenticationException;
 
@@ -18,7 +17,5 @@ public interface SecurityService {
     User authenticate(HttpServletRequest req, HttpServletResponse resp);
 
     void logout(HttpServletRequest req, HttpServletResponse resp, User loggedUser);
-
-    void authorize(User loggedUser, Role expected);
 
 }

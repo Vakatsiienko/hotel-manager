@@ -8,6 +8,8 @@ import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
 import com.vaka.hotel_manager.util.repository.StatementExtractor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -21,6 +23,7 @@ import java.util.Optional;
  * Created by Iaroslav on 12/3/2016.
  */
 public class UserRepositoryJdbcImpl implements UserRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(UserRepositoryJdbcImpl.class);
     private DataSource dataSource;
     private Map<String, String> queryByClassAndMethodName;
 
@@ -35,6 +38,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
                 return Optional.of(DomainExtractor.extractUser(resultSet));
             else return Optional.empty();
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -56,6 +60,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
                 return entity;
             } else throw new SQLException("ID wasn't returned");
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -78,6 +83,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
                 return Optional.of(DomainExtractor.extractUser(resultSet));
             else return Optional.empty();
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -98,6 +104,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
              NamedPreparedStatement statement = createUpdateStatement(connection, strQuery, entity)) {
             return statement.executeUpdate() != 0;
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }

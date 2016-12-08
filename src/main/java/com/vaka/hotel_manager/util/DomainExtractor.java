@@ -68,7 +68,7 @@ public class DomainExtractor {
         user.setEmail(resultSet.getString("email"));
         return user;
     }
-
+//TODO change apply to confirm on reservation page
     public static Reservation extractReservation(HttpServletRequest req) {
         Reservation reservation = new Reservation();
         String strId = req.getParameter("id");
@@ -82,7 +82,8 @@ public class DomainExtractor {
         reservation.setStatus(ReservationStatus.REQUESTED);
         return reservation;
     }
-
+    //TODO wrap request
+//TODO split to different layers
     public static User extractUser(HttpServletRequest req) {
         User user = new User();
         user.setEmail(req.getParameter("email"));

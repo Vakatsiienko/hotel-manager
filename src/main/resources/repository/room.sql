@@ -20,3 +20,10 @@ WHERE room_class = :roomClass AND NOT EXISTS (SELECT *
                                               FROM reservation
                                               WHERE room_id = r.id AND arrival_date < :departureDate AND
                                                     departure_date > :arrivalDate);
+# room.findAvailableForReservation_count
+SELECT COUNT(*)
+FROM room r
+WHERE room_class = :roomClass AND NOT EXISTS (SELECT *
+                                              FROM reservation
+                                              WHERE room_id = r.id AND arrival_date < :departureDate AND
+                                                    departure_date > :arrivalDate);

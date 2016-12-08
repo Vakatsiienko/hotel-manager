@@ -1,6 +1,8 @@
 package com.vaka.hotel_manager.repository;
 
 
+import com.vaka.hotel_manager.ContextInitTestUtil;
+import com.vaka.hotel_manager.context.ContextInitializer;
 import com.vaka.hotel_manager.context.config.ApplicationContextConfig;
 import com.vaka.hotel_manager.context.config.PersistenceConfig;
 import com.vaka.hotel_manager.domain.BaseEntity;
@@ -22,9 +24,8 @@ public abstract class CrudRepositoryTest<Entity extends BaseEntity> {
 
     @BeforeClass
     public static void init() throws SQLException, ClassNotFoundException, IOException, InterruptedException {
-        ApplicationContext.getInstance().init(new ApplicationContextConfig(), new PersistenceConfig());
-//        DBTestUtil.reset();
-//        Thread.sleep(10000);
+        if (!ContextInitTestUtil.isInitIsDone())
+            ContextInitTestUtil.init();
     }
     @Before
     public void beforeTest() throws SQLException, ClassNotFoundException {

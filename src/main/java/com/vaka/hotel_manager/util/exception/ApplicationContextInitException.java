@@ -3,7 +3,7 @@ package com.vaka.hotel_manager.util.exception;
 /**
  * Created by Iaroslav on 11/26/2016.
  */
-public class ApplicationContextInitException extends RuntimeException {
+public class ApplicationContextInitException extends ApplicationException {
     public ApplicationContextInitException(Throwable cause) {
         super(cause);
     }

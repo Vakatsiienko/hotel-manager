@@ -30,8 +30,9 @@ public abstract class BaseEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BaseEntity that = (BaseEntity) o;
-        return Objects.equals(id, that.id);
-//                && Objects.equals(createdDatetime, that.createdDatetime); TODO resolve persisting datetime bug
+        return Objects.equals(id, that.id)
+                && Objects.equals(createdDatetime, that.createdDatetime);
+//        TODO resolve persisting datetime bug
     }
 
     @Override

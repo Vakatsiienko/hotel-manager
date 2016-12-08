@@ -10,10 +10,52 @@
 <html>
 <head>
     <title>Make Request</title>
+    <script
+            src="https://code.jquery.com/jquery-3.1.1.js"
+            integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
+            crossorigin="anonymous"></script>
     <script type="text/javascript">
-        function compareTime(arrival, departure) {
-            return new Date(arrival) < new Date(departure); // true if time1 is later
+
+        function changeDeparture(arrival){
+            var departure = new Date(arrival);
+            var dd = departure.getDate();
+            var mm = departure.getMonth() + 1;
+            var yyyy = departure.getFullYear();
+            yyyy = "" + yyyy;
+            while(yyyy.length < 4){
+                yyyy = '0' + yyyy;
+            }
+
+            if (dd < 10) {
+                dd = '0' + dd
+            }
+            if (mm < 10) {
+                mm = '0' + mm
+            }
+
+            departure = yyyy + '-' + mm + '-' + dd;
+            document.getElementById("departureDate").setAttribute("min", departure);
+            document.getElementById("departureDate").setAttribute("value", departure);
         }
+        //setting default and min value for date imput
+        $(function () {
+            var today = new Date();
+            var d = today.getDate();
+            var m = today.getMonth() + 1;
+            var y = today.getFullYear();
+            if (d < 10) {
+                d = '0' + d
+            }
+            if (m < 10) {
+                m = '0' + m
+            }
+
+            today = y + '-' + m + '-' + d;
+            document.getElementById("arrivalDate").setAttribute("min", today);
+            document.getElementById("arrivalDate").setAttribute("value", today);
+            document.getElementById("departureDate").setAttribute("min", today);
+            document.getElementById("departureDate").setAttribute("value", today);
+        });
     </script>
     <style type="text/css">
 
@@ -46,7 +88,6 @@
 <a href="/">/ (make reservation request)</a> <br>
 <a href="/reservations/confirmed">/confirmed</a> <br>
 <a href="/reservations/requested">/requests</a> <br>
-<p>For Bill go to the RequestInfo page</p>
 <a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
 <c:if test="${!empty message}">
     <h3>${message}</h3>
@@ -156,7 +197,7 @@
                     <label for="arrivalDate">Arrival Date</label>
                 </th>
                 <td>
-                    <input id="arrivalDate" name="arrivalDate" type="date" required>
+                    <input id="arrivalDate" name="arrivalDate" type="date" onchange="changeDeparture(document.getElementById('arrivalDate').value)" required>
                 </td>
             </tr>
             <tr class="fitem">

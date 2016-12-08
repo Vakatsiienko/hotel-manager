@@ -11,8 +11,14 @@ import java.util.Optional;
  */
 public interface BillService extends CrudService<Bill> {
 
+    /**
+     * creates Bill using given reservation date period and Room information(Cost per day)
+     */
     void createFromReservation(User loggedUser, Reservation reservation);
 
+    /**
+     * @return Optional.empty() if there are no Bill made by reservation with this id
+     */
     Optional<Bill> getBillByReservationId(User loggedUser, Integer reservationId);
 
 }

@@ -1,7 +1,7 @@
 package com.vaka.hotel_manager.repository;
 
-import com.vaka.DBTestUtil;
-import com.vaka.EntityProviderUtil;
+import com.vaka.hotel_manager.DBTestUtil;
+import com.vaka.hotel_manager.EntityProviderUtil;
 import com.vaka.hotel_manager.context.config.ApplicationContextConfig;
 import com.vaka.hotel_manager.context.config.PersistenceConfig;
 import com.vaka.hotel_manager.domain.User;
@@ -19,16 +19,17 @@ import java.util.Optional;
  */
 public class UserRepositoryTest extends CrudRepositoryTest<User> {
     private UserRepository userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
+
     @Before
     public void setUp() throws SQLException, ClassNotFoundException, IOException {
-        ApplicationContext.getInstance().init(new ApplicationContextConfig(), new PersistenceConfig());
         DBTestUtil.reset();
     }
+
     @Test
     public void testGetByEmail() throws Exception {
         userRepository.create(createEntity());
         User user = createEntity();
-        String mail = "someNewEmail@mail";
+        String mail = "someNewRandomEmail@mail";
         user.setEmail(mail);
         User expected =  userRepository.create(user);
         userRepository.create(createEntity());

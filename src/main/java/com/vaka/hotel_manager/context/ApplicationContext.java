@@ -13,10 +13,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Initializing in MainServlet
- * Created by Iaroslav on 11/24/2016.
- */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApplicationContext {
 
@@ -37,7 +33,7 @@ public class ApplicationContext {
             try {
                 Object bean = classByBeanName.get(k).getConstructor().newInstance();
                 beanByInterface.put(k, bean);
-            } catch (Exception e) {
+            } catch (Exception e) {//TODO replace with special exception
                 throw new ApplicationContextInitException(e);
             }
         });

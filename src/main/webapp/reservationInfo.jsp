@@ -19,7 +19,6 @@
 <a href="/">/ (make reservation request)</a> <br>
 <a href="/reservations/confirmed">/confirmed</a> <br>
 <a href="/reservations/requested">/requests</a> <br>
-<p>For Bill go to the RequestInfo page</p>
 <div id="loggedUser">${loggedUser.name} <a href="/users/signout">logout</a></div>
 <a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
 <c:if test="${!empty message}">

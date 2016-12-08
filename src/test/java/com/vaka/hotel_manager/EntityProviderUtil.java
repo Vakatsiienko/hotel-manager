@@ -1,4 +1,4 @@
-package com.vaka;
+package com.vaka.hotel_manager;
 
 import com.vaka.hotel_manager.domain.*;
 import com.vaka.hotel_manager.repository.BillRepository;

@@ -16,11 +16,13 @@ import java.io.IOException;
 public class UserServlet extends HttpServlet {
     private UserController userController;
     private ReservationController reservationController;
-
+//TODO make single servlet
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String uri = req.getRequestURI();
-        if ("/users/signin".equals(uri)) {
+        if ("/".equals(req.getRequestURI())) {
+            getUserController().toRoot(req, resp);
+        } else if ("/users/signin".equals(uri)) {
             getUserController().signinPage(req, resp);
         } else if ("/users/signup".equals(uri)) {
             getUserController().signupPage(req, resp);

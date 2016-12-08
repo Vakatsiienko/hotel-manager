@@ -11,6 +11,11 @@ import java.util.List;
  */
 public interface ReservationService extends CrudService<Reservation> {
 
+    /**
+     * @param roomId applying roomId
+     * @param requestId to what request apply room
+     * @return
+     */
     boolean applyRoomForReservation(User loggedUser, Integer roomId, Integer requestId);
 
     List<Reservation> findByStatus(User loggedUser, ReservationStatus status);

@@ -34,7 +34,6 @@
 <a href="/">/ (make reservation request)</a> <br>
 <a href="/reservations/confirmed">/confirmed</a> <br>
 <a href="/reservations/requested">/requests</a> <br>
-<p>For Bill go to the RequestInfo page</p>
 <a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
 <c:if test="${!empty message}">
     <h3>${message}</h3>
@@ -63,7 +62,7 @@
             <th>${reservation.requestedRoomClass}</th>
             <th>${fn:formatDateTime(reservation.createdDatetime)}</th>
             <th>${reservation.status}</th>
-            <th><a href="/reservations/process/${reservation.id}">Process</a><%--TODO add process request button--%>
+            <th><a href="/reservations/process/${reservation.id}">Process</a>
             </th>
         </tr>
     </c:forEach>

@@ -9,12 +9,12 @@ import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
 import com.vaka.hotel_manager.util.repository.StatementExtractor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +24,31 @@ import java.util.Optional;
  * Created by Iaroslav on 12/4/2016.
  */
 public class ReservationRepositoryJdbcImpl implements ReservationRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(ReservationRepositoryJdbcImpl.class);
     private DataSource dataSource;
     private Map<String, String> queryByClassAndMethodName;
 
+    @Override
+    public boolean existOverlapReservation(Integer roomId, LocalDate arrivalDate, LocalDate departureDate) {
+        String strQuery = getQueryByClassAndMethodName().get("reservation.existOverlapReservation");
+        try (Connection connection = getDataSource().getConnection();
+             NamedPreparedStatement statement = getExistOverlapReservationStatement(connection, strQuery, roomId, arrivalDate, departureDate);
+             ResultSet resultSet = statement.executeQuery()) {
+            resultSet.next();
+            return resultSet.getInt(1) != 0;
+        } catch (SQLException e) {
+            LOG.info(e.getMessage());
+            throw new RepositoryException(e);
+        }
+    }
+
+    private NamedPreparedStatement getExistOverlapReservationStatement(Connection connection, String query, Integer roomId, LocalDate arrivalDate, LocalDate departureDate) throws SQLException {
+        NamedPreparedStatement statement = new NamedPreparedStatement(connection, query).init();
+        statement.setStatement("roomId", roomId);
+        statement.setStatement("arrivalDate", Date.valueOf(arrivalDate));
+        statement.setStatement("departureDate", Date.valueOf(departureDate));
+        return statement;
+    }
 
     @Override
     public List<Reservation> findByRoomIdAndStatus(Integer roomId, ReservationStatus status) {
@@ -36,10 +58,11 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
              NamedPreparedStatement statement = getFindByRoomIdAndStatusStatement(connection, strQuery, roomId, status);
              ResultSet resultSet = statement.executeQuery();
              NamedPreparedStatement countStatement = getFindByRoomIdAndStatusStatement(connection, strCountRowsQuery, roomId, status);
-             ResultSet countSet = countStatement.executeQuery();) {
+             ResultSet countSet = countStatement.executeQuery()) {
 
             return fetchListFromResultSet(resultSet, countSet);
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -75,6 +98,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
             return fetchListFromResultSet(resultSet, countSet);
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -98,6 +122,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
             return fetchListFromResultSet(resultSet, countSet);
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -120,6 +145,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
             return fetchListFromResultSet(resultSet, countSet);
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -141,6 +167,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
                 reservation.setId(resultSet.getInt(1));
             return reservation;
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -162,6 +189,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
                 return Optional.of(DomainExtractor.extractReservation(resultSet));
             else return Optional.empty();
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -175,11 +203,11 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
             strQuery = getQueryByClassAndMethodName().get("reservation.update_withRoom");
         else
             strQuery = getQueryByClassAndMethodName().get("reservation.update_withoutRoom");
-        //TODO add strategies
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = createUpdateStatement(connection, strQuery, entity)) {
             return statement.executeUpdate() != 0;
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }

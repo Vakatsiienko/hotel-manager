@@ -1,7 +1,7 @@
 package com.vaka.hotel_manager.repository;
 
-import com.vaka.DBTestUtil;
-import com.vaka.EntityProviderUtil;
+import com.vaka.hotel_manager.DBTestUtil;
+import com.vaka.hotel_manager.EntityProviderUtil;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.Room;
@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class RoomRepositoryTest extends CrudRepositoryTest<Room> {
     private ReservationRepository reservationRepository = ApplicationContext.getInstance().getBean(ReservationRepository.class);
 
     @Before
-    public void setUp() throws SQLException, ClassNotFoundException {
+    public void setUp() throws SQLException, ClassNotFoundException, IOException {
         DBTestUtil.reset();
     }
 

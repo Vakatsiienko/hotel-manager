@@ -58,3 +58,8 @@ UPDATE reservation
 SET user_id    = :userId, guests = :guests, requested_room_class = :requestedRoomClass, status = :status,
   arrival_date = :arrivalDate, departure_date = :departureDate
 WHERE id = :id;
+# reservation.existOverlapReservation
+SELECT COUNT(*)
+FROM reservation res
+  INNER JOIN room r ON res.id = r.id
+WHERE r.id = :roomId AND res.status = 'CONFIRMED'  AND res.departure_date > :arrivalDate AND res.arrival_date < :departureDate;

@@ -3,7 +3,7 @@ package com.vaka.hotel_manager.util.exception;
 /**
  * Created by Iaroslav on 11/26/2016.
  */
-public class AuthorizationException extends RuntimeException {
+public class AuthorizationException extends ApplicationException {
     public AuthorizationException() {
     }
 

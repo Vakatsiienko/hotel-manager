@@ -9,6 +9,8 @@ import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
 import com.vaka.hotel_manager.util.repository.StatementExtractor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -22,6 +24,7 @@ import java.util.Optional;
  * Created by Iaroslav on 12/3/2016.
  */
 public class RoomRepositoryJdbcImpl implements RoomRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(RoomRepositoryJdbcImpl.class);
     private DataSource dataSource;
     private Map<String, String> queryByClassAndMethodName;
 
@@ -29,17 +32,24 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     @Override
     public List<Room> findAvailableForReservation(RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate) {
         String strQuery = getQueryByClassAndMethodName().get("room.findAvailableForReservation");
+        String strCountQuery = getQueryByClassAndMethodName().get("room.findAvailableForReservation_count");
 
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = getFindAvailableForReservationStatement(connection, strQuery, roomClass, arrivalDate, departureDate);
-             ResultSet resultSet = statement.executeQuery()) {
+             ResultSet resultSet = statement.executeQuery();
+             NamedPreparedStatement countStatement = getFindAvailableForReservationStatement(connection, strCountQuery, roomClass, arrivalDate, departureDate);
+             ResultSet countResultSet = countStatement.executeQuery()) {
+            int size = 0;
+            if (countResultSet.next())
+                size = countResultSet.getInt(1);
 
-            List<Room> rooms = new ArrayList<>(30);//TODO get size
+            List<Room> rooms = new ArrayList<>(size);
             while (resultSet.next()) {
                 rooms.add(DomainExtractor.extractRoom(resultSet));
             }
             return rooms;
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -63,6 +73,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
                 return entity;
             } else throw new SQLException("ID wasn't returned");
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -85,6 +96,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
                 return Optional.of(DomainExtractor.extractRoom(resultSet));
             else return Optional.empty();
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
@@ -104,6 +116,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
              NamedPreparedStatement statement = createUpdateStatement(connection, strQuery, entity)) {
             return statement.executeUpdate() != 0;
         } catch (SQLException e) {
+            LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }

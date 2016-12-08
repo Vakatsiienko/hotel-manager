@@ -23,13 +23,14 @@ import java.util.Optional;
 /**
  * Created by Iaroslav on 12/1/2016.
  */
+//TODO make private default constructors
 public class ReservationController {
     private ReservationService reservationService;
     private UserService userService;
     private RoomService roomService;
     private SecurityService securityService;
 
-
+//TODO don't give resp to controllers
     public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req, resp);
         Reservation reservation = DomainExtractor.extractReservation(req);
@@ -41,6 +42,10 @@ public class ReservationController {
         if (loggedUser.getRole() == Role.ANONYMOUS) {
             User created = DomainExtractor.extractUser(req);
             created.setPassword(created.getPhoneNumber());
+            if (DomainUtil.hasNull(created)) {
+                resp.sendError(400, "Illegal arguments");
+                return;
+            }
             created = getUserService().create(loggedUser, created);
             reservation.setUser(created);
             getSecurityService().signIn(req, resp, created.getEmail(), created.getPhoneNumber());
@@ -64,30 +69,39 @@ public class ReservationController {
             req.setAttribute("reservation", reservation.get());
             req.getRequestDispatcher("/reservationInfo.jsp").forward(req, resp);
         } catch (NumberFormatException ex) {
-            resp.sendError(400);
+            resp.sendError(400, "Illegal arguments");
         }
     }
 
     public void applyRoomForReservation(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req, resp);
         if (loggedUser.getRole() != Role.MANAGER)
-            throw new AuthorizationException("Not allowed.");
-        Integer reservationId = Integer.valueOf(req.getParameter("reservationId"));
-        Integer roomId = Integer.valueOf(req.getParameter("roomId"));
-        if (reservationId == null || roomId == null || reservationId < 0 || roomId < 0) {
-            resp.sendError(400);
+            throw new AuthorizationException("Not allowed.");//TODO move to service
+
+        Integer reservationId = -1;
+        Integer roomId = -1;
+        try {
+            reservationId = Integer.valueOf(req.getParameter("reservationId"));
+            roomId = Integer.valueOf(req.getParameter("roomId"));
+            if (reservationId < 0 || roomId < 0) {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            resp.sendError(400, "Illegal arguments");
             return;
         }
         Optional<Reservation> reservation = getReservationService().getById(loggedUser, reservationId);
         boolean success = false;
         if (reservation.isPresent()) {
             success = getReservationService().applyRoomForReservation(loggedUser, roomId, reservationId);
-            req.setAttribute("reservation", getReservationService().getById(loggedUser, reservationId).get());
+            req.setAttribute("reservation", getReservationService().getById(loggedUser, reservationId).get());//TODO CHECK
         }
-        if (!success)
+        if (!success) {
             req.setAttribute("exception", "Can't apply given room");
+            req.getRequestDispatcher("/reservationProcessing.jsp").forward(req, resp);
+        }
         resp.sendRedirect("/reservations/" + reservationId);
-    }
+    }//TODO move url location to another prop file
 
     public void confirmedList(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req, resp);

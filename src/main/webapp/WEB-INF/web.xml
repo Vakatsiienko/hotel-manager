@@ -7,6 +7,28 @@
     <!--<listener>-->
         <!--<listener-class>com.vaka.hotel_manager.context.ContextInitializer</listener-class>-->
     <!--</listener>-->
+    <jsp-config>
+        <jsp-property-group>
+            <url-pattern>*.jsp</url-pattern>
+            <page-encoding>UTF-8</page-encoding>
+        </jsp-property-group>
+    </jsp-config>
+
+    <!--FILTER-->
+    <filter>
+        <filter-name>CharsetFilter</filter-name>
+        <filter-class>com.vaka.hotel_manager.web.servlet.CharsetFilter</filter-class>
+        <init-param>
+            <param-name>requestEncoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CharsetFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!--SERVLET-->
     <servlet>
         <servlet-name>RoomServlet</servlet-name>
         <servlet-class>com.vaka.hotel_manager.web.servlet.RoomServlet</servlet-class>
@@ -24,7 +46,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>UserServlet</servlet-name>
-        <url-pattern>/users/*</url-pattern>
+        <url-pattern>/</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -37,15 +59,6 @@
         <url-pattern>/bills/*</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>MainServlet</servlet-name>
-        <servlet-class>com.vaka.hotel_manager.web.servlet.MainServlet</servlet-class>
-        <load-on-startup>0</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>MainServlet</servlet-name>
-        <url-pattern>/</url-pattern>
-    </servlet-mapping>
     <servlet>
         <servlet-name>ReservationServlet</servlet-name>
         <servlet-class>com.vaka.hotel_manager.web.servlet.ReservationServlet</servlet-class>

@@ -16,12 +16,7 @@ import java.io.IOException;
 public class MainController {
     private SecurityService securityService;
 
-    public void toRoot(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User user = getSecurityService().authenticate(req, resp);
-        req.setAttribute("loggedUser", user);
-        req.setAttribute("roomClasses", RoomClass.values());
-        req.getRequestDispatcher("/home.jsp").forward(req, resp);
-    }
+
 
     private SecurityService getSecurityService() {
         if (securityService == null) {

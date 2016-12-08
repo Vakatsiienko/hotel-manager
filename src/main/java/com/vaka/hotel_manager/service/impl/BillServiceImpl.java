@@ -9,7 +9,8 @@ import com.vaka.hotel_manager.repository.BillRepository;
 import com.vaka.hotel_manager.service.BillService;
 import com.vaka.hotel_manager.util.DomainFactory;
 import com.vaka.hotel_manager.util.SecurityUtil;
-import com.vaka.hotel_manager.util.exception.AuthorizationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -20,7 +21,7 @@ import java.util.Optional;
  * Created by Iaroslav on 11/26/2016.
  */
 public class BillServiceImpl implements BillService {
-
+    private static final Logger LOG = LoggerFactory.getLogger(BillServiceImpl.class);
 
     private BillRepository billRepository;
 
@@ -34,9 +35,8 @@ public class BillServiceImpl implements BillService {
     public Optional<Bill> getBillByReservationId(User loggedUser, Integer reservationId) {
         Optional<Bill> bill = getBillRepository().getByReservationId(reservationId);
         if (bill.isPresent()) {
-            if (bill.get().getReservation().getUser().getId().equals(loggedUser.getId()) || loggedUser.getRole() == Role.MANAGER)
-                return bill;
-            else throw new AuthorizationException("Not allowed");
+            if (!bill.get().getReservation().getUser().getId().equals(loggedUser.getId()))
+                SecurityUtil.authorize(loggedUser, Role.MANAGER);
         }
         return bill;
     }
@@ -52,9 +52,8 @@ public class BillServiceImpl implements BillService {
     public Optional<Bill> getById(User loggedUser, Integer id) {
         Optional<Bill> bill = getBillRepository().getById(id);
         if (bill.isPresent()) {
-            if (bill.get().getReservation().getUser().getId().equals(loggedUser.getId()) || loggedUser.getRole() == Role.MANAGER) {
-                return bill;
-            } else throw new AuthorizationException("Not allowed");
+            if (bill.get().getReservation().getUser().getId().equals(loggedUser.getId()))
+                SecurityUtil.authorize(loggedUser, Role.MANAGER);
         }
         return bill;
     }

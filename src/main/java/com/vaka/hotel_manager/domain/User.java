@@ -17,5 +17,5 @@ public class User extends BaseEntity {
     private String name;
     private Role role;
     private String phoneNumber;
-
+//TODO consider make immutable domain
 }

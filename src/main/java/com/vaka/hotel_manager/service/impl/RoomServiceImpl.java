@@ -8,6 +8,7 @@ import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.ReservationRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
 import com.vaka.hotel_manager.service.RoomService;
+import com.vaka.hotel_manager.util.SecurityUtil;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<Room> findAvailableForReservation(User loggedUser, Integer reservationId) {
+        SecurityUtil.authorize(loggedUser, Role.MANAGER);
         Optional<Reservation> request = getReservationRepository().getById(reservationId);
         if (request.isPresent())
             return getRoomRepository().findAvailableForReservation(request.get().getRequestedRoomClass(),
@@ -35,24 +37,26 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room create(User loggedUser, Room entity) {
+        SecurityUtil.authorize(loggedUser, Role.MANAGER);
         entity.setCreatedDatetime(LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS));
         return getRoomRepository().create(entity);
     }
 
     @Override
     public Optional<Room> getById(User loggedUser, Integer id) {
-        if (loggedUser.getRole() == Role.MANAGER)
-            return getRoomRepository().getById(id);
-        else throw new AuthorizationException("Not Allowed.");
+        SecurityUtil.authorize(loggedUser, Role.MANAGER);
+        return getRoomRepository().getById(id);
     }
 
     @Override
     public boolean delete(User loggedUser, Integer id) {
+        SecurityUtil.authorize(loggedUser, Role.MANAGER);
         return getRoomRepository().delete(id);
     }
 
     @Override
     public boolean update(User loggedUser, Integer id, Room entity) {
+        SecurityUtil.authorize(loggedUser, Role.MANAGER);
         return getRoomRepository().update(id, entity);
     }
 

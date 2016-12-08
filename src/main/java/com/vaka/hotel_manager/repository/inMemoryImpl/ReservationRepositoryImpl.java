@@ -32,6 +32,14 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     }
 
     @Override
+    public boolean existOverlapReservation(Integer roomId, LocalDate arrivalDate, LocalDate departureDate) {
+        return reservationById.values().stream().filter(reservation -> reservation.getRoom().getId().equals(roomId) &&
+                reservation.getStatus() == ReservationStatus.CONFIRMED &&
+                reservation.getArrivalDate().isBefore(departureDate) &&
+                reservation.getDepartureDate().isBefore(arrivalDate)).count() != 0;
+    }
+
+    @Override
     public List<Reservation> findByUserIdAndStatus(Integer userId, ReservationStatus status) {
         return reservationById.values().stream()
                 .filter(r -> r.getUser().getId().equals(userId) && r.getStatus() == status)

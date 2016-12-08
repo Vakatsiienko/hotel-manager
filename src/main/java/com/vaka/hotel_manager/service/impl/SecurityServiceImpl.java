@@ -36,7 +36,7 @@ public class SecurityServiceImpl implements SecurityService {
         cookie.setPath("/");
         resp.addCookie(cookie);
     }
-
+//TODO change to BCRYPT
     private User checkCredentials(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticationException {
         Optional<User> user = getUserRepository().getByEmail(email);
         password = Base64.getEncoder().encodeToString(String.join(":", email, password).getBytes());
@@ -53,7 +53,8 @@ public class SecurityServiceImpl implements SecurityService {
         User user = checkCredentials(req, resp, email, password);
         createToken(req, resp, user);
     }
-
+//TODO go to session
+    //TODO move req and resp only to controllers
     @Override
     public User authenticate(HttpServletRequest req, HttpServletResponse resp) {
         Cookie[] cookies = req.getCookies();
@@ -79,20 +80,15 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public void authorize(User loggedUser, Role expected) {
-        if (expected != loggedUser.getRole() && loggedUser.getRole() != Role.MANAGER) {
-            throw new AuthorizationException(String.format("Expected role: %s, actual: %s", expected, loggedUser.getRole()));
-        }
-    }
-
-    @Override
     public void logout(HttpServletRequest req, HttpServletResponse resp, User loggedUser) {
         Cookie[] cookies = req.getCookies();
         String userToken = "";
         for (Cookie cookie : cookies)
-            if (cookie.getName().equals("TOKEN")) userToken = cookie.getValue();
+            if (cookie.getName().equals("TOKEN"))
+                userToken = cookie.getValue();
         getSecurityRepository().delete(userToken);
         Cookie cookie = new Cookie("TOKEN", "deleted");
+//        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
         resp.addCookie(cookie);

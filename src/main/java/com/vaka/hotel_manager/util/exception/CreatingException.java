@@ -3,7 +3,7 @@ package com.vaka.hotel_manager.util.exception;
 /**
  * Created by Iaroslav on 12/2/2016.
  */
-public class CreatingException extends RuntimeException {
+public class CreatingException extends ApplicationException {
     public CreatingException() {
     }
 

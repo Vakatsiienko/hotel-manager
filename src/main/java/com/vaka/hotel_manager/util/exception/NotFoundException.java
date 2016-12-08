@@ -3,7 +3,7 @@ package com.vaka.hotel_manager.util.exception;
 /**
  * Created by Iaroslav on 12/1/2016.
  */
-public class NotFoundException extends RuntimeException {
+public class NotFoundException extends ApplicationException {
     public NotFoundException() {
     }
 

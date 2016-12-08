@@ -1,15 +1,12 @@
 package com.vaka.hotel_manager.repository;
 
-import com.vaka.DBTestUtil;
-import com.vaka.EntityProviderUtil;
+import com.vaka.hotel_manager.DBTestUtil;
+import com.vaka.hotel_manager.EntityProviderUtil;
 import com.vaka.hotel_manager.context.ApplicationContext;
-import com.vaka.hotel_manager.context.config.ApplicationContextConfig;
-import com.vaka.hotel_manager.context.config.PersistenceConfig;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.User;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,7 +18,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by iaroslav on 02.12.16.
@@ -33,8 +30,26 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
 
     @Before
     public void setUp() throws SQLException, ClassNotFoundException, IOException {
-        ApplicationContext.getInstance().init(new ApplicationContextConfig(), new PersistenceConfig());//TODO change to resetDB
         DBTestUtil.reset();
+    }
+
+    @Test
+    public void testExistOverlapReservation() throws Exception {
+        Reservation reservation = createEntity();
+        reservation.setDepartureDate(LocalDate.of(2016, 10, 25));
+        reservation.setArrivalDate(LocalDate.of(2016, 10, 4));
+        reservationRepository.create(reservation);
+        reservation.setRoom(roomRepository.create(EntityProviderUtil.createRoom()));
+        reservation.setStatus(ReservationStatus.CONFIRMED);
+        reservationRepository.update(reservation.getId(), reservation);
+
+        Integer roomId = reservation.getRoom().getId();
+
+        assertFalse(reservationRepository.existOverlapReservation(roomId, LocalDate.of(2016, 10, 1), LocalDate.of(2016, 10, 4)));
+        assertTrue(reservationRepository.existOverlapReservation(roomId, LocalDate.of(2016, 10, 1), LocalDate.of(2016, 10, 5)));
+        assertTrue(reservationRepository.existOverlapReservation(roomId, LocalDate.of(2016, 10, 5), LocalDate.of(2016, 10, 10)));
+        assertTrue(reservationRepository.existOverlapReservation(roomId, LocalDate.of(2016, 10, 24), LocalDate.of(2016, 10, 29)));
+        assertFalse(reservationRepository.existOverlapReservation(roomId, LocalDate.of(2016, 10, 25), LocalDate.of(2016, 10, 29)));
     }
 
     @Test
@@ -125,8 +140,8 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
         List<Reservation> resultList = new ArrayList<>(requestedList.size() + confirmedList.size());
         resultList.addAll(requestedList);
         resultList.addAll(confirmedList);
-        Assert.assertTrue(expectedList.size() == resultList.size());
-        resultList.forEach(reservation -> Assert.assertTrue(resultList.contains(reservation)));
+        assertTrue(expectedList.size() == resultList.size());
+        resultList.forEach(reservation -> assertTrue(resultList.contains(reservation)));
         assertThat(expectedList, is(resultList));
     }
     @Test
@@ -154,12 +169,12 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
 
         List<Reservation> resultReservationList = reservationRepository.findByRoomIdAndStatus(room.getId(), ReservationStatus.CONFIRMED);
 
-        resultReservationList.forEach(r -> Assert.assertTrue(r.getRoom().getId().equals(room.getId())));
-        resultReservationList.forEach(r -> Assert.assertTrue(r.getStatus() == ReservationStatus.CONFIRMED));
+        resultReservationList.forEach(r -> assertTrue(r.getRoom().getId().equals(room.getId())));
+        resultReservationList.forEach(r -> assertTrue(r.getStatus() == ReservationStatus.CONFIRMED));
 //        Assert.assertTrue(resultReservationList.containsAll(reservationList)); Didn't work in cause of lombok equalsAndHashcode
-        Assert.assertTrue(resultReservationList.size() == reservationList.size());
+        assertTrue(resultReservationList.size() == reservationList.size());
         //test that none of other reservations contains in result
-        otherReservationList.forEach(r -> Assert.assertFalse(resultReservationList.contains(r)));
+        otherReservationList.forEach(r -> assertFalse(resultReservationList.contains(r)));
     }
 
     @Test
