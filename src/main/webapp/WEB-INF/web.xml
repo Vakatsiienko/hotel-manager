@@ -28,45 +28,15 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <!--SERVLET-->
     <servlet>
-        <servlet-name>RoomServlet</servlet-name>
-        <servlet-class>com.vaka.hotel_manager.web.servlet.RoomServlet</servlet-class>
+        <servlet-name>DispatcherServlet</servlet-name>
+        <servlet-class>com.vaka.hotel_manager.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>RoomServlet</servlet-name>
-        <url-pattern>/rooms/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>UserServlet</servlet-name>
-        <servlet-class>com.vaka.hotel_manager.web.servlet.UserServlet</servlet-class>
-        <load-on-startup>0</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>UserServlet</servlet-name>
+        <servlet-name>DispatcherServlet</servlet-name>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>BillServlet</servlet-name>
-        <servlet-class>com.vaka.hotel_manager.web.servlet.BillServlet</servlet-class>
-        <load-on-startup>0</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>BillServlet</servlet-name>
-        <url-pattern>/bills/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>ReservationServlet</servlet-name>
-        <servlet-class>com.vaka.hotel_manager.web.servlet.ReservationServlet</servlet-class>
-        <load-on-startup>0</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ReservationServlet</servlet-name>
-        <url-pattern>/reservations/*</url-pattern>
-    </servlet-mapping>
 
 </web-app>

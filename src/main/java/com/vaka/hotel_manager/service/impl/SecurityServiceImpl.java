@@ -8,6 +8,8 @@ import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.util.exception.AuthenticationException;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +38,8 @@ public class SecurityServiceImpl implements SecurityService {
         cookie.setPath("/");
         resp.addCookie(cookie);
     }
-//TODO change to BCRYPT
+
+    //TODO change to BCRYPT
     private User checkCredentials(HttpServletRequest req, HttpServletResponse resp, String email, String password) throws AuthenticationException {
         Optional<User> user = getUserRepository().getByEmail(email);
         password = Base64.getEncoder().encodeToString(String.join(":", email, password).getBytes());

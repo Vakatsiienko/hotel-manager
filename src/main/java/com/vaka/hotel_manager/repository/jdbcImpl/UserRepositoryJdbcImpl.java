@@ -3,11 +3,13 @@ package com.vaka.hotel_manager.repository.jdbcImpl;
 import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.UserRepository;
-import com.vaka.hotel_manager.util.DomainExtractor;
+import com.vaka.hotel_manager.util.repository.StatementToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
-import com.vaka.hotel_manager.util.repository.StatementExtractor;
+import com.vaka.hotel_manager.util.repository.DomainToStatementExtractor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +37,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
              NamedPreparedStatement statement = createGetByEmailStatement(connection, strQuery, email);
              ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next())
-                return Optional.of(DomainExtractor.extractUser(resultSet));
+                return Optional.of(StatementToDomainExtractor.extractUser(resultSet));
             else return Optional.empty();
         } catch (SQLException e) {
             LOG.info(e.getMessage());
@@ -67,7 +69,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
 
     private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, User entity, int statementCode) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, statementCode).init();
-        StatementExtractor.extract(entity, statement);
+        DomainToStatementExtractor.extract(entity, statement);
         statement.execute();
         return statement;
     }
@@ -80,7 +82,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
              ResultSet resultSet = statement.executeQuery()) {
 
             if (resultSet.next())
-                return Optional.of(DomainExtractor.extractUser(resultSet));
+                return Optional.of(StatementToDomainExtractor.extractUser(resultSet));
             else return Optional.empty();
         } catch (SQLException e) {
             LOG.info(e.getMessage());
@@ -111,7 +113,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
 
     private NamedPreparedStatement createUpdateStatement(Connection connection, String strQuery, User entity) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        StatementExtractor.extract(entity, statement);
+        DomainToStatementExtractor.extract(entity, statement);
         return statement;
     }
 

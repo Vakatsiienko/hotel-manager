@@ -1,4 +1,4 @@
-package com.vaka.hotel_manager.util;
+package com.vaka.hotel_manager.util.repository;
 
 import com.vaka.hotel_manager.domain.*;
 import lombok.AccessLevel;
@@ -14,7 +14,7 @@ import java.time.ZoneId;
  * Created by Iaroslav on 11/26/2016.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class DomainExtractor {
+public class StatementToDomainExtractor {
 
     public static Reservation extractReservation(ResultSet resultSet) throws SQLException {
         Reservation reservation = new Reservation();
@@ -68,29 +68,5 @@ public class DomainExtractor {
         user.setEmail(resultSet.getString("email"));
         return user;
     }
-//TODO change apply to confirm on reservation page
-    public static Reservation extractReservation(HttpServletRequest req) {
-        Reservation reservation = new Reservation();
-        String strId = req.getParameter("id");
-        if (strId != null)
-            reservation.setId(Integer.valueOf(strId));
-        reservation.setGuests(Integer.valueOf(req.getParameter("guests")));
-        String[] roomClass = req.getParameter("roomClass").toUpperCase().split(" ");
-        reservation.setRequestedRoomClass(RoomClass.valueOf(String.join("_", roomClass)));
-        reservation.setArrivalDate(LocalDate.parse(req.getParameter("arrivalDate")));
-        reservation.setDepartureDate(LocalDate.parse(req.getParameter("departureDate")));
-        reservation.setStatus(ReservationStatus.REQUESTED);
-        return reservation;
-    }
-    //TODO wrap request
-//TODO split to different layers
-    public static User extractUser(HttpServletRequest req) {
-        User user = new User();
-        user.setEmail(req.getParameter("email"));
-        user.setPhoneNumber(req.getParameter("phoneNumber"));
-        user.setName(req.getParameter("name"));
-        user.setPassword(req.getParameter("password"));
-        user.setRole(Role.CUSTOMER);
-        return user;
-    }
+
 }

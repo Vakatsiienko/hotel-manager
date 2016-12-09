@@ -42,7 +42,7 @@ public class CrudRepositoryUtil {
 //    }
     private static NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Room entity, int statementCode) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, statementCode).init();
-        StatementExtractor.extract(entity, statement);
+        DomainToStatementExtractor.extract(entity, statement);
         statement.execute();
         return statement;
     }

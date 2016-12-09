@@ -5,6 +5,8 @@ import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.BillService;
 import com.vaka.hotel_manager.service.SecurityService;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

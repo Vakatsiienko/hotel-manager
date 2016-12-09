@@ -5,6 +5,8 @@ import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.util.DateAndTimeUtil;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 import java.sql.SQLException;
@@ -12,7 +14,8 @@ import java.sql.SQLException;
 /**
  * Created by Iaroslav on 12/3/2016.
  */
-public class StatementExtractor {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class DomainToStatementExtractor {
 
     public static NamedPreparedStatement extract(User user, NamedPreparedStatement statement) throws SQLException {
         if (user.getId() != null)

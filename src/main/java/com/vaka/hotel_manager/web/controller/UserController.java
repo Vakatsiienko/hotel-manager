@@ -8,10 +8,13 @@ import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.service.UserService;
-import com.vaka.hotel_manager.util.DomainExtractor;
+import com.vaka.hotel_manager.util.ServletToDomainExtractor;
+import com.vaka.hotel_manager.util.repository.StatementToDomainExtractor;
 import com.vaka.hotel_manager.util.DomainUtil;
 import com.vaka.hotel_manager.util.exception.AuthenticationException;
 import com.vaka.hotel_manager.util.exception.CreatingException;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -81,7 +84,7 @@ public class UserController {
             return;
         }
         try {
-            User user = DomainExtractor.extractUser(req);
+            User user = ServletToDomainExtractor.extractUser(req);
             if (!user.getPassword().equals(req.getParameter("passwordCheck")))
                 throw new CreatingException("Passwords should match");
             if (DomainUtil.hasNull(user)) {

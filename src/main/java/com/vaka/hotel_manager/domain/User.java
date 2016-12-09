@@ -2,6 +2,7 @@ package com.vaka.hotel_manager.domain;
 
 import lombok.*;
 
+
 /**
  * Created by Iaroslav on 11/29/2016.
  */

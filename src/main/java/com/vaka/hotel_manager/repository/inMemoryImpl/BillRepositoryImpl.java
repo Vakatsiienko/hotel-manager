@@ -5,6 +5,8 @@ import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.repository.BillRepository;
 import com.vaka.hotel_manager.repository.ReservationRepository;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Map;

@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Created by Iaroslav on 12/5/2016.
  */
-public class SqlParser {
+public class SqlParser {//TODO consider to move from utils(no private constructor)
     private String[] paths;
     private Map<String, String> queryByClassAndMethodName = new HashMap<>();
     private String classAndMethodName;

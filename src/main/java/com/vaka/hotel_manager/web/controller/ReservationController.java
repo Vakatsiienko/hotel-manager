@@ -9,9 +9,12 @@ import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomService;
 import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.service.UserService;
-import com.vaka.hotel_manager.util.DomainExtractor;
+import com.vaka.hotel_manager.util.ServletToDomainExtractor;
+import com.vaka.hotel_manager.util.repository.StatementToDomainExtractor;
 import com.vaka.hotel_manager.util.DomainUtil;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +26,6 @@ import java.util.Optional;
 /**
  * Created by Iaroslav on 12/1/2016.
  */
-//TODO make private default constructors
 public class ReservationController {
     private ReservationService reservationService;
     private UserService userService;
@@ -33,14 +35,14 @@ public class ReservationController {
 //TODO don't give resp to controllers
     public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req, resp);
-        Reservation reservation = DomainExtractor.extractReservation(req);
+        Reservation reservation = ServletToDomainExtractor.extractReservation(req);
         if (DomainUtil.hasNull(reservation) ||
                 reservation.getArrivalDate().compareTo(reservation.getDepartureDate()) >= 0) {
             resp.sendError(400, "Illegal arguments");
             return;
         }
         if (loggedUser.getRole() == Role.ANONYMOUS) {
-            User created = DomainExtractor.extractUser(req);
+            User created = ServletToDomainExtractor.extractUser(req);
             created.setPassword(created.getPhoneNumber());
             if (DomainUtil.hasNull(created)) {
                 resp.sendError(400, "Illegal arguments");

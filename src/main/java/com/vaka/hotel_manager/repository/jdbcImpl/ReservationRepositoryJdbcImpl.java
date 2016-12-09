@@ -4,11 +4,13 @@ import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.repository.ReservationRepository;
-import com.vaka.hotel_manager.util.DomainExtractor;
+import com.vaka.hotel_manager.util.repository.StatementToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
-import com.vaka.hotel_manager.util.repository.StatementExtractor;
+import com.vaka.hotel_manager.util.repository.DomainToStatementExtractor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +83,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
         List<Reservation> reservations = new ArrayList<>(count);
         while (resultSet.next()) {
-            reservations.add(DomainExtractor.extractReservation(resultSet));
+            reservations.add(StatementToDomainExtractor.extractReservation(resultSet));
         }
         return reservations;
     }
@@ -174,7 +176,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
     private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Reservation entity, int statementCode) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, statementCode).init();
-        StatementExtractor.extract(entity, statement);
+        DomainToStatementExtractor.extract(entity, statement);
         statement.execute();
         return statement;
     }
@@ -186,7 +188,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
              NamedPreparedStatement statement = CrudRepositoryUtil.createGetByIdStatement(connection, strQuery, id);
              ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next())
-                return Optional.of(DomainExtractor.extractReservation(resultSet));
+                return Optional.of(StatementToDomainExtractor.extractReservation(resultSet));
             else return Optional.empty();
         } catch (SQLException e) {
             LOG.info(e.getMessage());
@@ -214,7 +216,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
     private NamedPreparedStatement createUpdateStatement(Connection connection, String strQuery, Reservation entity) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        StatementExtractor.extract(entity, statement);
+        DomainToStatementExtractor.extract(entity, statement);
         return statement;
     }
 

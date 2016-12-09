@@ -4,6 +4,8 @@ import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomService;
 import com.vaka.hotel_manager.service.SecurityService;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * Created by Iaroslav on 11/25/2016.

@@ -30,7 +30,6 @@ public class ApplicationContextConfig {
         implClassByBeanName.put(BillController.class, BillController.class);
         implClassByBeanName.put(UserController.class, UserController.class);
         implClassByBeanName.put(ReservationController.class, ReservationController.class);
-        implClassByBeanName.put(MainController.class, MainController.class);
 
         //Services
         implClassByBeanName.put(RoomService.class, RoomServiceImpl.class);

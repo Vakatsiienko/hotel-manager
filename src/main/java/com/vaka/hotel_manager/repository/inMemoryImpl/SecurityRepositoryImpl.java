@@ -1,6 +1,8 @@
 package com.vaka.hotel_manager.repository.inMemoryImpl;
 
 import com.vaka.hotel_manager.repository.SecurityRepository;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 import java.util.Optional;

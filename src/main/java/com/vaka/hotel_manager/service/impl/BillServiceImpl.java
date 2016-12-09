@@ -9,6 +9,8 @@ import com.vaka.hotel_manager.repository.BillRepository;
 import com.vaka.hotel_manager.service.BillService;
 import com.vaka.hotel_manager.util.DomainFactory;
 import com.vaka.hotel_manager.util.SecurityUtil;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

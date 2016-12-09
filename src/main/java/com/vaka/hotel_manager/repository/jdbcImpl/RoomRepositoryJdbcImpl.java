@@ -4,11 +4,13 @@ import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.repository.RoomRepository;
-import com.vaka.hotel_manager.util.DomainExtractor;
+import com.vaka.hotel_manager.util.repository.StatementToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
 import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
-import com.vaka.hotel_manager.util.repository.StatementExtractor;
+import com.vaka.hotel_manager.util.repository.DomainToStatementExtractor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +47,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
 
             List<Room> rooms = new ArrayList<>(size);
             while (resultSet.next()) {
-                rooms.add(DomainExtractor.extractRoom(resultSet));
+                rooms.add(StatementToDomainExtractor.extractRoom(resultSet));
             }
             return rooms;
         } catch (SQLException e) {
@@ -80,7 +82,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
 
     private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Room entity, int statementCode) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, statementCode).init();
-        StatementExtractor.extract(entity, statement);
+        DomainToStatementExtractor.extract(entity, statement);
         statement.execute();
         return statement;
     }
@@ -93,7 +95,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
              ResultSet resultSet = statement.executeQuery()) {
 
             if (resultSet.next())
-                return Optional.of(DomainExtractor.extractRoom(resultSet));
+                return Optional.of(StatementToDomainExtractor.extractRoom(resultSet));
             else return Optional.empty();
         } catch (SQLException e) {
             LOG.info(e.getMessage());
@@ -123,7 +125,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
 
     private NamedPreparedStatement createUpdateStatement(Connection connection, String strQuery, Room entity) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        StatementExtractor.extract(entity, statement);
+        DomainToStatementExtractor.extract(entity, statement);
         return statement;
     }
 

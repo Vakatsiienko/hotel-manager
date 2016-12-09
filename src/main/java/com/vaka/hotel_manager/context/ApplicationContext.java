@@ -6,15 +6,20 @@ import com.vaka.hotel_manager.util.exception.ApplicationContextInitException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApplicationContext {
+    private static final Logger LOG = LoggerFactory.getLogger(ApplicationContext.class);
 
     private Map<Class<?>, Object> beanByInterface;
 
@@ -33,7 +38,8 @@ public class ApplicationContext {
             try {
                 Object bean = classByBeanName.get(k).getConstructor().newInstance();
                 beanByInterface.put(k, bean);
-            } catch (Exception e) {//TODO replace with special exception
+            } catch (InstantiationException  | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                LOG.error(e.getMessage(), e);
                 throw new ApplicationContextInitException(e);
             }
         });
