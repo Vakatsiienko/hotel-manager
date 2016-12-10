@@ -27,7 +27,6 @@ public class BillRepositoryImpl implements BillRepository {
     @Override
     public Bill create(Bill entity) {
         entity.setId(idCounter.getAndIncrement());
-        entity.setCreatedDatetime(LocalDateTime.now());
         billById.put(entity.getId(), entity);
         return entity;
     }

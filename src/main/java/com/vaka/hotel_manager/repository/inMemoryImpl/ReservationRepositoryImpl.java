@@ -28,7 +28,6 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     @Override
     public Reservation create(Reservation entity) {
         entity.setId(idCounter.getAndIncrement());
-        entity.setCreatedDatetime(LocalDateTime.now());
         reservationById.put(entity.getId(), entity);
         return entity;
     }

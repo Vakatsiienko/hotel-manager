@@ -54,12 +54,10 @@ public class BillRepositoryJdbcImpl implements BillRepository {
 
     @Override
     public Optional<Bill> getByReservationId(Integer id) {
-        try {
-            Connection connection = getDataSource().getConnection();
-            String strQuery = getQueryByClassAndMethodName().get("bill.getByReservationId");
-            NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-            statement.setStatement("reservationId", id);
-            ResultSet resultSet = statement.executeQuery();
+        String strQuery = getQueryByClassAndMethodName().get("bill.getByReservationId");
+        try (Connection connection = getDataSource().getConnection();
+             NamedPreparedStatement statement = getGetByReservationIdStatement(connection, strQuery, id);
+             ResultSet resultSet = statement.executeQuery()){
             if (resultSet.next())
                 return Optional.of(StatementToDomainExtractor.extractBill(resultSet));
             else return Optional.empty();
@@ -67,6 +65,12 @@ public class BillRepositoryJdbcImpl implements BillRepository {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
+    }
+
+    private NamedPreparedStatement getGetByReservationIdStatement(Connection connection, String strQuery, Integer reservationId) throws SQLException {
+        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
+        statement.setStatement("reservationId", reservationId);
+        return statement;
     }
 
     @Override

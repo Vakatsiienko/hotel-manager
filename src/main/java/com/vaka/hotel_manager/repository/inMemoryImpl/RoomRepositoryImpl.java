@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,15 +30,6 @@ public class RoomRepositoryImpl implements RoomRepository {
     private AtomicInteger idCounter = ApplicationContext.getInstance().getIdCounter();
 
 
-//    {
-//        Random random = new Random();
-//        for (int i = 0; i < 100; i++) {
-//            Room room = new Room(random.nextInt(1000), random.nextInt(10), 150, RoomClass.values()[random.nextInt(3)], "");
-//            room.setId(idCounter.getAndIncrement());
-//            roomById.put(room.getId(), room);
-//        }
-//    }
-
     @Override
     public List<Room> findAvailableForReservation(RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate) {
         Stream<Room> rooms = roomById.values().stream()
@@ -47,7 +39,6 @@ public class RoomRepositoryImpl implements RoomRepository {
                                         reservation.getArrivalDate(), reservation.getDepartureDate(),
                                         arrivalDate, departureDate)
                                 ).findFirst().isPresent());
-
         List<Room> roomsList = rooms.collect(Collectors.toList());
         System.out.println("Rooms quantity:" + roomsList.size());
         return roomsList;
@@ -56,7 +47,6 @@ public class RoomRepositoryImpl implements RoomRepository {
     @Override
     public Room create(Room entity) {
         entity.setId(idCounter.getAndIncrement());
-        entity.setCreatedDatetime(LocalDateTime.now());
         roomById.put(entity.getId(), entity);
         return entity;
     }
