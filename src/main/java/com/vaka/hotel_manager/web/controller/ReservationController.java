@@ -90,7 +90,7 @@ public class ReservationController {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("ID can be only integer value");
         }
-        boolean success = getReservationService().applyRoom(loggedUser, roomId, reservationId);//TODO consider how to handle illegal state
+        boolean success = getReservationService().applyRoom(loggedUser, roomId, reservationId);
         if (!success) {
             req.setAttribute("reservation", getReservationService().getById(loggedUser, reservationId));
             req.setAttribute("rooms", getRoomService().findAvailableForReservation(loggedUser, reservationId));
