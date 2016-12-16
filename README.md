@@ -4,3 +4,4 @@
     Номеров, после чего система выставляет Счет Клиенту.
     
    
+To load project just build war, set your persistence properties in resource/persistence.properties file, run init.sql and populateDB.sql files.
