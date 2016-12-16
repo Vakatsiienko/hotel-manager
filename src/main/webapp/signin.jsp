@@ -1,18 +1,15 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%--
-  Created by IntelliJ IDEA.
-  User: Iaroslav
-  Date: 11/26/2016
-  Time: 3:28 PM
-  To change this template use File | Settings | File Templates.
---%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
 <html>
 <head>
-    <title>Authentication</title>
+    <%@include file="header.jspf" %>
+
+    <title><fmt:message key="SignIn" bundle="${bundle}"/></title>
 </head>
 <style type="text/css">
-    #welcome {
+    #signinForm {
         position: absolute;
         right: 45%;
     }
@@ -22,35 +19,38 @@
     }
 </style>
 <body>
-<a href="/users/signin">/signin</a> <br>
-<a href="/users/signup">/signup</a> <br>
-<a href="/">/ (make reservation request)</a> <br>
-<a href="/reservations/confirmed">/confirmed</a> <br>
-<a href="/reservations/requested">/requests</a> <br>
-<a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
-<c:if test="${!empty message}">
-    <h3>${message}</h3>
-</c:if>
+<div id="hrefs">
 
-<form action="${pageContext.request.contextPath}" id="welcome" method="post">
+    <form action="${pageContext.request.contextPath}" id="signinForm" method="post">
     <table >
         <tr>
-            <th><label for="email">Email:</label></th>
-            <td><input id="email" type="email" required maxlength="20" min="5" name="email">
+            <th>
+                <label for="email">
+                    <fmt:message key="Email" bundle="${bundle}"/>:
+                </label>
+            </th>
+            <td>
+                <input id="email" type="email" required maxlength="20" min="5" name="email">
             </td>
         </tr>
         <tr>
-            <th><label for="password">Password:</label></th>
-            <td><input id="password" type="password" required="true" maxlength="32" min="3"
+            <th>
+                <label for="password">
+                    <fmt:message key="Password" bundle="${bundle}"/>:</label>
+            </th>
+            <td>
+                <input id="password" type="password" required="true" maxlength="32" min="3"
                        name="password"></td>
         </tr>
         <tr>
             <c:if test="${!empty exception}">
-                <td colspan="2" id = "exception">${exception}</td>
+                <td colspan="2" id = "exception"><fmt:message key="${exception}" bundle="${bundle}"/></td>
             </c:if>
         </tr>
         <tr>
-            <td><br><input type="submit" value="Sign In"></td>
+            <td><br><input type="submit"
+                           value="<fmt:message key="SignIn" bundle="${bundle}"/>">
+            </td>
         </tr>
     </table>
 </form>

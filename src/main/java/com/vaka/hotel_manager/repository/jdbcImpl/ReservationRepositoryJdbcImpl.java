@@ -1,16 +1,15 @@
 package com.vaka.hotel_manager.repository.jdbcImpl;
 
 import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.repository.ReservationRepository;
-import com.vaka.hotel_manager.util.repository.StatementToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
-import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
 import com.vaka.hotel_manager.util.repository.DomainToStatementExtractor;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
+import com.vaka.hotel_manager.util.repository.StatementToDomainExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,44 +51,21 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
         return statement;
     }
 
-    @Override
-    public List<Reservation> findByRoomIdAndStatus(Integer roomId, ReservationStatus status) {
-        String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findByRoomIdAndStatus_count");
-        String strQuery = getQueryByClassAndMethodName().get("reservation.findByRoomIdAndStatus");
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = getFindByRoomIdAndStatusStatement(connection, strQuery, roomId, status);
-             ResultSet resultSet = statement.executeQuery();
-             NamedPreparedStatement countStatement = getFindByRoomIdAndStatusStatement(connection, strCountRowsQuery, roomId, status);
-             ResultSet countSet = countStatement.executeQuery()) {
 
-            return fetchListFromResultSet(resultSet, countSet);
-        } catch (SQLException e) {
-            LOG.info(e.getMessage());
-            throw new RepositoryException(e);
-        }
-    }
-
-    private NamedPreparedStatement getFindByRoomIdAndStatusStatement(Connection connection, String query, Integer roomId, ReservationStatus status) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, query).init();
-        statement.setStatement("roomId", roomId);
-        statement.setStatement("status", status.name());
-        return statement;
-    }
-
-    private List<Reservation> fetchListFromResultSet(ResultSet resultSet, ResultSet resultCountSet) throws SQLException {
+    private List<ReservationDTO> fetchDTOList(ResultSet resultSet, ResultSet resultCountSet) throws SQLException {
         int count = 0;
         if (resultCountSet.next())
             count = resultCountSet.getInt(1);
 
-        List<Reservation> reservations = new ArrayList<>(count);
+        List<ReservationDTO> reservations = new ArrayList<>(count);
         while (resultSet.next()) {
-            reservations.add(StatementToDomainExtractor.extractReservation(resultSet));
+            reservations.add(StatementToDomainExtractor.extractReservationDTO(resultSet));
         }
         return reservations;
     }
 
     @Override
-    public List<Reservation> findByUserIdAndStatus(Integer userId, ReservationStatus status) {
+    public List<ReservationDTO> findByUserIdAndStatus(Integer userId, ReservationStatus status) {
         String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findByUserIdAndStatus_count");
         String strQuery = getQueryByClassAndMethodName().get("reservation.findByUserIdAndStatus");
         try (Connection connection = getDataSource().getConnection();
@@ -98,7 +74,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
              NamedPreparedStatement countStatement = getFindByUserIdAndStatusStatement(connection, strCountRowsQuery, userId, status);
              ResultSet countSet = countStatement.executeQuery()) {
 
-            return fetchListFromResultSet(resultSet, countSet);
+            return fetchDTOList(resultSet, countSet);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -113,30 +89,31 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     }
 
     @Override
-    public List<Reservation> findByStatus(ReservationStatus status) {
-        String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findByStatus_count");
-        String strQuery = getQueryByClassAndMethodName().get("reservation.findByStatus");
+    public List<ReservationDTO> findByStatusFromDate(ReservationStatus status, LocalDate fromDate) {
+        String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findByStatusFromDate_count");
+        String strQuery = getQueryByClassAndMethodName().get("reservation.findByStatusFromDate");
         try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement countStatement = getStatusStatement(connection, strCountRowsQuery, status);
+             NamedPreparedStatement countStatement = getStatusStatementFromDate(connection, strCountRowsQuery, status, fromDate);
              ResultSet countSet = countStatement.executeQuery();
-             NamedPreparedStatement statement = getStatusStatement(connection, strQuery, status);
+             NamedPreparedStatement statement = getStatusStatementFromDate(connection, strQuery, status, fromDate);
              ResultSet resultSet = statement.executeQuery()) {
 
-            return fetchListFromResultSet(resultSet, countSet);
+            return fetchDTOList(resultSet, countSet);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
-
-    private NamedPreparedStatement getStatusStatement(Connection connection, String query, ReservationStatus status) throws SQLException {
+//TODO check repository query for set
+    private NamedPreparedStatement getStatusStatementFromDate(Connection connection, String query, ReservationStatus status, LocalDate fromDate) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, query).init();
         statement.setStatement("status", status.name());
+        statement.setStatement("fromDate", Date.valueOf(fromDate));
         return statement;
     }
 
     @Override
-    public List<Reservation> findActiveByUserId(Integer userId) {
+    public List<ReservationDTO> findActiveByUserId(Integer userId) {
         String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findActiveByUserId_count");
         String strQuery = getQueryByClassAndMethodName().get("reservation.findActiveByUserId");
         try (Connection connection = getDataSource().getConnection();
@@ -145,7 +122,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
              NamedPreparedStatement countStatement = getFindActiveByUserIdStatement(connection, strCountRowsQuery, userId);
              ResultSet countSet = countStatement.executeQuery()) {
 
-            return fetchListFromResultSet(resultSet, countSet);
+            return fetchDTOList(resultSet, countSet);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -161,21 +138,22 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
     @Override
     public Reservation create(Reservation reservation) {
-        String strQueryStrategy1 = getQueryByClassAndMethodName().get("reservation.create");
+        String strQuery = getQueryByClassAndMethodName().get("reservation.create");
         try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQueryStrategy1, reservation, Statement.RETURN_GENERATED_KEYS);
+             NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, reservation);
              ResultSet resultSet = statement.getGenerationKeys()) {
-            if (resultSet.next())
+            if (resultSet.next()) {
                 reservation.setId(resultSet.getInt(1));
-            return reservation;
+                return reservation;
+            } else throw new SQLException("ID wasn't returned");
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
 
-    private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Reservation entity, int statementCode) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, statementCode).init();
+    private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Reservation entity) throws SQLException {
+        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, Statement.RETURN_GENERATED_KEYS).init();
         DomainToStatementExtractor.extract(entity, statement);
         statement.execute();
         return statement;
@@ -223,7 +201,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.delete");
-        return CrudRepositoryUtil.delete(strQuery, id);
+        return CrudRepositoryUtil.delete(getDataSource(), strQuery, id);
     }
 
 

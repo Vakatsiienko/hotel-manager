@@ -31,18 +31,14 @@ public class ApplicationContext {
     @Getter
     private AtomicInteger idCounter = new AtomicInteger();
 
-    public ApplicationContext init(ApplicationContextConfig contextConfig, PersistenceConfig persistenceConfig) throws IOException {
+    public ApplicationContext init(ApplicationContextConfig contextConfig, PersistenceConfig persistenceConfig) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         beanByInterface = new ConcurrentHashMap<>();
         Map<Class<?>, Class<?>> classByBeanName = contextConfig.getImplClassByBeanName();
-        classByBeanName.keySet().forEach(k -> {
-            try {
-                Object bean = classByBeanName.get(k).getConstructor().newInstance();
-                beanByInterface.put(k, bean);
-            } catch (InstantiationException  | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                LOG.error(e.getMessage(), e);
-                throw new ApplicationContextInitException(e);
-            }
-        });
+
+        for (Map.Entry<Class<?>, Class<?>> entry : classByBeanName.entrySet()) {
+            Object bean = entry.getValue().getConstructor().newInstance();
+            beanByInterface.put(entry.getKey(), bean);
+        }
         beanByInterface.put(DataSource.class, persistenceConfig.dataSource());
         queryByClassAndMethodName = persistenceConfig.queryByClassAndMethodName();
         return this;

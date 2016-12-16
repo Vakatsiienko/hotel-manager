@@ -1,30 +1,23 @@
 package com.vaka.hotel_manager.repository.inMemoryImpl;
 
 import com.vaka.hotel_manager.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.repository.ReservationRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
-import com.vaka.hotel_manager.util.DateAndTimeUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by Iaroslav on 11/26/2016.
  */
-public class RoomRepositoryImpl implements RoomRepository {
+@Deprecated
+public class RoomRepositoryInMemoryImpl implements RoomRepository {
     private ReservationRepository reservationRepository;
     private Map<Integer, Room> roomById = new ConcurrentHashMap<>();
     private AtomicInteger idCounter = ApplicationContext.getInstance().getIdCounter();
@@ -32,16 +25,12 @@ public class RoomRepositoryImpl implements RoomRepository {
 
     @Override
     public List<Room> findAvailableForReservation(RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate) {
-        Stream<Room> rooms = roomById.values().stream()
-                .filter(r -> r.getRoomClazz() == roomClass &&
-                        !getReservationRepository().findByRoomIdAndStatus(r.getId(), ReservationStatus.CONFIRMED).stream()
-                                .filter(reservation -> !DateAndTimeUtil.areDatesOverlap(
-                                        reservation.getArrivalDate(), reservation.getDepartureDate(),
-                                        arrivalDate, departureDate)
-                                ).findFirst().isPresent());
-        List<Room> roomsList = rooms.collect(Collectors.toList());
-        System.out.println("Rooms quantity:" + roomsList.size());
-        return roomsList;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Room> findAll() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

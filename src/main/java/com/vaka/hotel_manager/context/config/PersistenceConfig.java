@@ -3,15 +3,20 @@ package com.vaka.hotel_manager.context.config;
 import com.vaka.hotel_manager.util.SqlParser;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Created by Iaroslav on 12/3/2016.
  */
 public class PersistenceConfig {
+    private static final Logger LOG = LoggerFactory.getLogger(PersistenceConfig.class);
 
     private String[] sqlPaths;
     private String connectionPropertiesPath;
@@ -21,7 +26,14 @@ public class PersistenceConfig {
         this.sqlPaths = sqlPath;
     }
 
+    private void setSystemProperties() throws IOException {
+        Properties props = new Properties();
+        props.load(new FileInputStream(connectionPropertiesPath));
+        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of(props.getProperty("dataSource.timeZone"))));
+    }
+
     public javax.sql.DataSource dataSource() throws IOException {
+        setSystemProperties();
         DataSource datasource = new DataSource();
         datasource.setPoolProperties(poolProperties());
         return datasource;
@@ -34,7 +46,6 @@ public class PersistenceConfig {
     public PoolProperties poolProperties() throws IOException {
         Properties props = new Properties();
         props.load(new FileInputStream(connectionPropertiesPath));
-
         PoolProperties p = new PoolProperties();
         p.setUrl(props.getProperty("dataSource.url"));
         p.setDriverClassName(props.getProperty("dataSource.driver"));

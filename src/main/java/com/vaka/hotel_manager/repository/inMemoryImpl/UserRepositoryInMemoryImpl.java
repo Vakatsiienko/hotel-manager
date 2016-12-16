@@ -15,7 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by Iaroslav on 12/1/2016.
  */
-public class UserRepositoryImpl implements UserRepository {
+@Deprecated
+public class UserRepositoryInMemoryImpl implements UserRepository {
     private Map<Integer, User> customerById = new ConcurrentHashMap<>();
     private AtomicInteger idCounter = ApplicationContext.getInstance().getIdCounter();
 

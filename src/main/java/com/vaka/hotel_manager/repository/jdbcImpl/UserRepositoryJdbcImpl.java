@@ -54,8 +54,8 @@ public class UserRepositoryJdbcImpl implements UserRepository {
     @Override
     public User create(User entity) {
         String strQuery = getQueryByClassAndMethodName().get("user.create");
-        try (Connection connection = getDataSource().getConnection();//TODO move to JdbcUtil
-             NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, entity, Statement.RETURN_GENERATED_KEYS);
+        try (Connection connection = getDataSource().getConnection();
+             NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, entity);
              ResultSet resultSet = statement.getGenerationKeys()) {
             if (resultSet.next()) {
                 entity.setId(resultSet.getInt(1));
@@ -67,8 +67,8 @@ public class UserRepositoryJdbcImpl implements UserRepository {
         }
     }
 
-    private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, User entity, int statementCode) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, statementCode).init();
+    private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, User entity) throws SQLException {
+        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, Statement.RETURN_GENERATED_KEYS).init();
         DomainToStatementExtractor.extract(entity, statement);
         statement.execute();
         return statement;
@@ -94,7 +94,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("user.delete");
-        return CrudRepositoryUtil.delete(strQuery, id);
+        return CrudRepositoryUtil.delete(getDataSource(), strQuery, id);
     }
 
 

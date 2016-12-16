@@ -7,6 +7,7 @@ import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.BillRepository;
 import com.vaka.hotel_manager.service.BillService;
+import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.util.DomainFactory;
 import com.vaka.hotel_manager.util.SecurityUtil;
 import lombok.AccessLevel;
@@ -24,53 +25,59 @@ import java.util.Optional;
  */
 public class BillServiceImpl implements BillService {
     private static final Logger LOG = LoggerFactory.getLogger(BillServiceImpl.class);
-
+    private SecurityService securityService;
     private BillRepository billRepository;
 
     @Override
     public void createFromReservation(User loggedUser, Reservation reservation) {
-        SecurityUtil.authorize(loggedUser, Role.MANAGER);
+        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        LOG.debug("Creating bill from reservation: {}", reservation);
         create(loggedUser, DomainFactory.createBillFromReservation(reservation));
     }
 
     @Override
     public Optional<Bill> getBillByReservationId(User loggedUser, Integer reservationId) {
+        LOG.debug("reservationId: {}", reservationId);
         Optional<Bill> bill = getBillRepository().getByReservationId(reservationId);
         if (bill.isPresent()) {
             if (!bill.get().getReservation().getUser().getId().equals(loggedUser.getId()))
-                SecurityUtil.authorize(loggedUser, Role.MANAGER);
+                getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
         }
         return bill;
     }
 
     @Override
-    public Bill create(User loggedUser, Bill entity) {
-        SecurityUtil.authorize(loggedUser, Role.MANAGER);
-        entity.setCreatedDatetime(LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS));
-        return getBillRepository().create(entity);
+    public Bill create(User loggedUser, Bill bill) {
+        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        bill.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        LOG.debug("Creating bill: {}", bill);
+        return getBillRepository().create(bill);
     }
 
     @Override
     public Optional<Bill> getById(User loggedUser, Integer id) {
+        LOG.debug("Searching bill with id: {}", id);
         Optional<Bill> bill = getBillRepository().getById(id);
         if (bill.isPresent()) {
             if (bill.get().getReservation().getUser().getId().equals(loggedUser.getId()))
-                SecurityUtil.authorize(loggedUser, Role.MANAGER);
+                getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
         }
         return bill;
     }
 
     @Override
     public boolean delete(User loggedUser, Integer id) {
-        SecurityUtil.authorize(loggedUser, Role.MANAGER);
+        LOG.debug("Deleting bill with id: {}", id);
+        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
         return getBillRepository().delete(id);
 
     }
 
     @Override
-    public boolean update(User loggedUser, Integer id, Bill entity) {
-        SecurityUtil.authorize(loggedUser, Role.MANAGER);
-        return getBillRepository().update(id, entity);
+    public boolean update(User loggedUser, Integer id, Bill bill) {
+        LOG.debug("Updating bill with id: {} , bill: {}", id, bill);
+        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        return getBillRepository().update(id, bill);
 
     }
 
@@ -83,5 +90,15 @@ public class BillServiceImpl implements BillService {
             }
         }
         return billRepository;
+    }
+    public SecurityService getSecurityService() {
+        if (securityService == null){
+            synchronized (this){
+                if (securityService == null) {
+                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
+                }
+            }
+        }
+        return securityService;
     }
 }

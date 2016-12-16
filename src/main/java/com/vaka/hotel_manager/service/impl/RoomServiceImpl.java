@@ -8,10 +8,13 @@ import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.ReservationRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
 import com.vaka.hotel_manager.service.RoomService;
+import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.util.SecurityUtil;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -26,10 +29,13 @@ import java.util.Optional;
 public class RoomServiceImpl implements RoomService {
     private RoomRepository roomRepository;
     private ReservationRepository reservationRepository;
+    private SecurityService securityService;
+    private static final Logger LOG = LoggerFactory.getLogger(RoomServiceImpl.class);
 
     @Override
     public List<Room> findAvailableForReservation(User loggedUser, Integer reservationId) {
-        SecurityUtil.authorize(loggedUser, Role.MANAGER);
+        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        LOG.debug("Finding available rooms for reservation by reservationId: {}", reservationId);
         Optional<Reservation> request = getReservationRepository().getById(reservationId);
         if (request.isPresent())
             return getRoomRepository().findAvailableForReservation(request.get().getRequestedRoomClass(),
@@ -38,28 +44,37 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public Room create(User loggedUser, Room entity) {
-        SecurityUtil.authorize(loggedUser, Role.MANAGER);
-        entity.setCreatedDatetime(LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS));
-        return getRoomRepository().create(entity);
+    public List<Room> findAll(User loggedUser) {
+        LOG.debug("Finding all rooms");
+        return getRoomRepository().findAll();
+    }
+
+    @Override
+    public Room create(User loggedUser, Room room) {
+        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        room.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        LOG.debug("Creating room: {}", room);
+        return getRoomRepository().create(room);
     }
 
     @Override
     public Optional<Room> getById(User loggedUser, Integer id) {
-        SecurityUtil.authorize(loggedUser, Role.MANAGER);
+        LOG.debug("Getting room by id: {}", id);
         return getRoomRepository().getById(id);
     }
 
     @Override
     public boolean delete(User loggedUser, Integer id) {
-        SecurityUtil.authorize(loggedUser, Role.MANAGER);
+        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        LOG.debug("Deleting room by id: {}", id);
         return getRoomRepository().delete(id);
     }
 
     @Override
-    public boolean update(User loggedUser, Integer id, Room entity) {
-        SecurityUtil.authorize(loggedUser, Role.MANAGER);
-        return getRoomRepository().update(id, entity);
+    public boolean update(User loggedUser, Integer id, Room room) {
+        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        LOG.debug("Updating room with id: {}, state: {}", id, room);
+        return getRoomRepository().update(id, room);
     }
 
     public RoomRepository getRoomRepository() {
@@ -82,5 +97,16 @@ public class RoomServiceImpl implements RoomService {
             }
         }
         return reservationRepository;
+    }
+
+    public SecurityService getSecurityService() {
+        if (securityService == null) {
+            synchronized (this) {
+                if (securityService == null) {
+                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
+                }
+            }
+        }
+        return securityService;
     }
 }

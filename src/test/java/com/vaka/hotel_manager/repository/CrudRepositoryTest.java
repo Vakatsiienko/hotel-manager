@@ -34,15 +34,15 @@ public abstract class CrudRepositoryTest<Entity extends BaseEntity> {
     public void testCreate() {
         Entity e = createEntity();
         Assert.assertNull(e.getId());
+
         Entity created = getRepository().create(e);
-
-        Entity createdNext = getRepository().create(createEntity());
-        Optional<Entity> byId = getRepository().getById(createdNext.getId());
-
-        Assert.assertFalse(created.getId().equals(createdNext.getId()));
         Assert.assertNotNull(created.getId());
+        e.setId(created.getId());
         Assert.assertEquals(e, created);
-        Assert.assertEquals(byId.get(), createdNext);
+
+        Entity next = getRepository().create(createEntity());
+
+        Assert.assertNotEquals(created.getId(), (next.getId()));
     }
 
     @Test

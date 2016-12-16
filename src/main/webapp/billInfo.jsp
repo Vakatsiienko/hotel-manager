@@ -1,17 +1,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="com.vaka.hotel_manager" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
     <title>Bill Information</title>
     <style type="text/css">
-        #loggedUser {
-            position: absolute;
-            right: 0px;
-            top: 0px;
-            background: gainsboro;
-        }
-
         #billTable {
             position: absolute;
             left: 30%;
@@ -20,16 +14,7 @@
     </style>
 </head>
 <body>
-<div id="loggedUser">${loggedUser.name} <a href="/users/signout">logout</a></div>
-<a href="/users/signin">/signin</a> <br>
-<a href="/users/signup">/signup</a> <br>
-<a href="/">/ (make reservation request)</a> <br>
-<a href="/reservations/confirmed">/confirmed</a> <br>
-<a href="/reservations/requested">/requests</a> <br>
-<a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
-<c:if test="${!empty message}">
-    <h3>${message}</h3>
-</c:if>
+<%@include file="header.jspf" %>
 
 <jsp:useBean id="bill" scope="request"
              type="com.vaka.hotel_manager.domain.Bill"/>
@@ -37,45 +22,45 @@
 
 <table id="billTable" class="display" cellpadding="0">
     <tr>
-        <th colspan="2"><h2>Reservation Info</h2></th>
+        <th colspan="2"><h2><fmt:message key="Bill" bundle="${bundle}"/></h2></th>
     </tr>
     <tr>
-        <th>Bill Id:</th>
+        <th><fmt:message key="BillId" bundle="${bundle}"/>:</th>
         <td>${bill.id}</td>
     </tr>
     <tr>
-        <th>Client Name</th>
+        <th><fmt:message key="ClientName" bundle="${bundle}"/>:</th>
         <td>${bill.reservation.user.name}</td>
     </tr>
 
     <tr>
-        <th>Guests</th>
+        <th><fmt:message key="Guests" bundle="${bundle}"/>:</th>
         <td>${bill.reservation.guests}</td>
     </tr>
 
     <tr>
-        <th>Room Class</th>
-        <td>${bill.reservation.requestedRoomClass}</td>
+        <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
+        <td><fmt:message key="${bill.reservation.requestedRoomClass}" bundle="${bundle}"/></td>
     </tr>
 
     <tr>
-        <th>Arrival Date</th>
+        <th><fmt:message key="ArrivalDate" bundle="${bundle}"/></th>
         <td>${fn:formatDate(bill.reservation.arrivalDate)}</td>
     </tr>
 
     <tr>
-        <th>Departure Date</th>
+        <th><fmt:message key="DepartureDate" bundle="${bundle}"/></th>
         <td>${fn:formatDate(bill.reservation.departureDate)}</td>
     </tr>
 
     <tr>
-        <th>Room cost per day</th>
+        <th><fmt:message key="CostPerDay" bundle="${bundle}"/></th>
         <c:set var="costPerDay" value="${bill.reservation.room.costPerDay / 100}"/>
         <td>${costPerDay}$</td>
     </tr>
 
     <tr>
-        <th>Total cost</th>
+        <th><fmt:message key="TotalCost" bundle="${bundle}"/></th>
         <c:set var="totalCost" value="${bill.totalCost / 100}"/>
         <td>${totalCost}$</td>
     </tr>

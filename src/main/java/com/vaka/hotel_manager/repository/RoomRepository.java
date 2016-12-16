@@ -15,4 +15,6 @@ public interface RoomRepository extends CrudRepository<Room> {
      * @return all available rooms in given date period
      */
     List<Room> findAvailableForReservation(RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate);
+
+    List<Room> findAll();
 }

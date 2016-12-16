@@ -2,6 +2,8 @@ package com.vaka.hotel_manager.domain;
 
 import lombok.*;
 
+import java.io.Serializable;
+
 
 /**
  * Created by Iaroslav on 11/29/2016.
@@ -18,5 +20,4 @@ public class User extends BaseEntity {
     private String name;
     private Role role;
     private String phoneNumber;
-//TODO consider make immutable domain
 }

@@ -3,30 +3,37 @@ package com.vaka.hotel_manager.util;
 import com.vaka.hotel_manager.domain.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 /**
  * Created by Iaroslav on 12/9/2016.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ServletToDomainExtractor {
-    //TODO change apply to confirm on reservation page
+    private static final Logger LOG = LoggerFactory.getLogger(ServletToDomainExtractor.class);
     public static Reservation extractReservation(HttpServletRequest req) {
-        Reservation reservation = new Reservation();
-        String strId = req.getParameter("id");
-        if (strId != null)
-            reservation.setId(Integer.valueOf(strId));
-        reservation.setGuests(Integer.valueOf(req.getParameter("guests")));
-        String[] roomClass = req.getParameter("roomClass").toUpperCase().split(" ");
-        reservation.setRequestedRoomClass(RoomClass.valueOf(String.join("_", roomClass)));
-        reservation.setArrivalDate(LocalDate.parse(req.getParameter("arrivalDate")));
-        reservation.setDepartureDate(LocalDate.parse(req.getParameter("departureDate")));
-        reservation.setStatus(ReservationStatus.REQUESTED);
-        return reservation;
+        try {
+            Reservation reservation = new Reservation();
+            String strId = req.getParameter("id");
+            if (strId != null)
+                reservation.setId(Integer.valueOf(strId));
+            reservation.setGuests(Integer.valueOf(req.getParameter("guests")));
+            String[] roomClass = req.getParameter("roomClass").toUpperCase().split(" ");
+            reservation.setRequestedRoomClass(RoomClass.valueOf(String.join("_", roomClass)));
+            reservation.setArrivalDate(LocalDate.parse(req.getParameter("arrivalDate")));
+            reservation.setDepartureDate(LocalDate.parse(req.getParameter("departureDate")));
+            reservation.setStatus(ReservationStatus.REQUESTED);
+            return reservation;
+        } catch (DateTimeParseException | NumberFormatException e) {
+            LOG.debug(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
-    //TODO wrap request
     public static User extractUser(HttpServletRequest req) {
         User user = new User();
         user.setEmail(req.getParameter("email"));
@@ -35,5 +42,19 @@ public class ServletToDomainExtractor {
         user.setPassword(req.getParameter("password"));
         user.setRole(Role.CUSTOMER);
         return user;
+    }
+
+    public static Room extractRoom(HttpServletRequest req) {
+        try {
+            Room room = new Room();
+            room.setCapacity(Integer.valueOf(req.getParameter("capacity")));
+            room.setCostPerDay(Integer.valueOf(req.getParameter("costPerDay")));
+            room.setRoomClazz(RoomClass.valueOf(req.getParameter("roomClass")));
+            room.setNumber(Integer.valueOf(req.getParameter("number")));
+            return room;
+        } catch (NumberFormatException e) {
+            LOG.debug(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 }

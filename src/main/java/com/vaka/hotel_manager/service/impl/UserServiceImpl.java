@@ -4,12 +4,15 @@ import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.UserRepository;
+import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.service.UserService;
 import com.vaka.hotel_manager.util.SecurityUtil;
 import com.vaka.hotel_manager.util.exception.CreatingException;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -20,50 +23,46 @@ import java.util.Optional;
  * Created by Iaroslav on 12/1/2016.
  */
 public class UserServiceImpl implements UserService {
-
     private UserRepository userRepository;
+    private SecurityService securityService;
+    private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Override
-    public User create(User loggedUser, User entity) {
-        if (getUserRepository().getByEmail(entity.getEmail()).isPresent()) {
+    public User create(User loggedUser, User user) {
+        if (getUserRepository().getByEmail(user.getEmail()).isPresent()) {
             throw new CreatingException("User with such email already exist.");
         }
-        entity.setPassword(SecurityUtil.generatePassword(entity));
-        entity.setCreatedDatetime(LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS));
-        return getUserRepository().create(entity);
+        user.setPassword(SecurityUtil.generatePassword(user));
+        user.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        LOG.debug("Creating user: {}", user);//TODO check if it is ok to log password.
+        return getUserRepository().create(user);
     }
 
     @Override
     public Optional<User> getById(User loggedUser, Integer id) {
+        LOG.debug("Getting user by id: {}", id);
         Optional<User> requested = getUserRepository().getById(id);
-        if (requested.isPresent())
-            if (!loggedUser.getId().equals(requested.get().getId()))
-                SecurityUtil.authorize(loggedUser, Role.MANAGER);
+        if (requested.isPresent()) {
+            SecurityUtil.eraseSensitivityCredentials(requested.get());
+            if (!requested.get().getId().equals(loggedUser.getId()))
+                getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        }
         return requested;
     }
 
     @Override
     public boolean delete(User loggedUser, Integer id) {
-        SecurityUtil.authorize(loggedUser, Role.MANAGER);
+        LOG.debug("Deleting user by id: {}", id);
+        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
         return getUserRepository().delete(id);
     }
 
     @Override
-    public boolean update(User loggedUser, Integer id, User entity) {
+    public boolean update(User loggedUser, Integer id, User user) {
+        LOG.debug("Updating user with id: %s, state: {}", id, user);
         if (!loggedUser.getId().equals(id))
-            SecurityUtil.authorize(loggedUser, Role.MANAGER);
-        return getUserRepository().update(id, entity);
-    }
-
-    @Override
-    public boolean updateWithoutPassword(User loggedUser, Integer id, User entity) {
-        if (!loggedUser.getId().equals(id))
-            SecurityUtil.authorize(loggedUser, Role.MANAGER);
-        Optional<User> user = getById(loggedUser, id);
-        if (user.isPresent()) {
-            entity.setPassword(user.get().getPassword());
-            return getUserRepository().update(id, entity);
-        } else throw new NotFoundException("User not found");
+            getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        return getUserRepository().update(id, user);
     }
 
     public UserRepository getUserRepository() {
@@ -75,5 +74,16 @@ public class UserServiceImpl implements UserService {
             }
         }
         return userRepository;
+    }
+
+    public SecurityService getSecurityService() {
+        if (securityService == null) {
+            synchronized (this) {
+                if (securityService == null) {
+                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
+                }
+            }
+        }
+        return securityService;
     }
 }

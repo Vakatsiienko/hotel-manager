@@ -1,13 +1,19 @@
 package com.vaka.hotel_manager.repository.inMemoryImpl;
 
 import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.repository.ReservationRepository;
 import com.vaka.hotel_manager.repository.UserRepository;
+import com.vaka.hotel_manager.util.exception.RepositoryException;
+import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,7 +26,8 @@ import java.util.stream.Collectors;
 /**
  * Created by Iaroslav on 11/27/2016.
  */
-public class ReservationRepositoryImpl implements ReservationRepository {
+@Deprecated
+public class ReservationRepositoryInMemoryImpl implements ReservationRepository {
     private Map<Integer, Reservation> reservationById = new ConcurrentHashMap<>();
     private AtomicInteger idCounter = ApplicationContext.getInstance().getIdCounter();
     private UserRepository userRepository;
@@ -40,31 +47,48 @@ public class ReservationRepositoryImpl implements ReservationRepository {
                 reservation.getDepartureDate().isBefore(arrivalDate)).count() != 0;
     }
 
+//    @Override
+//    public List<ReservationDTO> findByRoomIdAndStatus(Integer roomId, ReservationStatus status) {
+//        String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findByRoomIdAndStatus_count");
+//        String strQuery = getQueryByClassAndMethodName().get("reservation.findByRoomIdAndStatus");
+//        try (Connection connection = getDataSource().getConnection();
+//             NamedPreparedStatement statement = getFindByRoomIdAndStatusStatement(connection, strQuery, roomId, status);
+//             ResultSet resultSet = statement.executeQuery();
+//             NamedPreparedStatement countStatement = getFindByRoomIdAndStatusStatement(connection, strCountRowsQuery, roomId, status);
+//             ResultSet countSet = countStatement.executeQuery()) {
+//
+//            return fetchDTOList(resultSet, countSet);
+//        } catch (SQLException e) {
+//            LOG.info(e.getMessage());
+//            throw new RepositoryException(e);
+//        }
+//    }
+//
+//    private NamedPreparedStatement getFindByRoomIdAndStatusStatement(Connection connection, String query, Integer roomId, ReservationStatus status) throws SQLException {
+//        NamedPreparedStatement statement = new NamedPreparedStatement(connection, query).init();
+//        statement.setStatement("roomId", roomId);
+//        statement.setStatement("status", status.name());
+//        return statement;
+//    }
+
     @Override
-    public List<Reservation> findByUserIdAndStatus(Integer userId, ReservationStatus status) {
-        return reservationById.values().stream()
-                .filter(r -> r.getUser().getId().equals(userId) && r.getStatus() == status)
-                .collect(Collectors.toList());
+    public List<ReservationDTO> findByUserIdAndStatus(Integer userId, ReservationStatus status) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<Reservation> findByStatus(ReservationStatus status) {
-        return reservationById.values().stream().filter(r -> r.getStatus() == status).collect(Collectors.toList());
+    public List<ReservationDTO> findByStatusFromDate(ReservationStatus status, LocalDate fromDate) {
+        throw new UnsupportedOperationException();
     }
 
-    @Override
-    public List<Reservation> findByRoomIdAndStatus(Integer roomId, ReservationStatus status) {
-        return reservationById.values().stream()
-                .filter(r -> r.getStatus() == ReservationStatus.CONFIRMED && r.getRoom().getId().equals(roomId))
-                .collect(Collectors.toList());
-    }
+//    @Override
+//    public List<ReservationDTO> findByRoomIdAndStatus(Integer roomId, ReservationStatus status) {
+//        throw new UnsupportedOperationException();
+//    }
 
     @Override
-    public List<Reservation> findActiveByUserId(Integer userId) {
-        return reservationById.values().stream()
-                .filter(reservation -> reservation.getUser().getId().equals(userId) &&
-                        reservation.getDepartureDate().isAfter(LocalDate.now()))
-                .collect(Collectors.toList());
+    public List<ReservationDTO> findActiveByUserId(Integer userId) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

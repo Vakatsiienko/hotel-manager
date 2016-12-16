@@ -22,9 +22,9 @@
         </encoder>
     </appender>
 
-    <logger name="com.vaka.hotel_manager" level="error"/>
+    <logger name="com.vaka.hotel_manager" level="debug"/>
 
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="file"/>
         <appender-ref ref="console"/>
     </root>

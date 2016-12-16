@@ -1,6 +1,7 @@
 package com.vaka.hotel_manager;
 
 import com.vaka.hotel_manager.domain.*;
+import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
 import com.vaka.hotel_manager.repository.BillRepository;
 import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.repository.ReservationRepository;
@@ -29,11 +30,10 @@ public class EntityProviderUtil {
 
     public static Room createRoom(){
         Room room = new Room();
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS);
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         room.setCreatedDatetime(now);
         room.setCapacity(4);
         room.setCostPerDay(200);
-        room.setDescription("Description");
         room.setNumber(random.nextInt(400));
         room.setRoomClazz(RoomClass.values()[random.nextInt(RoomClass.values().length)]);
         return room;
@@ -42,7 +42,7 @@ public class EntityProviderUtil {
 
     public static Reservation createReservationWithoutRoom(){
         Reservation reservation = new Reservation();
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS);
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         reservation.setCreatedDatetime(now);
         int arrivalYear = random.nextInt(2017) + 1;
         int arrivalMonth = random.nextInt(12) + 1;
@@ -60,7 +60,7 @@ public class EntityProviderUtil {
     public static User createUser() {
         User user = new User();
         Random random = new Random();
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS);
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         user.setCreatedDatetime(now);
         user.setName("name");
         user.setEmail(random.nextInt(100000) + "goodmanmen@gmail.com" + random.nextInt(100000));
@@ -77,9 +77,18 @@ public class EntityProviderUtil {
         reservation.setRoom(roomRepository.create(createRoom()));
         reservationRepository.update(reservation.getId(), reservation);
         Bill bill = DomainFactory.createBillFromReservation(reservation);
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.SECONDS);
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         bill.setCreatedDatetime(now);
         bill.setPaid(true);
         return bill;
+    }
+
+    public static ReservationDTO toReservationDTO(Reservation reservation) {
+        Integer roomId = null;
+        if (reservation.getRoom() != null)
+            roomId = reservation.getRoom().getId();
+        return new ReservationDTO(reservation.getId(), reservation.getCreatedDatetime(), reservation.getUser().getId(),
+                roomId, reservation.getGuests(), reservation.getStatus(), reservation.getRequestedRoomClass(),
+                reservation.getArrivalDate(), reservation.getDepartureDate());
     }
 }

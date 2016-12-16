@@ -11,7 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by Iaroslav on 11/26/2016.
  */
-public class SecurityRepositoryImpl implements SecurityRepository {
+@Deprecated
+public class SecurityRepositoryInMemoryImpl implements SecurityRepository {
     private Map<String, Integer> userIdByToken = new ConcurrentHashMap<>();
 
     @Override

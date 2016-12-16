@@ -30,6 +30,32 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     private DataSource dataSource;
     private Map<String, String> queryByClassAndMethodName;
 
+    @Override
+    public List<Room> findAll() {
+        String strQuery = getQueryByClassAndMethodName().get("room.findAll");
+        String strCountQuery = getQueryByClassAndMethodName().get("room.findAll_count");
+        try (Connection connection = getDataSource().getConnection();
+             NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
+             ResultSet resultSet = statement.executeQuery();
+             NamedPreparedStatement countStatement = new NamedPreparedStatement(connection, strCountQuery).init();
+             ResultSet countResultSet = countStatement.executeQuery()) {
+            return fetchToList(resultSet, countResultSet);
+        } catch (SQLException e) {
+            LOG.info(e.getMessage());
+            throw new RepositoryException(e);
+        }
+    }
+
+    private List<Room> fetchToList(ResultSet resultSet, ResultSet countSet) throws SQLException {
+        int size = 0;
+        if (countSet.next())
+            size = countSet.getInt(1);
+        List<Room> rooms = new ArrayList<>(size);
+        while (resultSet.next()) {
+            rooms.add(StatementToDomainExtractor.extractRoom(resultSet));
+        }
+        return rooms;
+    }
 
     @Override
     public List<Room> findAvailableForReservation(RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate) {
@@ -41,15 +67,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
              ResultSet resultSet = statement.executeQuery();
              NamedPreparedStatement countStatement = getFindAvailableForReservationStatement(connection, strCountQuery, roomClass, arrivalDate, departureDate);
              ResultSet countResultSet = countStatement.executeQuery()) {
-            int size = 0;
-            if (countResultSet.next())
-                size = countResultSet.getInt(1);
-
-            List<Room> rooms = new ArrayList<>(size);
-            while (resultSet.next()) {
-                rooms.add(StatementToDomainExtractor.extractRoom(resultSet));
-            }
-            return rooms;
+            return fetchToList(resultSet, countResultSet);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -68,7 +86,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     public Room create(Room entity) {
         String strQuery = getQueryByClassAndMethodName().get("room.create");
         try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, entity, Statement.RETURN_GENERATED_KEYS);
+             NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, entity);
              ResultSet resultSet = statement.getGenerationKeys()) {
             if (resultSet.next()) {
                 entity.setId(resultSet.getInt(1));
@@ -80,8 +98,8 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
         }
     }
 
-    private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Room entity, int statementCode) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, statementCode).init();
+    private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Room entity) throws SQLException {
+        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, Statement.RETURN_GENERATED_KEYS).init();
         DomainToStatementExtractor.extract(entity, statement);
         statement.execute();
         return statement;
@@ -107,7 +125,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("room.delete");
-        return CrudRepositoryUtil.delete(strQuery, id);
+        return CrudRepositoryUtil.delete(getDataSource(), strQuery, id);
     }
 
     @Override

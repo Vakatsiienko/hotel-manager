@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -32,7 +33,7 @@ public class ContextInitTestUtil {
                     .toArray(String[]::new);
             ApplicationContext.getInstance()
                     .init(new ApplicationContextConfig(), new PersistenceConfig(connectionProp, filesPath));
-        } catch (NullPointerException | IOException ex) {
+        } catch (NullPointerException | IOException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex) {
             throw new ApplicationContextInitException("Exception during context initialization, check sql files, or persistence props", ex);
         }
         initIsDone = true;

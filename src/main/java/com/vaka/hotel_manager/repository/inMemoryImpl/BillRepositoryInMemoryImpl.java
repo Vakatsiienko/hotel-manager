@@ -18,7 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by Iaroslav on 11/26/2016.
  */
-public class BillRepositoryImpl implements BillRepository {
+@Deprecated
+public class BillRepositoryInMemoryImpl implements BillRepository {
     private Map<Integer, Bill> billById = new ConcurrentHashMap<>();
     private AtomicInteger idCounter = ApplicationContext.getInstance().getIdCounter();
     private ReservationRepository reservationRepository;

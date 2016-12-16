@@ -5,8 +5,9 @@ import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.BillService;
 import com.vaka.hotel_manager.service.SecurityService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import com.vaka.hotel_manager.util.exception.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,22 +21,26 @@ import java.util.Optional;
 public class BillController {
     private BillService billService;
     private SecurityService securityService;
+    private static final Logger LOG = LoggerFactory.getLogger(BillController.class);
 
     public void getById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User loggedUser = getSecurityService().authenticate(req, resp);
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("To bill page, loggedUser: {}", loggedUser);
         String strId = req.getRequestURI().split("/")[2];
         Integer id = Integer.valueOf(strId);
         Optional<Bill> bill = getBillService().getById(loggedUser, id);
-        if (bill.isPresent()) {
-            req.setAttribute("bill", bill.get());
-            req.setAttribute("loggedUser", loggedUser);
-            req.getRequestDispatcher("/billInfo.jsp").forward(req, resp);
-        } else resp.sendError(404);
+        if (!bill.isPresent()) {
+            throw new NotFoundException("There are no bill with given ID");
+        }
+        req.setAttribute("bill", bill.get());
+        req.setAttribute("loggedUser", loggedUser);
+        req.getRequestDispatcher("/billInfo.jsp").forward(req, resp);
 
     }
 
     public void getByReservationId(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User loggedUser = getSecurityService().authenticate(req, resp);
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("Getting bill by reservationId, loggedUser: {}", loggedUser);
         Integer id = Integer.valueOf(req.getParameter("id"));
         req.setAttribute("loggedUser", loggedUser);
         req.setAttribute("bill", getBillService().getBillByReservationId(loggedUser, id).get());

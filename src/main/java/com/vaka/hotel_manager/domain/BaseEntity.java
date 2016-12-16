@@ -32,7 +32,6 @@ public abstract class BaseEntity {
         BaseEntity that = (BaseEntity) o;
         return Objects.equals(id, that.id)
                 && Objects.equals(createdDatetime, that.createdDatetime);
-//        TODO resolve persisting datetime bug
     }
 
     @Override

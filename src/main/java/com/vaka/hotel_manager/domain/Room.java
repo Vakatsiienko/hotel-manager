@@ -16,5 +16,4 @@ public class Room extends BaseEntity {
     private Integer capacity;
     private Integer costPerDay;
     private RoomClass roomClazz;
-    private String description;
 }

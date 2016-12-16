@@ -1,78 +1,75 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="com.vaka.hotel_manager" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Reservation Info</title>
-    <style type="text/css">
-        #loggedUser {
-            position: absolute;
-            right: 0px;
-            top:0px;
-            background: gainsboro;
-        }
-    </style>
+    <%@include file="header.jspf" %>
+
+    <title><fmt:message key="ReservationInfo" bundle="${bundle}"/></title>
+
 </head>
 <body>
-<a href="/users/signin">/signin</a> <br>
-<a href="/users/signup">/signup</a> <br>
-<a href="/">/ (make reservation request)</a> <br>
-<a href="/reservations/confirmed">/confirmed</a> <br>
-<a href="/reservations/requested">/requests</a> <br>
-<div id="loggedUser">${loggedUser.name} <a href="/users/signout">logout</a></div>
-<a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
-<c:if test="${!empty message}">
-    <h3>${message}</h3>
-</c:if>
-
 <jsp:useBean id="reservation" scope="request"
              type="com.vaka.hotel_manager.domain.Reservation"/>
 <c:choose>
-    <c:when test="${reservation.status.name() == 'REQUESTED'}"><h3>Reservation is submitted and waiting for process</h3></c:when>
-    <c:when test="${reservation.status.name()== 'CONFIRMED'}"><h3>Reservation is
-        applied</h3></c:when>
+    <c:when test="${reservation.status.name() == 'REQUESTED'}"><h3><fmt:message
+            key="ReservationRequestedMessage"
+            bundle="${bundle}"/></h3></c:when>
+    <c:when test="${reservation.status.name()== 'CONFIRMED'}"><h3><fmt:message
+            key="ReservationConfirmedMessage"
+            bundle="${bundle}"/></h3></c:when>
+    <c:when test="${reservation.status.name()== 'REJECTED'}"><h3><fmt:message
+            key="ReservationRejectedMessage"
+            bundle="${bundle}"/></h3></c:when>
 </c:choose>
 <table id="reservationRequestTable" class="display" cellpadding="0">
     <tr><th colspan="2"><h2>Reservation Info</h2></th></tr>
     <tr>
-        <th>Request Id:</th>
+        <th><fmt:message key="ReservationId" bundle="${bundle}"/>:</th>
         <td>${reservation.id}</td>
     </tr>
     <tr>
-        <th>Client Name</th>
+        <th><fmt:message key="ClientName" bundle="${bundle}"/>:</th>
         <td>${reservation.user.name}</td>
     </tr>
 
     <tr>
-        <th>Phone Number</th>
+        <th><fmt:message key="PhoneNumber" bundle="${bundle}"/>:</th>
         <td>${reservation.user.phoneNumber}</td>
     </tr>
 
     <tr>
-        <th>Guests</th>
+        <th><fmt:message key="Guests" bundle="${bundle}"/>:</th>
         <td>${reservation.guests}</td>
     </tr>
 
     <tr>
-        <th>Room Class</th>
-        <td>${reservation.requestedRoomClass.toString()}</td>
+        <th><fmt:message key="RoomClass" bundle="${bundle}"/>:</th>
+        <td><fmt:message key="${reservation.requestedRoomClass.name()}" bundle="${bundle}"/></td>
     </tr>
 
     <tr>
-        <th>Arrival Date</th>
+        <th><fmt:message key="ArrivalDate" bundle="${bundle}"/>:</th>
         <td>${fn:formatDate(reservation.arrivalDate)}</td>
     </tr>
 
     <tr>
-        <th>Departure Date</th>
+        <th><fmt:message key="DepartureDate" bundle="${bundle}"/>:</th>
         <td>${fn:formatDate(reservation.departureDate)}</td>
     </tr>
-    <c:if test="${reservation.status.name().equals('CONFIRMED')}">
-        <tr>
-            <td></td>
+    <tr>
+<c:if test="${!reservation.status.name().equals('REJECTED')}">
+
+<td><form action="/reservations/${reservation.id}/reject" method="post">
+            <input type="submit" name="submit" value="<fmt:message key="Reject" bundle="${bundle}"/>" required/>
+        </form></td>
+</c:if>
+        <c:if test="${reservation.status.name().equals('CONFIRMED')}">
             <td><a href="/bills/byReservation?id=${reservation.id}">Bill</a></td>
-        </tr>
     </c:if>
+    </tr>
+
 </table>
 
 </body>

@@ -1,28 +1,28 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%--
-  Created by IntelliJ IDEA.
-  User: Iaroslav
-  Date: 11/29/2016
-  Time: 4:12 PM
-  To change this template use File | Settings | File Templates.
---%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix='c'%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Make Request</title>
+    <%@include file="header.jspf" %>
+
+    <title><fmt:message key="MakeReservation" bundle="${bundle}"/></title>
+
     <script
             src="https://code.jquery.com/jquery-3.1.1.js"
             integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
             crossorigin="anonymous"></script>
     <script type="text/javascript">
 
-        function changeDeparture(arrival){
-            var departure = new Date(arrival);
-            var dd = departure.getDate();
-            var mm = departure.getMonth() + 1;
-            var yyyy = departure.getFullYear();
+        function changeDeparture(arrival) {
+            var nextDate = new Date();
+            var arrivalDate = new Date(arrival);
+            nextDate.setDate(arrivalDate.getDate() + 1);
+            var departureDate = nextDate;
+            var dd = nextDate.getDate();
+            var mm = nextDate.getMonth() + 1;
+            var yyyy = nextDate.getFullYear();
             yyyy = "" + yyyy;
-            while(yyyy.length < 4){
+            while (yyyy.length < 4) {
                 yyyy = '0' + yyyy;
             }
 
@@ -33,9 +33,12 @@
                 mm = '0' + mm
             }
 
-            departure = yyyy + '-' + mm + '-' + dd;
-            document.getElementById("departureDate").setAttribute("min", departure);
-            document.getElementById("departureDate").setAttribute("value", departure);
+            nextDate = yyyy + '-' + mm + '-' + dd;
+            document.getElementById("departureDate").setAttribute("min", nextDate);
+            var departureValue= document.getElementById("departureDate").value;
+            if (arrivalDate >= new Date(departureValue) || departureDate.toString() == "") {
+                document.getElementById("departureDate").setAttribute("value", nextDate);
+            }
         }
         //setting default and min value for date imput
         $(function () {
@@ -53,14 +56,26 @@
             today = y + '-' + m + '-' + d;
             document.getElementById("arrivalDate").setAttribute("min", today);
             document.getElementById("arrivalDate").setAttribute("value", today);
-            document.getElementById("departureDate").setAttribute("min", today);
-            document.getElementById("departureDate").setAttribute("value", today);
+
+            var tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            var dd = tomorrow.getDate();
+            var mm = tomorrow.getMonth() + 1;
+            var yyyy = tomorrow.getFullYear();
+            if (dd < 10) {
+                dd = '0' + dd
+            }
+            if (mm < 10) {
+                mm = '0' + mm
+            }
+
+            tomorrow = yyyy + '-' + mm + '-' + dd;
+            document.getElementById("departureDate").setAttribute("min", tomorrow);
+            document.getElementById("departureDate").setAttribute("value", tomorrow);
         });
     </script>
     <style type="text/css">
-
         th {
-            /*text-align: left;*/
             text-align: right;
         }
 
@@ -68,75 +83,65 @@
             text-align: center;
             border-bottom: 1px solid #ccc
         }
-
-        #loggedUser {
+        #AddReservationBlock{
             position: absolute;
-            right: 0px;
-            top: 0px;
-            background: gainsboro;
+            left:30%;
         }
+
     </style>
 </head>
 <body>
-<%--<jsp:useBean id="loggedUser" scope="request"--%>
-<%--beanName="com.vaka.hotel_manager.domain.User"/>--%>
-<c:if test="${!empty loggedUser.name}">
-    <span id="loggedUser">${loggedUser.name} <a href="/users/signout">logout</a></span>
-</c:if>
-<a href="/users/signin">/signin</a> <br>
-<a href="/users/signup">/signup</a> <br>
-<a href="/">/ (make reservation request)</a> <br>
-<a href="/reservations/confirmed">/confirmed</a> <br>
-<a href="/reservations/requested">/requests</a> <br>
-<a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
-<c:if test="${!empty message}">
-    <h3>${message}</h3>
+<div id="AddReservationBlock">
+<c:if test="${loggedUser.role == 'ANONYMOUS'}">
+<p><fmt:message key="SubmitFormMessage" bundle="${bundle}"/></p>
 </c:if>
 
-<div id="addForm">
     <form action="/reservations" method="post" id="createForm">
         <table>
             <tr>
-                <th class="ftitle" colspan="2">Customer contact info</th>
+                <th class="ftitle" colspan="2"><fmt:message key="ContactInfo" bundle="${bundle}"/></th>
             </tr>
             <c:choose>
-            <c:when test="${!empty loggedUser.name}">
-            <tr class="fitem">
-                <th>
-                    <label for="nameReg">Name:</label>
-                </th>
-                <td>
-                    <input id="nameReg" name="name"
-                           value="${loggedUser.name}"
-                           required readonly>
-                </td>
-            </tr>
-            <tr class="fitem">
-                <th>
-                    <label for="emailReg">Email:</label>
-                </th>
-                <td>
-                    <input id="emailReg" name="email" type="email" value="${loggedUser.email}"
-                           required readonly>
-                </td>
-            </tr>
-            <tr class="fitem">
-                <th>
-                    <label for="phoneNumberReg">Phone Number:</label>
-                </th>
-                <td>
-                    <input id="phoneNumberReg" type="tel" pattern="[\+]\d{2}[\(]\d{3}[\)]\d{7}"
-                           value="${loggedUser.phoneNumber}"
-                           title="Phone number should be in format '+38(044)1234567'"
-                           name="phoneNumber" readonly required>
-                </td>
-            </tr>
-            <tr>
+                <c:when test="${!empty loggedUser.name}">
+                    <tr class="fitem">
+                        <th>
+                            <label for="nameReg"><fmt:message key="Name" bundle="${bundle}"/>:</label>
+                        </th>
+                        <td>
+                            <input id="nameReg" name="name"
+                                   value="${loggedUser.name}"
+                                   required readonly>
+                        </td>
+                    </tr>
+                    <tr class="fitem">
+                        <th>
+                            <label for="emailReg"><fmt:message key="Email" bundle="${bundle}"/>:</label>
+                        </th>
+                        <td>
+                            <input id="emailReg" name="email" type="email"
+                                   value="${loggedUser.email}"
+                                   required readonly>
+                        </td>
+                    </tr>
+                    <tr class="fitem">
+                        <th>
+                            <label for="phoneNumberReg"><fmt:message key="PhoneNumber"
+                                                                     bundle="${bundle}"/>:</label>
+                        </th>
+                        <td>
+                            <input id="phoneNumberReg" type="tel"
+                                   pattern="[\+]\d{2}[\(]\d{3}[\)]\d{7}"
+                                   value="${loggedUser.phoneNumber}"
+                                   title="Phone number should be in format '+38(044)1234567'"
+                                   name="phoneNumber" readonly required>
+                        </td>
+                    </tr>
+                    <tr>
                 </c:when>
                 <c:otherwise>
                     <tr class="fitem">
                         <th>
-                            <label for="name">Name:</label>
+                            <label for="name"><fmt:message key="Name" bundle="${bundle}"/>:</label>
                         </th>
                         <td>
                             <input id="name" name="name"
@@ -146,7 +151,7 @@
                     </tr>
                     <tr class="fitem">
                         <th>
-                            <label for="email">Email:</label>
+                            <label for="email"><fmt:message key="Email" bundle="${bundle}"/>:</label>
                         </th>
                         <td>
                             <input id="email" name="email" type="email"
@@ -155,24 +160,26 @@
                     </tr>
                     <tr class="fitem">
                         <th>
-                            <label for="phoneNumber">Phone Number:</label>
+                            <label for="phoneNumber"><fmt:message key="PhoneNumber"
+                                                                  bundle="${bundle}"/>:</label>
                         </th>
                         <td>
-                            <input id="phoneNumber" type="tel" pattern="[\+]\d{2}[\(]?\s?\d{3}[\)]?\s?\d{7}"
-                                   value="+380"
+                            <input id="phoneNumber" type="tel"
+                                   pattern="[\+]\d{2}[\(]?\s?\d{3}[\)]?[\s]?\d{7}"
+                                   value="+38 0"
                                    title="Phone number should be in format '+38 044 1234567'"
                                    name="phoneNumber" required>
                         </td>
                     </tr>
                 </c:otherwise>
-                </c:choose>
+            </c:choose>
 
             <tr>
-                <th class="ftitle" colspan="2">Request Information</th>
+                <th class="ftitle" colspan="2"><fmt:message key="ReservationInfo" bundle="${bundle}"/></th>
             </tr>
             <tr class="fitem">
                 <th>
-                    <label for="guests">Guests:</label>
+                    <label for="guests"><fmt:message key="Guests" bundle="${bundle}"/>:</label>
                 </th>
                 <td>
                     <input id="guests" name="guests" type="number" min="1" required>
@@ -180,39 +187,42 @@
             </tr>
             <tr class="fitem">
                 <th>
-                    <label for="roomClass">Room Class</label>
+                    <label for="roomClass"><fmt:message key="RoomClass" bundle="${bundle}"/></label>
                 </th>
                 <td>
                     <select id="roomClass" name="roomClass">
                         <c:forEach items="${roomClasses}" var="clazz">
                             <jsp:useBean id="clazz" scope="page"
                                          type="com.vaka.hotel_manager.domain.RoomClass"/>
-                            <option selected>${clazz.toString()}</option>
+                            <option value="${clazz.name()}" selected><fmt:message key="${clazz.name()}" bundle="${bundle}"/></option>
                         </c:forEach>
                     </select>
                 </td>
             </tr>
             <tr class="fitem">
                 <th>
-                    <label for="arrivalDate">Arrival Date</label>
+                    <label for="arrivalDate"><fmt:message key="ArrivalDate" bundle="${bundle}"/></label>
                 </th>
                 <td>
-                    <input id="arrivalDate" name="arrivalDate" type="date" onchange="changeDeparture(document.getElementById('arrivalDate').value)" required>
+                    <input id="arrivalDate" name="arrivalDate" type="date"
+                           onchange="changeDeparture(document.getElementById('arrivalDate').value)"
+                           required>
                 </td>
             </tr>
             <tr class="fitem">
                 <th>
-                    <label for="departureDate">Departure Date</label>
+                    <label for="departureDate"><fmt:message key="DepartureDate" bundle="${bundle}"/></label>
                 </th>
                 <td>
-                    <input id="departureDate" name="departureDate" type="date">
+                    <input id="departureDate" name="departureDate" type="date"
+                           title="Departure date cant be lower than arrival">
                 </td>
             </tr>
             <tr>
                 <th></th>
                 <td>
-                    <input type="submit" name="submit" value="submit" required/>
-                    <a href="/">Cancel</a>
+                    <input type="submit" name="submit" value="<fmt:message key="Submit" bundle="${bundle}"/>" required/>
+                    <a href="/"><fmt:message key="Cancel" bundle="${bundle}"/></a>
                 </td>
             </tr>
         </table>

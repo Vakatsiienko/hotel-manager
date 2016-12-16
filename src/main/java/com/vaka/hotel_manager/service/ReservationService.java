@@ -1,9 +1,11 @@
 package com.vaka.hotel_manager.service;
 
+import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.User;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -12,17 +14,30 @@ import java.util.List;
 public interface ReservationService extends CrudService<Reservation> {
 
     /**
-     * @param roomId applying roomId
-     * @param requestId to what request apply room
-     * @return
+     * @param roomId which room to apply
+     * @param reservationId to which reservation apply room
+     * @return true if room applied, false if not, throwing NotFoundException if room or reservation not present by given id.
      */
-    boolean applyRoomForReservation(User loggedUser, Integer roomId, Integer requestId);
+    boolean applyRoom(User loggedUser, Integer roomId, Integer reservationId);
 
-    List<Reservation> findByStatus(User loggedUser, ReservationStatus status);
+    /**
+     * @return all ReservationDTO by given status, that have not end by given date
+     */
+    List<ReservationDTO> findByStatusFromDate(User loggedUser, ReservationStatus status, LocalDate fromDate);
 
-    List<Reservation> findByStatusAndUserId(User loggedUser, ReservationStatus status, Integer userId);
+    /**
+     * @return all ReservationDTO by given status and User ID
+     */
+    List<ReservationDTO> findByStatusAndUserId(User loggedUser, ReservationStatus status, Integer userId);
 
+    /**
+     * @param reservationId id of rejecting reservation
+     * @return true if reservation have been rejected, false if not
+     */
     boolean reject(User loggedUser, Integer reservationId);
 
-    List<Reservation> findActiveByUserId(User loggedUser, Integer userId);
+    /**
+     * @return all reservation by given user that have not ended
+     */
+    List<ReservationDTO> findActiveByUserId(User loggedUser, Integer userId);
 }

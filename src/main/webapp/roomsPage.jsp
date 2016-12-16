@@ -1,12 +1,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="com.vaka.hotel_manager" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
     <%@include file="header.jspf" %>
-
-    <title><fmt:message key="ConfirmedReservations" bundle="${bundle}"/></title>
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <link rel="stylesheet" type="text/css"
           href="//cdn.datatables.net/1.10.8/css/jquery.dataTables.min.css"/>
@@ -35,45 +32,56 @@
                 }
             });
         })
+
     </script>
+    <style type="text/css">
+        #tableTitle {
+            position: relative;
+            left: 40%;
+        }
+    </style>
+    <title><fmt:message key="RoomsPage" bundle="${bundle}"/></title>
 </head>
 <body>
+<br> <br> <br>
 
-    <table id="myTable" class="display" cellspacing="0" width="100%">
-        <thead>
-        <tr>
-            <th><fmt:message key="ReservationId" bundle="${bundle}"/></th>
-            <th><fmt:message key="ClientId" bundle="${bundle}"/></th>
-            <th><fmt:message key="Guests" bundle="${bundle}"/></th>
-            <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
-            <th><fmt:message key="RoomId" bundle="${bundle}"/></th>
-            <th><fmt:message key="ArrivalDate" bundle="${bundle}"/></th>
-            <th><fmt:message key="DepartureDate" bundle="${bundle}"/></th>
+<h3 id="tableTitle"><fmt:message key="RoomList" bundle="${bundle}"/></h3>
+<table id="myTable" class="display" cellspacing="0" width="100%" >
+    <thead>
+    <tr>
+        <th><fmt:message key="Number" bundle="${bundle}"/></th>
+        <th><fmt:message key="Capacity" bundle="${bundle}"/></th>
+        <th><fmt:message key="CostPerDay" bundle="${bundle}"/> ($)</th>
+        <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
+        <c:if test="${loggedUser.role.name().equals('MANAGER')}">
             <th><fmt:message key="Action" bundle="${bundle}"/></th>
-        </tr>
-        </thead>
-        <tbody>
-        <c:forEach items="${reservationList}" var="reservation">
-            <jsp:useBean id="reservation" scope="page"
-                         type="com.vaka.hotel_manager.domain.DTO.ReservationDTO"/>
-            <tr>
-                <th>${reservation.id}</th>
-                <th><a href="/users/${reservation.userId}"/></th>
-                <th>${reservation.guests}</th>
-                <th><fmt:message key="${reservation.requestedRoomClass.name()}" bundle="${bundle}"/></th>
-                <th>${reservation.roomId}</th>
-                    <%--TODO consider to make number--%>
-                <th>${fn:formatDate(reservation.arrivalDate)}</th>
-                <th>${fn:formatDate(reservation.departureDate)}</th>
+        </c:if>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach items="${roomList}" var="room">
+        <jsp:useBean id="room" scope="page"
+                     type="com.vaka.hotel_manager.domain.Room"/>
+        <tr>
+            <th>${room.number}</th>
+            <th>${room.capacity}</th>
+            <th>${room.costPerDay / 100}</th>
+            <th><fmt:message key="${room.roomClazz.name()}" bundle="${bundle}"/></th>
+            <c:if test="${loggedUser.role.name().equals('MANAGER')}">
                 <th>
-                    <form action="/reservations/${reservation.id}/reject" method="post">
-                        <input type="submit" name="submit" value="<fmt:message key="Reject" bundle="${bundle}"/>" required/>
+                    <button onclick="location.href='/rooms/${room.id}'">Edit</button>
+                    <form action="/rooms/${room.id}" method="POST">
+                        <input type="text" name="method" value="DELETE" hidden>
+                        <input type="submit" name="submit"
+                               value="<fmt:message key="Delete" bundle="${bundle}"/>"
+                               required/>
                     </form>
                 </th>
-            </tr>
-        </c:forEach>
+            </c:if>
+        </tr>
+    </c:forEach>
 
-        </tbody>
-        </table>
+    </tbody>
+</table>
 </body>
 </html>

@@ -1,14 +1,16 @@
 package com.vaka.hotel_manager.util.repository;
 
 import com.vaka.hotel_manager.domain.*;
+import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import javax.servlet.http.HttpServletRequest;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Optional;
 
 /**
  * Created by Iaroslav on 11/26/2016.
@@ -16,56 +18,67 @@ import java.time.ZoneId;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StatementToDomainExtractor {
 
+    public static ReservationDTO extractReservationDTO(ResultSet resultSet) throws SQLException {
+        Integer id = resultSet.getInt("reservation_id");
+        LocalDateTime createdDateTime = resultSet.getTimestamp("reservation_created_datetime").toLocalDateTime();
+        Integer userId = resultSet.getInt("user_id");
+        Integer roomId = resultSet.getInt("room_id");
+        if (roomId == 0)
+            roomId = null;
+        Integer guests = resultSet.getInt("reservation_guests");
+        ReservationStatus status = ReservationStatus.valueOf(resultSet.getString("reservation_status"));
+        RoomClass requestedRoomClass = RoomClass.valueOf(resultSet.getString("reservation_requested_room_class"));
+        LocalDate arrivalDate = resultSet.getDate("reservation_arrival_date").toLocalDate();
+        LocalDate departureDate = resultSet.getDate("reservation_departure_date").toLocalDate();
+        return new ReservationDTO(id, createdDateTime, userId, roomId, guests, status, requestedRoomClass, arrivalDate, departureDate);
+    }
+
     public static Reservation extractReservation(ResultSet resultSet) throws SQLException {
         Reservation reservation = new Reservation();
-        if (resultSet.getString("room_class") != null) {
-            reservation.setRoom(extractRoom(resultSet)); //TODO add prefix to extraction methods for inner entities
-            reservation.getRoom().setId(resultSet.getInt("room_id"));
+        if (resultSet.getString("room_room_class") != null) {
+            reservation.setRoom(extractRoom(resultSet));
         }
         reservation.setUser(extractUser(resultSet));
-        reservation.getUser().setId(resultSet.getInt("user_id"));
-        reservation.setId(resultSet.getInt("id"));
-        reservation.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime());
-        reservation.setGuests(resultSet.getInt("guests"));
-        reservation.setRequestedRoomClass(RoomClass.valueOf(resultSet.getString("requested_room_class")));
-        reservation.setStatus(ReservationStatus.valueOf(resultSet.getString("status")));
-        reservation.setArrivalDate(resultSet.getDate("arrival_date").toLocalDate());
-        reservation.setDepartureDate(resultSet.getDate("departure_date").toLocalDate());
+        reservation.setId(resultSet.getInt("reservation_id"));
+        reservation.setCreatedDatetime(resultSet.getTimestamp("reservation_created_datetime").toLocalDateTime());
+        reservation.setGuests(resultSet.getInt("reservation_guests"));
+        reservation.setRequestedRoomClass(RoomClass.valueOf(resultSet.getString("reservation_requested_room_class")));
+        reservation.setStatus(ReservationStatus.valueOf(resultSet.getString("reservation_status")));
+        reservation.setArrivalDate(resultSet.getDate("reservation_arrival_date").toLocalDate());
+        reservation.setDepartureDate(resultSet.getDate("reservation_departure_date").toLocalDate());
         return reservation;
     }
 
     public static Room extractRoom(ResultSet resultSet) throws SQLException {
         Room room = new Room();
-        room.setId(resultSet.getInt("id"));
-        room.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime());
-        room.setNumber(resultSet.getInt("number"));
-        room.setCapacity(resultSet.getInt("capacity"));
-        room.setCostPerDay(resultSet.getInt("cost_per_day"));
-        room.setRoomClazz(RoomClass.valueOf(resultSet.getString("room_class")));
-        room.setDescription(resultSet.getString("description"));
+        room.setId(resultSet.getInt("room_id"));
+        room.setCreatedDatetime(resultSet.getTimestamp("room_created_datetime").toLocalDateTime());
+        room.setNumber(resultSet.getInt("room_number"));
+        room.setCapacity(resultSet.getInt("room_capacity"));
+        room.setCostPerDay(resultSet.getInt("room_cost_per_day"));
+        room.setRoomClazz(RoomClass.valueOf(resultSet.getString("room_room_class")));
         return room;
     }
 
     public static Bill extractBill(ResultSet resultSet) throws SQLException {
         Bill bill = new Bill();
-        bill.setId(resultSet.getInt("id"));
-        bill.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime());
+        bill.setId(resultSet.getInt("bill_id"));
+        bill.setCreatedDatetime(resultSet.getTimestamp("bill_created_datetime").toLocalDateTime());
         bill.setReservation(extractReservation(resultSet));
-        bill.getReservation().setId(resultSet.getInt("reservation_id"));
-        bill.setTotalCost(resultSet.getInt("total_cost"));
-        bill.setPaid(resultSet.getBoolean("paid"));
+        bill.setTotalCost(resultSet.getInt("bill_total_cost"));
+        bill.setPaid(resultSet.getBoolean("bill_paid"));
         return bill;
     }
 
     public static User extractUser(ResultSet resultSet) throws SQLException {
         User user = new User();
-        user.setId(resultSet.getInt("id"));
-        user.setCreatedDatetime(resultSet.getTimestamp("created_datetime").toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime());
-        user.setRole(Role.valueOf(resultSet.getString("role")));
-        user.setPassword(resultSet.getString("password"));
-        user.setPhoneNumber(resultSet.getString("phone_number"));
-        user.setName(resultSet.getString("name"));
-        user.setEmail(resultSet.getString("email"));
+        user.setId(resultSet.getInt("user_id"));
+        user.setCreatedDatetime(resultSet.getTimestamp("user_created_datetime").toLocalDateTime());
+        user.setRole(Role.valueOf(resultSet.getString("user_role")));
+        user.setPassword(resultSet.getString("user_password"));
+        user.setPhoneNumber(resultSet.getString("user_phone_number"));
+        user.setName(resultSet.getString("user_name"));
+        user.setEmail(resultSet.getString("user_email"));
         return user;
     }
 

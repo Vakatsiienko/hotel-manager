@@ -38,8 +38,7 @@ CREATE TABLE room
   number           INTEGER                               NOT NULL,
   capacity         INTEGER                               NOT NULL,
   cost_per_day     INTEGER                               NOT NULL,
-  room_class       VARCHAR(20)                           NOT NULL,
-  description      VARCHAR(255)
+  room_class       VARCHAR(20)                           NOT NULL
 );
 CREATE TABLE reservation
 (

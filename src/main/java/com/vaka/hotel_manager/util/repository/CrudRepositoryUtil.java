@@ -1,13 +1,14 @@
 package com.vaka.hotel_manager.util.repository;
 
 import com.vaka.hotel_manager.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.Room;
+import com.vaka.hotel_manager.domain.BaseEntity;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -15,11 +16,9 @@ import java.sql.SQLException;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CrudRepositoryUtil {
-    private static DataSource dataSource;
 
-
-    public static boolean delete(String strQuery, Integer id) {
-        try (Connection connection = getDataSource().getConnection();
+    public static boolean delete(DataSource datasource, String strQuery, Integer id) {
+        try (Connection connection = datasource.getConnection();
              NamedPreparedStatement statement = createDeleteStatement(connection, strQuery, id)) {
             return statement.executeUpdate() != 0;
         } catch (SQLException e) {
@@ -40,16 +39,4 @@ public class CrudRepositoryUtil {
         return statement;
     }
 
-
-
-    private static DataSource getDataSource() {
-        if (dataSource == null) {
-            synchronized (CrudRepositoryUtil.class) {
-                if (dataSource == null) {
-                    dataSource = ApplicationContext.getInstance().getBean(DataSource.class);
-                }
-            }
-        }
-        return dataSource;
-    }
 }

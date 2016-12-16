@@ -42,15 +42,7 @@ public class NamedPreparedStatement implements AutoCloseable {
         int pos;
         List<Integer> punctuation = new ArrayList<>();
         while ((pos = strQuery.indexOf(":")) != -1) {
-//            int endComma = strQuery.substring(pos).indexOf(',');
-//            int endSpace = strQuery.substring(pos).indexOf(' ');
-//            int endBrace = strQuery.substring(pos).indexOf(')');
             int end;
-//
-//            if (endComma != -1 && endComma < endSpace && endComma < endBrace) {
-//                end = endComma;
-//            } else if (endSpace != -1 && endSpace < endBrace) end = endSpace;
-//            else end = endBrace;
             punctuation.add(strQuery.substring(pos).indexOf(','));
             punctuation.add(strQuery.substring(pos).indexOf(' '));
             punctuation.add(strQuery.substring(pos).indexOf(')'));

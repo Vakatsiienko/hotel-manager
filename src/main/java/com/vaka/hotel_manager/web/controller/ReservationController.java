@@ -9,18 +9,17 @@ import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomService;
 import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.service.UserService;
+import com.vaka.hotel_manager.util.IntegrityUtil;
 import com.vaka.hotel_manager.util.ServletToDomainExtractor;
-import com.vaka.hotel_manager.util.repository.StatementToDomainExtractor;
-import com.vaka.hotel_manager.util.DomainUtil;
-import com.vaka.hotel_manager.util.exception.AuthorizationException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import com.vaka.hotel_manager.util.exception.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
+import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -32,129 +31,110 @@ public class ReservationController {
     private RoomService roomService;
     private SecurityService securityService;
 
-//TODO don't give resp to controllers
+    private static final Logger LOG = LoggerFactory.getLogger(ReservationController.class);
+
     public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User loggedUser = getSecurityService().authenticate(req, resp);
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("Creating reservation request");
         Reservation reservation = ServletToDomainExtractor.extractReservation(req);
-        if (DomainUtil.hasNull(reservation) ||
-                reservation.getArrivalDate().compareTo(reservation.getDepartureDate()) >= 0) {
-            resp.sendError(400, "Illegal arguments");
-            return;
-        }
+        IntegrityUtil.check(reservation);
         if (loggedUser.getRole() == Role.ANONYMOUS) {
+            //if user isn't authenticated - trying to register by given info
+            LOG.debug("Creating user for reservation");
             User created = ServletToDomainExtractor.extractUser(req);
             created.setPassword(created.getPhoneNumber());
-            if (DomainUtil.hasNull(created)) {
-                resp.sendError(400, "Illegal arguments");
-                return;
-            }
+            IntegrityUtil.check(created);
             created = getUserService().create(loggedUser, created);
             reservation.setUser(created);
-            getSecurityService().signIn(req, resp, created.getEmail(), created.getPhoneNumber());
+            getSecurityService().signIn(req.getSession(), created.getEmail(), created.getPhoneNumber());
         } else {
             reservation.setUser(loggedUser);
         }
         reservation = getReservationService().create(loggedUser, reservation);
+        LOG.debug("To reservation page, reservationId: {}", reservation.getId());
         resp.sendRedirect("/reservations/" + reservation.getId());
     }
 
     public void getById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("To reservation page");
+        if (loggedUser.getRole() == Role.ANONYMOUS) {
+            resp.sendRedirect("/signin");
+            return;
+        }
         try {
-            User loggedUser = getSecurityService().authenticate(req, resp);
             Integer reservationId = Integer.valueOf(req.getRequestURI().substring(req.getRequestURI().lastIndexOf('/') + 1));
             Optional<Reservation> reservation = getReservationService().getById(loggedUser, reservationId);
             if (!reservation.isPresent()) {
-                resp.sendError(404);
-                return;
+                throw new NotFoundException("There are no user with given ID");
             }
             req.setAttribute("loggedUser", loggedUser);
             req.setAttribute("reservation", reservation.get());
             req.getRequestDispatcher("/reservationInfo.jsp").forward(req, resp);
         } catch (NumberFormatException ex) {
-            resp.sendError(400, "Illegal arguments");
+            throw new IllegalArgumentException("ID can be only positive integer value");
         }
     }
 
     public void applyRoomForReservation(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User loggedUser = getSecurityService().authenticate(req, resp);
-        if (loggedUser.getRole() != Role.MANAGER)
-            throw new AuthorizationException("Not allowed.");//TODO move to service
-
-        Integer reservationId = -1;
-        Integer roomId = -1;
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("Trying to apply room for reservation request");
+        if (loggedUser.getRole() == Role.ANONYMOUS) {
+            resp.sendRedirect("/signin");
+            return;
+        }
+        Integer reservationId;
+        Integer roomId;
         try {
             reservationId = Integer.valueOf(req.getParameter("reservationId"));
             roomId = Integer.valueOf(req.getParameter("roomId"));
-            if (reservationId < 0 || roomId < 0) {
-                throw new NumberFormatException();
-            }
         } catch (NumberFormatException e) {
-            resp.sendError(400, "Illegal arguments");
-            return;
+            throw new IllegalArgumentException("ID can be only integer value");
         }
-        Optional<Reservation> reservation = getReservationService().getById(loggedUser, reservationId);
-        boolean success = false;
-        if (reservation.isPresent()) {
-            success = getReservationService().applyRoomForReservation(loggedUser, roomId, reservationId);
-            req.setAttribute("reservation", getReservationService().getById(loggedUser, reservationId).get());//TODO CHECK
-        }
+        boolean success = getReservationService().applyRoom(loggedUser, roomId, reservationId);//TODO consider how to handle illegal state
         if (!success) {
+            req.setAttribute("reservation", getReservationService().getById(loggedUser, reservationId));
+            req.setAttribute("rooms", getRoomService().findAvailableForReservation(loggedUser, reservationId));
             req.setAttribute("exception", "Can't apply given room");
-            req.getRequestDispatcher("/reservationProcessing.jsp").forward(req, resp);
+            req.getRequestDispatcher("/reservationInfo.jsp").forward(req, resp);
         }
+        LOG.debug("Redirect to reservation page, reservationId: {}", reservationId);
         resp.sendRedirect("/reservations/" + reservationId);
-    }//TODO move url location to another prop file
+    }
 
     public void confirmedList(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User loggedUser = getSecurityService().authenticate(req, resp);
-
-        req.setAttribute("reservationList", getReservationService().findByStatus(loggedUser, ReservationStatus.CONFIRMED));
-        req.setAttribute("loggedUser", loggedUser);
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("To confirmed reservations page");
+        req.setAttribute("reservationList", getReservationService().findByStatusFromDate(loggedUser, ReservationStatus.CONFIRMED, LocalDate.now()));
         req.getRequestDispatcher("/confirmedReservations.jsp").forward(req, resp);
     }
 
     public void requestsList(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User loggedUser = getSecurityService().authenticate(req, resp);
-        req.setAttribute("reservationList", getReservationService().findByStatus(loggedUser, ReservationStatus.REQUESTED));
-        req.setAttribute("loggedUser", loggedUser);
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("To requested reservations page");
+        req.setAttribute("reservationList", getReservationService().findByStatusFromDate(loggedUser, ReservationStatus.REQUESTED, LocalDate.MIN));
         req.getRequestDispatcher("/reservationRequests.jsp").forward(req, resp);
     }
 
-    public void requestProcess(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            User loggedUser = getSecurityService().authenticate(req, resp);
-            Integer reservationId = Integer.valueOf(req.getRequestURI().substring(req.getRequestURI().lastIndexOf('/') + 1));
-            Optional<Reservation> reservation = getReservationService().getById(loggedUser, reservationId);
-            if (!reservation.isPresent()) {
-                resp.sendError(404);
-                return;
-            }
-            req.setAttribute("loggedUser", loggedUser);
-            req.setAttribute("reservation", reservation.get());
-            req.setAttribute("rooms", getRoomService().findAvailableForReservation(loggedUser, reservationId));
-            req.getRequestDispatcher("/reservationProcessing.jsp").forward(req, resp);
-        } catch (NumberFormatException ex) {
-            resp.sendError(400);
+    public void processingPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("Processing reservation request page");
+        Integer reservationId = Integer.valueOf(req.getRequestURI().substring(req.getRequestURI().lastIndexOf('/') + 1));
+        Optional<Reservation> reservation = getReservationService().getById(loggedUser, reservationId);
+        if (!reservation.isPresent()) {
+            throw new NotFoundException("Reservation not found");
         }
-    }
-
-    public void getByUser(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        User loggedUser = getSecurityService().authenticate(req, resp);
-        if (loggedUser.getRole() == Role.ANONYMOUS)
-            resp.sendRedirect("/signin");
-        List<Reservation> requestedList = getReservationService().findByStatusAndUserId(loggedUser, ReservationStatus.REQUESTED, loggedUser.getId());
-        List<Reservation> confirmedList = getReservationService().findByStatusAndUserId(loggedUser, ReservationStatus.CONFIRMED, loggedUser.getId());
-        List<Reservation> rejectedList = getReservationService().findByStatusAndUserId(loggedUser, ReservationStatus.REJECTED, loggedUser.getId());
-        req.setAttribute("requestedList", requestedList);
-        req.setAttribute("confirmedList", confirmedList);
-        req.setAttribute("rejectedList", rejectedList);
-        req.getRequestDispatcher("/userReservations.jsp").forward(req, resp);
+        req.setAttribute("reservation", reservation.get());
+        req.setAttribute("rooms", getRoomService().findAvailableForReservation(loggedUser, reservationId));
+        req.getRequestDispatcher("/reservationProcessing.jsp").forward(req, resp);
     }
 
     public void reject(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        User loggedUser = getSecurityService().authenticate(req, resp);
-        Integer reservationId = Integer.valueOf(req.getParameter("reservationId"));
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("Reservation reject request");
+        Integer reservationId = Integer.valueOf(req.getRequestURI().split("/")[2]);
         getReservationService().reject(loggedUser, reservationId);
+        LOG.debug("Redirecting to reservation page, reservationId: {}", reservationId);
         resp.sendRedirect("/reservations/" + reservationId);
     }
 
@@ -170,7 +150,7 @@ public class ReservationController {
         return userService;
     }
 
-    private SecurityService getSecurityService() {
+    public SecurityService getSecurityService() {
         if (securityService == null) {
             synchronized (this) {
                 if (securityService == null) {
@@ -181,7 +161,7 @@ public class ReservationController {
         return securityService;
     }
 
-    private ReservationService getReservationService() {
+    public ReservationService getReservationService() {
         if (reservationService == null) {
             synchronized (this) {
                 if (reservationService == null) {

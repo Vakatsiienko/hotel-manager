@@ -2,6 +2,7 @@ package com.vaka.hotel_manager.repository;
 
 import com.vaka.hotel_manager.DBTestUtil;
 import com.vaka.hotel_manager.EntityProviderUtil;
+import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.Room;
@@ -17,6 +18,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.junit.Assert.assertThat;
+
 /**
  * Created by Iaroslav on 12/3/2016.
  */
@@ -27,6 +31,26 @@ public class RoomRepositoryTest extends CrudRepositoryTest<Room> {
     @Before
     public void setUp() throws SQLException, ClassNotFoundException, IOException {
         DBTestUtil.reset();
+    }
+
+    @Test
+    public void testFindAll() throws Exception {
+        List<Room> expected = new ArrayList<>();
+        Room room1 = roomRepository.create(createEntity());
+        expected.add(room1);
+        Room room2 = roomRepository.create(createEntity());
+        expected.add(room2);
+        Room room3 = roomRepository.create(createEntity());
+        expected.add(room3);
+        Room room4 = roomRepository.create(createEntity());
+        expected.add(room4);
+        Room room5 = roomRepository.create(createEntity());
+        expected.add(room5);
+
+        List<Room> actual = roomRepository.findAll();
+
+        assertThat(actual, hasItems(expected.toArray(new Room[expected.size()])));
+
     }
 
     @Test

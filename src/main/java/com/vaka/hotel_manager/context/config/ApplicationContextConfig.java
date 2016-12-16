@@ -2,7 +2,6 @@ package com.vaka.hotel_manager.context.config;
 
 
 import com.vaka.hotel_manager.repository.*;
-import com.vaka.hotel_manager.repository.inMemoryImpl.SecurityRepositoryImpl;
 import com.vaka.hotel_manager.repository.jdbcImpl.BillRepositoryJdbcImpl;
 import com.vaka.hotel_manager.repository.jdbcImpl.ReservationRepositoryJdbcImpl;
 import com.vaka.hotel_manager.repository.jdbcImpl.RoomRepositoryJdbcImpl;
@@ -11,6 +10,8 @@ import com.vaka.hotel_manager.service.*;
 import com.vaka.hotel_manager.service.impl.*;
 import com.vaka.hotel_manager.web.controller.*;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.Map;
  */
 @Getter
 public class ApplicationContextConfig {
+    private static final Logger LOG = LoggerFactory.getLogger(ApplicationContextConfig.class);
     private Map<Class<?>, Class<?>> implClassByBeanName;
 
     public ApplicationContextConfig() {
@@ -42,7 +44,6 @@ public class ApplicationContextConfig {
         implClassByBeanName.put(RoomRepository.class, RoomRepositoryJdbcImpl.class);
         implClassByBeanName.put(BillRepository.class, BillRepositoryJdbcImpl.class);
         implClassByBeanName.put(UserRepository.class, UserRepositoryJdbcImpl.class);
-        implClassByBeanName.put(SecurityRepository.class, SecurityRepositoryImpl.class);
         implClassByBeanName.put(ReservationRepository.class, ReservationRepositoryJdbcImpl.class);
 
         //Other

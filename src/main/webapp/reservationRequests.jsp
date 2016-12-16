@@ -1,8 +1,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="fn" uri="com.vaka.hotel_manager" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <html>
 <head>
+    <%@include file="header.jspf" %>
+
     <title>RequestsList</title>
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <link rel="stylesheet" type="text/css"
@@ -14,55 +18,50 @@
         var table;
         $(document).ready(function () {
             table = $("#myTable").dataTable({
-                "dom": "<lftip>"
+                "dom": "<lftip>",
+                "language": {
+                    "lengthMenu": '<fmt:message key="dataTable.lengthMenu" bundle="${bundle}"/>' ,
+                    "zeroRecords": '<fmt:message key="dataTable.zeroRecords" bundle="${bundle}"/>' ,
+                    "info": '<fmt:message key="dataTable.info" bundle="${bundle}"/>',
+                    "infoEmpty": '<fmt:message key="dataTable.infoEmpty" bundle="${bundle}"/>',
+                    "infoFiltered": '<fmt:message key="dataTable.infoFiltered" bundle="${bundle}"/>',
+                    "search":         '<fmt:message key="dataTable.search" bundle="${bundle}"/>',
+                    "paginate": {
+                        "first":      '<fmt:message key="dataTable.first" bundle="${bundle}"/>',
+                        "last":       '<fmt:message key="dataTable.last" bundle="${bundle}"/>',
+                        "next":       '<fmt:message key="dataTable.next" bundle="${bundle}"/>',
+                        "previous":   '<fmt:message key="dataTable.previous" bundle="${bundle}"/>'
+                    }
+                }
             });
         })
     </script>
-    <style type="text/css">
-        #loggedUser {
-            position: absolute;
-            right: 0px;
-            top:0px;
-            background: gainsboro;
-        }
-    </style>
 </head>
 <body>
-<div id="loggedUser">${loggedUser.name} <a href="/users/signout">logout</a></div>
-<a href="/users/signin">/signin</a> <br>
-<a href="/users/signup">/signup</a> <br>
-<a href="/">/ (make reservation request)</a> <br>
-<a href="/reservations/confirmed">/confirmed</a> <br>
-<a href="/reservations/requested">/requests</a> <br>
-<a href="/users/${loggedUser.id}">/user info</a> <br> <br> <br>
-<c:if test="${!empty message}">
-    <h3>${message}</h3>
-</c:if>
-
+<%--TODO Add Title of the table--%>
 <table id="myTable" class="display" cellspacing="0" width="100%">
     <thead>
     <tr>
-        <th>Request Id</th>
-        <th>Client Name</th>
-        <th>Guests</th>
-        <th>Class Type</th>
-        <th>Created Date</th>
-        <th>Status</th>
-        <th>Action</th>
+        <th><fmt:message key="ReservationId" bundle="${bundle}"/></th>
+        <th><fmt:message key="ClientId" bundle="${bundle}"/></th>
+        <th><fmt:message key="Guests" bundle="${bundle}"/></th>
+        <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
+        <th><fmt:message key="CreatedDatetime" bundle="${bundle}"/></th>
+        <th><fmt:message key="Action" bundle="${bundle}"/></th>
     </tr>
     </thead>
     <tbody>
     <c:forEach items="${reservationList}" var="reservation">
         <jsp:useBean id="reservation" scope="page"
-                     type="com.vaka.hotel_manager.domain.Reservation"/>
+                     type="com.vaka.hotel_manager.domain.DTO.ReservationDTO"/>
         <tr>
             <th>${reservation.id}</th>
-            <th>${reservation.user.name}</th>
+            <th>${reservation.userId}</th>
             <th>${reservation.guests}</th>
-            <th>${reservation.requestedRoomClass}</th>
+            <th><fmt:message key="${reservation.requestedRoomClass.name()}" bundle="${bundle}"/></th>
             <th>${fn:formatDateTime(reservation.createdDatetime)}</th>
-            <th>${reservation.status}</th>
-            <th><a href="/reservations/process/${reservation.id}">Process</a>
+            <th><a href="/reservations/process/${reservation.id}"><fmt:message key="toProcess"
+                                                                               bundle="${bundle}"/></a>
             </th>
         </tr>
     </c:forEach>

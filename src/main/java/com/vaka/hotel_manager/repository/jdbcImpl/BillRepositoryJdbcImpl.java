@@ -33,7 +33,7 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     public Bill create(Bill entity) {
         String strQuery = getQueryByClassAndMethodName().get("bill.create");
         try (Connection connection = getDataSource().getConnection();//TODO move to JdbcUtil
-             NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, entity, Statement.RETURN_GENERATED_KEYS);
+             NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, entity);
              ResultSet resultSet = statement.getGenerationKeys()) {
             if (resultSet.next()) {
                 entity.setId(resultSet.getInt(1));
@@ -45,8 +45,8 @@ public class BillRepositoryJdbcImpl implements BillRepository {
         }
     }
 
-    private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Bill entity, int statementCode) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, statementCode).init();
+    private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Bill entity) throws SQLException {
+        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, Statement.RETURN_GENERATED_KEYS).init();
         DomainToStatementExtractor.extract(entity, statement);
         statement.execute();
         return statement;
@@ -92,7 +92,7 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("bill.delete");
-        return CrudRepositoryUtil.delete(strQuery, id);
+        return CrudRepositoryUtil.delete(getDataSource(), strQuery, id);
     }
 
     @Override
