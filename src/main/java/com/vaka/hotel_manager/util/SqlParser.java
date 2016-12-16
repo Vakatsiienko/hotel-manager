@@ -9,7 +9,14 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 /**
- * Created by Iaroslav on 12/5/2016.
+ * Parser that read sql files and collect sql methods to unmodifiable map<class.method name, query>
+ *     files should be in format
+ *     # class.method
+ *     SELECT ...
+ *     ...
+ *     ...;
+ *     # class.method
+ *     ...;
  */
 public class SqlParser {
     private String[] paths;

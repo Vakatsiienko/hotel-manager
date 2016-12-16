@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 /**
- * Created by Iaroslav on 12/5/2016.
+ * Util that check object for null values(excluding nullable and generating fields)
+ * and throw proper exception with proper message.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class IntegrityUtil {

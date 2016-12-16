@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Iaroslav on 12/3/2016.
+ * Decorator of PreparedStatement that add possibility to set statement by name
  */
 public class NamedPreparedStatement implements AutoCloseable {
     @Getter
@@ -18,11 +18,19 @@ public class NamedPreparedStatement implements AutoCloseable {
     private boolean statementCodeIsSet;
     private int statementCode;
 
+    /**
+     * After instantiation should be called {@link #init()} method,
+     * for parse strQuery to statement, and creating PreparedStatement
+     */
     public NamedPreparedStatement(Connection connection, String strQuery) throws SQLException {
         this.strQuery = strQuery;
         this.connection = connection;
     }
 
+    /**
+     * After instantiation should be called {@link #init()} method,
+     * for parse strQuery to statement, and creating PreparedStatement
+     */
     public NamedPreparedStatement(Connection connection, String strQuery, int statementCode) throws SQLException {
         this.strQuery = strQuery;
         this.statementCode = statementCode;
@@ -47,7 +55,7 @@ public class NamedPreparedStatement implements AutoCloseable {
             punctuation.add(strQuery.substring(pos).indexOf(' '));
             punctuation.add(strQuery.substring(pos).indexOf(')'));
             while (punctuation.remove(Integer.valueOf(-1))) ;
-            if (punctuation.size() != 0) {
+            if (!punctuation.isEmpty()) {
                 punctuation.sort(Integer::compareTo);
                 end = punctuation.get(0);
             } else end = -1;

@@ -2,12 +2,11 @@ package com.vaka.hotel_manager.repository;
 
 import com.vaka.hotel_manager.DBTestUtil;
 import com.vaka.hotel_manager.EntityProviderUtil;
-import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
+import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.RoomClass;
-import com.vaka.hotel_manager.context.ApplicationContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +48,7 @@ public class RoomRepositoryTest extends CrudRepositoryTest<Room> {
 
         List<Room> actual = roomRepository.findAll();
 
+        Assert.assertTrue(expected.size() == actual.size());
         assertThat(actual, hasItems(expected.toArray(new Room[expected.size()])));
 
     }

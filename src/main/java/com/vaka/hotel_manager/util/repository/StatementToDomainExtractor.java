@@ -13,7 +13,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 /**
- * Created by Iaroslav on 11/26/2016.
+ * Class that help to retrieve entities from ResultSet
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StatementToDomainExtractor {

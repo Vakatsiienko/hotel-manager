@@ -85,36 +85,21 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     @Override
     public Room create(Room entity) {
         String strQuery = getQueryByClassAndMethodName().get("room.create");
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, entity);
-             ResultSet resultSet = statement.getGenerationKeys()) {
-            if (resultSet.next()) {
-                entity.setId(resultSet.getInt(1));
-                return entity;
-            } else throw new SQLException("ID wasn't returned");
+        try {
+            return CrudRepositoryUtil.create(
+                    DomainToStatementExtractor::extract,
+                    getDataSource(), strQuery, entity);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
 
-    private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Room entity) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, Statement.RETURN_GENERATED_KEYS).init();
-        DomainToStatementExtractor.extract(entity, statement);
-        statement.execute();
-        return statement;
-    }
-
     @Override
     public Optional<Room> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("room.getById");
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = CrudRepositoryUtil.createGetByIdStatement(connection, strQuery, id);
-             ResultSet resultSet = statement.executeQuery()) {
-
-            if (resultSet.next())
-                return Optional.of(StatementToDomainExtractor.extractRoom(resultSet));
-            else return Optional.empty();
+        try {
+            return CrudRepositoryUtil.getById(StatementToDomainExtractor::extractRoom, getDataSource(), strQuery, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -130,21 +115,13 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
 
     @Override
     public boolean update(Integer id, Room entity) {
-        entity.setId(id);
         String strQuery = getQueryByClassAndMethodName().get("room.update");
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createUpdateStatement(connection, strQuery, entity)) {
-            return statement.executeUpdate() != 0;
+        try {
+            return CrudRepositoryUtil.update(DomainToStatementExtractor::extract, getDataSource(), strQuery, entity, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
-    }
-
-    private NamedPreparedStatement createUpdateStatement(Connection connection, String strQuery, Room entity) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        DomainToStatementExtractor.extract(entity, statement);
-        return statement;
     }
 
     public DataSource getDataSource() {

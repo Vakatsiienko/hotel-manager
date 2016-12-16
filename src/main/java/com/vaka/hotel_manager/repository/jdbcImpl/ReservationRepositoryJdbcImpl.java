@@ -104,7 +104,6 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
             throw new RepositoryException(e);
         }
     }
-//TODO check repository query for set
     private NamedPreparedStatement getStatusStatementFromDate(Connection connection, String query, ReservationStatus status, LocalDate fromDate) throws SQLException {
         NamedPreparedStatement statement = new NamedPreparedStatement(connection, query).init();
         statement.setStatement("status", status.name());
@@ -139,35 +138,21 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     @Override
     public Reservation create(Reservation reservation) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.create");
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, reservation);
-             ResultSet resultSet = statement.getGenerationKeys()) {
-            if (resultSet.next()) {
-                reservation.setId(resultSet.getInt(1));
-                return reservation;
-            } else throw new SQLException("ID wasn't returned");
+        try {
+            return CrudRepositoryUtil.create(
+                    DomainToStatementExtractor::extract,
+                    getDataSource(), strQuery, reservation);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
 
-    private NamedPreparedStatement createAndExecuteCreateStatement(Connection connection, String strQuery, Reservation entity) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery, Statement.RETURN_GENERATED_KEYS).init();
-        DomainToStatementExtractor.extract(entity, statement);
-        statement.execute();
-        return statement;
-    }
-
     @Override
     public Optional<Reservation> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.getById");
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = CrudRepositoryUtil.createGetByIdStatement(connection, strQuery, id);
-             ResultSet resultSet = statement.executeQuery()) {
-            if (resultSet.next())
-                return Optional.of(StatementToDomainExtractor.extractReservation(resultSet));
-            else return Optional.empty();
+        try {
+            return CrudRepositoryUtil.getById(StatementToDomainExtractor::extractReservation, getDataSource(), strQuery, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -177,25 +162,17 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
     @Override
     public boolean update(Integer id, Reservation entity) {
-        entity.setId(id);
         String strQuery;
         if (entity.getRoom() != null)
             strQuery = getQueryByClassAndMethodName().get("reservation.update_withRoom");
         else
             strQuery = getQueryByClassAndMethodName().get("reservation.update_withoutRoom");
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = createUpdateStatement(connection, strQuery, entity)) {
-            return statement.executeUpdate() != 0;
+        try {
+            return CrudRepositoryUtil.update(DomainToStatementExtractor::extract, getDataSource(), strQuery, entity, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
-    }
-
-    private NamedPreparedStatement createUpdateStatement(Connection connection, String strQuery, Reservation entity) throws SQLException {
-        NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
-        DomainToStatementExtractor.extract(entity, statement);
-        return statement;
     }
 
     @Override

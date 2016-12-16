@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 /**
- * Created by Iaroslav on 12/9/2016.
+ * Same as repository extractors, only with Servlet.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ServletToDomainExtractor {

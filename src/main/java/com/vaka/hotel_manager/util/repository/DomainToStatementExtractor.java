@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 /**
- * Created by Iaroslav on 12/3/2016.
+ * Class that help extract entities fields to statement
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DomainToStatementExtractor {
