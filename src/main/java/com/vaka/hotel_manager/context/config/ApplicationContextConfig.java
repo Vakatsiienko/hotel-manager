@@ -19,12 +19,15 @@ import java.util.Map;
 /**
  * Created by Iaroslav on 11/26/2016.
  */
-@Getter
 public class ApplicationContextConfig {
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationContextConfig.class);
+    @Getter
     private Map<Class<?>, Class<?>> implClassByBeanName;
+    @Getter
+    private Map<Class<?>, Object> implBeanByBeanName;
 
     public ApplicationContextConfig() {
+        implBeanByBeanName = new HashMap<>();
         implClassByBeanName = new HashMap<>();
 
         //Controllers

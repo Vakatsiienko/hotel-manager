@@ -3,7 +3,6 @@ package com.vaka.hotel_manager.service.impl;
 import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
-import com.vaka.hotel_manager.repository.SecurityRepository;
 import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.util.SecurityUtil;
@@ -22,10 +21,10 @@ import java.util.Set;
  */
 public class SecurityServiceImpl implements SecurityService {
     private UserRepository userRepository;
-    private User anonymous = new User();
+    private static final User anonymous = new User();
     private static final Logger LOG = LoggerFactory.getLogger(SecurityServiceImpl.class);
 
-    {
+    static {
         anonymous.setRole(Role.ANONYMOUS);
     }
 

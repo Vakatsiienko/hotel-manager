@@ -123,7 +123,7 @@ public class DispatcherServlet extends HttpServlet {
             resp.sendError(400, e2.getMessage());
         } catch (AuthorizationException e3) {
             LOG.debug(e3.getMessage(), e3);
-            resp.sendError(401, e3.getMessage());
+            resp.sendError(403, e3.getMessage());
         } catch (ApplicationException e4) {
             LOG.error(e4.getMessage(), e4);
             resp.sendError(500, e4.getMessage());

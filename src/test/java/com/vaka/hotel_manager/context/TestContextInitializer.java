@@ -1,11 +1,9 @@
-package com.vaka.hotel_manager;
+package com.vaka.hotel_manager.context;
 
-import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.context.config.ApplicationContextConfig;
 import com.vaka.hotel_manager.context.config.PersistenceConfig;
 import com.vaka.hotel_manager.util.exception.ApplicationContextInitException;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.File;
@@ -18,26 +16,28 @@ import java.util.Arrays;
  * Created by Iaroslav on 12/8/2016.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ContextInitTestUtil {
+public class TestContextInitializer {
 
-    @Getter
-    private static boolean initIsDone;
-
-    public static void init() throws IOException {
+    private static void init(ApplicationContextConfig config){
         try {
-            String connectionProp = ContextInitTestUtil.class.getClassLoader().getResource("testPersistence.properties").getPath();
-            URL repository = ContextInitTestUtil.class.getClassLoader().getResource("repository");
+            String connectionProp = TestContextInitializer.class.getClassLoader().getResource("testPersistence.properties").getPath();
+            URL repository = TestContextInitializer.class.getClassLoader().getResource("repository");
             File[] files = new File(repository.getFile()).listFiles();
             String[] filesPath = Arrays.stream(files)
                     .map(File::getPath)
                     .toArray(String[]::new);
             ApplicationContext.getInstance()
-                    .init(new ApplicationContextConfig(), new PersistenceConfig(connectionProp, filesPath));
+                    .init(config, new PersistenceConfig(connectionProp, filesPath));
         } catch (NullPointerException | IOException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex) {
             throw new ApplicationContextInitException("Exception during context initialization, check sql files, or persistence props", ex);
         }
-        initIsDone = true;
     }
 
+    public static void initForRepositories() {
+        init(new ApplicationContextConfig());
+    }
 
+    public static void initForServices() {
+        init(new ServiceTestContextConfig());
+    }
 }

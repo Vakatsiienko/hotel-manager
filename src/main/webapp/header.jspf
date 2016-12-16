@@ -90,7 +90,7 @@
     </c:if>
 </div>
 <c:if test="${!empty message}">
-    <h3>${message}</h3><%--TODO add message from bundle--%>
+    <h3><fmt:message key="${message}" bundle="${bundle}"/></h3>
 </c:if>
 <br>
 <br>

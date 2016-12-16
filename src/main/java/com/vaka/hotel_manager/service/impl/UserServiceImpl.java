@@ -1,21 +1,16 @@
 package com.vaka.hotel_manager.service.impl;
 
 import com.vaka.hotel_manager.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.service.UserService;
 import com.vaka.hotel_manager.util.SecurityUtil;
 import com.vaka.hotel_manager.util.exception.CreatingException;
-import com.vaka.hotel_manager.util.exception.NotFoundException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
@@ -29,12 +24,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(User loggedUser, User user) {
+        LOG.debug("Creating user: {}", user);
         if (getUserRepository().getByEmail(user.getEmail()).isPresent()) {
             throw new CreatingException("User with such email already exist.");
         }
         user.setPassword(SecurityUtil.generatePassword(user));
         user.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        LOG.debug("Creating user: {}", user);//TODO check if it is ok to log password.
         return getUserRepository().create(user);
     }
 
@@ -44,7 +39,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> requested = getUserRepository().getById(id);
         if (requested.isPresent()) {
             SecurityUtil.eraseSensitivityCredentials(requested.get());
-            if (!requested.get().getId().equals(loggedUser.getId()))
+            if (!id.equals(loggedUser.getId()))
                 getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
         }
         return requested;

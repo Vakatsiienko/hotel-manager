@@ -52,6 +52,8 @@ public class UserController {
         } else {
             String email = req.getParameter("email");
             String password = req.getParameter("password");
+            if (email == null || password == null)
+                throw new IllegalArgumentException("Email or/and password missing");
             try {
                 LOG.debug("signin user with email: {}", email);
                 getSecurityService().signIn(req.getSession(), email, password);

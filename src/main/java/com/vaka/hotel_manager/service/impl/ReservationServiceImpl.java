@@ -126,8 +126,10 @@ public class ReservationServiceImpl implements ReservationService {
         LOG.debug("Updating reservation with id: {}, updating state: {}", id, reservation);
         Optional<Reservation> reservationOptional = getById(loggedUser, id);
         if (reservationOptional.isPresent()) {
+            if (!reservation.getUser().getId().equals(loggedUser.getId()))
+                getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
             return getReservationRepository().update(id, reservation);
-        } else throw new NotFoundException("Reservation not found.");
+        } else return false;
     }
 
     @Override

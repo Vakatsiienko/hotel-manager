@@ -34,7 +34,7 @@ public class ContextInitializer implements ServletContextListener {
                     .init(new ApplicationContextConfig(), new PersistenceConfig(connectionProp, filesPath));
         } catch (NullPointerException | IOException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex) {
             LOG.debug("ApplicationContextInitException", ex);
-            throw new ApplicationContextInitException("Exception during context initialization, check sql files, or persistence props", ex);
+            throw new ApplicationContextInitException(ex.getMessage(), ex);
         }
     }
 

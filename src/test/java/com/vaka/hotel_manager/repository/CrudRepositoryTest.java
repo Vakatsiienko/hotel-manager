@@ -1,12 +1,8 @@
 package com.vaka.hotel_manager.repository;
 
 
-import com.vaka.hotel_manager.ContextInitTestUtil;
-import com.vaka.hotel_manager.context.ContextInitializer;
-import com.vaka.hotel_manager.context.config.ApplicationContextConfig;
-import com.vaka.hotel_manager.context.config.PersistenceConfig;
+import com.vaka.hotel_manager.context.TestContextInitializer;
 import com.vaka.hotel_manager.domain.BaseEntity;
-import com.vaka.hotel_manager.context.ApplicationContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,8 +20,7 @@ public abstract class CrudRepositoryTest<Entity extends BaseEntity> {
 
     @BeforeClass
     public static void init() throws SQLException, ClassNotFoundException, IOException, InterruptedException {
-        if (!ContextInitTestUtil.isInitIsDone())
-            ContextInitTestUtil.init();
+        TestContextInitializer.initForRepositories();
     }
     @Before
     public void beforeTest() throws SQLException, ClassNotFoundException {
@@ -39,10 +34,6 @@ public abstract class CrudRepositoryTest<Entity extends BaseEntity> {
         Assert.assertNotNull(created.getId());
         e.setId(created.getId());
         Assert.assertEquals(e, created);
-
-        Entity next = getRepository().create(createEntity());
-
-        Assert.assertNotEquals(created.getId(), (next.getId()));
     }
 
     @Test

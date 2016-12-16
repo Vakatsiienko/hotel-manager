@@ -113,7 +113,7 @@
                 <c:set var="cost" value="${room.costPerDay /100}"/>
                 <td>${cost}</td>
                 <td><a href="/reservations/applyRoom?roomId=${room.id}&reservationId=${reservation.id}"><fmt:message
-                        key="Apply" bundle="${bundle}"/></a><%--TODO add apply process--%>
+                        key="Apply" bundle="${bundle}"/></a>
                 </td>
             </tr>
         </c:forEach>

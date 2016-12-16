@@ -7,7 +7,7 @@
 
 
     <appender name="file" class="ch.qos.logback.core.FileAppender">
-        <file>C:\Users\Iaroslav\IdeaProjects\hotel-manager\log\hotel_manager.log</file>
+        <file>${HOTEL_MANAGER_ROOT}\log\hotel_manager.log</file>
 
         <encoder>
             <charset>UTF-8</charset>

@@ -79,7 +79,7 @@
         <tr>
             <td colspan="2">
                 <c:if test="${!empty exception}">
-                    <p id ="exception"><fmt:message key="${exception}" bundle="${bundle}"/></p><%--TODO set exception message to PasswordCheckException--%>
+                    <p id ="exception"><fmt:message key="${exception}" bundle="${bundle}"/></p>
                 </c:if>
             </td>
         </tr>

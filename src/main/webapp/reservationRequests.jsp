@@ -36,9 +36,16 @@
             });
         })
     </script>
+
+    <style type="text/css">
+        #requestTableTitle{
+            position: relative;
+            left: 40%;
+        }
+    </style>
 </head>
 <body>
-<%--TODO Add Title of the table--%>
+<h3 id="requestTableTitle"><fmt:message key="RequestedReservations" bundle="${bundle}"/></h3>
 <table id="myTable" class="display" cellspacing="0" width="100%">
     <thead>
     <tr>

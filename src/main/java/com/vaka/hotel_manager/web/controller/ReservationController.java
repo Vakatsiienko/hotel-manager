@@ -68,7 +68,6 @@ public class ReservationController {
             if (!reservation.isPresent()) {
                 throw new NotFoundException("There are no user with given ID");
             }
-            req.setAttribute("loggedUser", loggedUser);
             req.setAttribute("reservation", reservation.get());
             req.getRequestDispatcher("/reservationInfo.jsp").forward(req, resp);
         } catch (NumberFormatException ex) {

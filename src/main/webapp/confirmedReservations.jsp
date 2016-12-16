@@ -62,7 +62,6 @@
                 <th>${reservation.guests}</th>
                 <th><fmt:message key="${reservation.requestedRoomClass.name()}" bundle="${bundle}"/></th>
                 <th>${reservation.roomId}</th>
-                    <%--TODO consider to make number--%>
                 <th>${fn:formatDate(reservation.arrivalDate)}</th>
                 <th>${fn:formatDate(reservation.departureDate)}</th>
                 <th>

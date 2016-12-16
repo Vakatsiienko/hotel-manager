@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ApplicationContext {
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationContext.class);
 
-    private Map<Class<?>, Object> beanByInterface;
+    private Map<Class<?>, Object> beanByName;
 
     private static ApplicationContext instance;
 
@@ -32,14 +31,17 @@ public class ApplicationContext {
     private AtomicInteger idCounter = new AtomicInteger();
 
     public ApplicationContext init(ApplicationContextConfig contextConfig, PersistenceConfig persistenceConfig) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        beanByInterface = new ConcurrentHashMap<>();
+        beanByName = new ConcurrentHashMap<>();
         Map<Class<?>, Class<?>> classByBeanName = contextConfig.getImplClassByBeanName();
-
+        LOG.debug("Initializing beans.");
         for (Map.Entry<Class<?>, Class<?>> entry : classByBeanName.entrySet()) {
+            if (contextConfig.getImplBeanByBeanName().containsKey(entry.getKey()))
+                throw new ApplicationContextInitException("Config bean names collision, not support multiple bean realization for one name");
             Object bean = entry.getValue().getConstructor().newInstance();
-            beanByInterface.put(entry.getKey(), bean);
+            beanByName.put(entry.getKey(), bean);
         }
-        beanByInterface.put(DataSource.class, persistenceConfig.dataSource());
+        contextConfig.getImplBeanByBeanName().forEach(beanByName::put);
+        beanByName.put(DataSource.class, persistenceConfig.dataSource());
         queryByClassAndMethodName = persistenceConfig.queryByClassAndMethodName();
         return this;
     }
@@ -56,6 +58,6 @@ public class ApplicationContext {
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<?> clazz) {
-        return (T) beanByInterface.get(clazz);
+        return (T) beanByName.get(clazz);
     }
 }
