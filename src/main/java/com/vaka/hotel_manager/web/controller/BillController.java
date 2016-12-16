@@ -41,9 +41,17 @@ public class BillController {
     public void getByReservationId(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Getting bill by reservationId, loggedUser: {}", loggedUser);
-        Integer id = Integer.valueOf(req.getParameter("id"));
+        Integer id;
+        try {
+            id = Integer.valueOf(req.getParameter("id"));
+        } catch (NumberFormatException e){
+            throw new IllegalArgumentException("Reservation id must be integer value");
+        }
+        Optional<Bill> bill = getBillService().getBillByReservationId(loggedUser, id);
+        if (!bill.isPresent())
+            throw new NotFoundException("Not found");
         req.setAttribute("loggedUser", loggedUser);
-        req.setAttribute("bill", getBillService().getBillByReservationId(loggedUser, id).get());
+        req.setAttribute("bill", bill.get());
         req.getRequestDispatcher("/billInfo.jsp").forward(req, resp);
     }
 

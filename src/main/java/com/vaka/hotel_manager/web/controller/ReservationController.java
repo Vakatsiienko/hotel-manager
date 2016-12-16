@@ -26,20 +26,22 @@ import java.util.Optional;
  * Created by Iaroslav on 12/1/2016.
  */
 public class ReservationController {
+    private static final Logger LOG = LoggerFactory.getLogger(ReservationController.class);
     private ReservationService reservationService;
     private UserService userService;
     private RoomService roomService;
+
     private SecurityService securityService;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ReservationController.class);
-
+    /**
+     * Creating reservation and if user isn't authenticated - trying to register by given info
+     */
     public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Creating reservation request");
         Reservation reservation = ServletToDomainExtractor.extractReservation(req);
         IntegrityUtil.check(reservation);
         if (loggedUser.getRole() == Role.ANONYMOUS) {
-            //if user isn't authenticated - trying to register by given info
             LOG.debug("Creating user for reservation");
             User created = ServletToDomainExtractor.extractUser(req);
             created.setPassword(created.getPhoneNumber());
@@ -55,13 +57,10 @@ public class ReservationController {
         resp.sendRedirect("/reservations/" + reservation.getId());
     }
 
+
     public void getById(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("To reservation page");
-        if (loggedUser.getRole() == Role.ANONYMOUS) {
-            resp.sendRedirect("/signin");
-            return;
-        }
         try {
             Integer reservationId = Integer.valueOf(req.getRequestURI().substring(req.getRequestURI().lastIndexOf('/') + 1));
             Optional<Reservation> reservation = getReservationService().getById(loggedUser, reservationId);
@@ -71,17 +70,13 @@ public class ReservationController {
             req.setAttribute("reservation", reservation.get());
             req.getRequestDispatcher("/reservationInfo.jsp").forward(req, resp);
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("ID can be only positive integer value");
+            throw new IllegalArgumentException("ID can be only integer value");
         }
     }
 
     public void applyRoomForReservation(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Trying to apply room for reservation request");
-        if (loggedUser.getRole() == Role.ANONYMOUS) {
-            resp.sendRedirect("/signin");
-            return;
-        }
         Integer reservationId;
         Integer roomId;
         try {
@@ -115,6 +110,9 @@ public class ReservationController {
         req.getRequestDispatcher("/reservationRequests.jsp").forward(req, resp);
     }
 
+    /**
+     * Finding all available rooms for given reservation
+     */
     public void processingPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Processing reservation request page");

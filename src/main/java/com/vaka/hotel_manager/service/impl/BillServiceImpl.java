@@ -39,6 +39,8 @@ public class BillServiceImpl implements BillService {
     public Optional<Bill> getBillByReservationId(User loggedUser, Integer reservationId) {
         LOG.debug("reservationId: {}", reservationId);
         Optional<Bill> bill = getBillRepository().getByReservationId(reservationId);
+        //if loggedUser is not owner of this bill and he don't have
+        //appropriate role produce AuthorizationException
         if (bill.isPresent()) {
             if (!bill.get().getReservation().getUser().getId().equals(loggedUser.getId()))
                 getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);

@@ -35,36 +35,26 @@ public class UserController {
 
 
     public void signinPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("To signin page");
-        if (loggedUser.getRole() != Role.ANONYMOUS) {
-            resp.sendRedirect("/");
-            return;
-        }
         req.getRequestDispatcher("/signin.jsp").forward(req, resp);
     }
 
     public void signIn(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Sign in request");
-        if (loggedUser.getRole() != Role.ANONYMOUS) {
-            req.getRequestDispatcher("/").forward(req, resp);
-        } else {
-            String email = req.getParameter("email");
-            String password = req.getParameter("password");
-            if (email == null || password == null)
-                throw new IllegalArgumentException("Email or/and password missing");
-            try {
-                LOG.debug("signin user with email: {}", email);
-                getSecurityService().signIn(req.getSession(), email, password);
-            } catch (AuthenticationException e) {
-                LOG.debug(e.getMessage(), e);
-                req.setAttribute("exception", e.getMessage());
-                req.getRequestDispatcher("/signin.jsp").forward(req, resp);
-                return;
-            }
-            resp.sendRedirect("/");
+        String email = req.getParameter("email");
+        String password = req.getParameter("password");
+        if (email == null || password == null)
+            throw new IllegalArgumentException("Email or/and password missing");
+        try {
+            LOG.debug("signin user with email: {}", email);
+            getSecurityService().signIn(req.getSession(), email, password);
+        } catch (AuthenticationException e) {
+            LOG.debug(e.getMessage(), e);
+            req.setAttribute("exception", e.getMessage());
+            req.getRequestDispatcher("/signin.jsp").forward(req, resp);
+            return;
         }
+        resp.sendRedirect("/");
     }
 
     public void toRoot(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -75,22 +65,18 @@ public class UserController {
     }
 
     public void signupPage(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Sign up page request");
-        if (loggedUser.getRole() == Role.ANONYMOUS) {
-            LOG.debug("Return signup page");
-            req.getRequestDispatcher("/signup.jsp").forward(req, resp);
-        }
-        else
-            resp.sendRedirect("/");
+        LOG.debug("Return signup page");
+        req.getRequestDispatcher("/signup.jsp").forward(req, resp);
+
     }
+
+    /**
+     * Getting user from req and checking fields, then creating user and signin him
+     */
     public void signUp(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Sign up request");
-        if (loggedUser.getRole() != Role.ANONYMOUS) {
-            resp.sendRedirect("/");
-            return;
-        }
         try {
             User user = ServletToDomainExtractor.extractUser(req);
             if (!user.getPassword().equals(req.getParameter("passwordCheck")))
@@ -107,11 +93,8 @@ public class UserController {
     }
 
     public void signOut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Sign out request");
-        if (loggedUser.getRole() != Role.ANONYMOUS) {
-            getSecurityService().logout(req.getSession());
-        }
+        getSecurityService().logout(req.getSession());
         resp.sendRedirect("/");
     }
 

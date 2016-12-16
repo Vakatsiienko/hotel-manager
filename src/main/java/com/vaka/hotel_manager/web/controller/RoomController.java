@@ -68,7 +68,6 @@ public class RoomController {
 
     }
 
-
     public void update(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Updating room");

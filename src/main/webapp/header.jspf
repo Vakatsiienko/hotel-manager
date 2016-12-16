@@ -56,8 +56,8 @@
         <td><fmt:message key="Language" bundle="${bundle}"/></td>
         <td>
             <select id="languageSelect" onchange="javascript: changeLanguage()">
-                <option value="en"><fmt:message key="English" bundle="${bundle}"/></option>
-                <option value="ru"><fmt:message key="Russian" bundle="${bundle}"/></option>
+                <option value="en_US"><fmt:message key="English" bundle="${bundle}"/></option>
+                <option value="ru_RU"><fmt:message key="Russian" bundle="${bundle}"/></option>
             </select>
         </td>
     </tr>
