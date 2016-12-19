@@ -31,7 +31,8 @@ public class SecurityFilter implements Filter {
             User loggedUser = getSecurityService().authenticate(req.getSession());
             String uri = req.getRequestURI();
             if (loggedUser.getRole() == Role.ANONYMOUS) {
-                if ("/signin".equals(uri) || "/signup".equals(uri) || "/".equals(uri) || "/rooms".equals(uri));
+                if ("/signin".equals(uri) || "/signup".equals(uri) ||
+                        "/".equals(uri) || "/rooms".equals(uri) || "/reservations".equals(uri));
                 else {
                     LOG.debug("Anonymous trying to get {}, but was redirected to /signin", uri);
                     ((HttpServletResponse) response).sendRedirect("/signin");
