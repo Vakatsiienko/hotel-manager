@@ -5,3 +5,4 @@
     
    
 To load project just build war, set your persistence properties in resource/persistence.properties file, run init.sql and populateDB.sql files.
+Project must be deployed to "/" path.
