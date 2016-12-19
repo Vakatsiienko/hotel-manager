@@ -21,7 +21,7 @@ public class SqlParser {
     private String classAndMethodName;
     private StringJoiner query = new StringJoiner(" ");
     private boolean readyToNextQuery = true;
-    int count = 0;
+    private int count = 0;
 
     public SqlParser(String... paths) {
         this.paths = paths;
