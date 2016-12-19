@@ -2,10 +2,7 @@ package com.vaka.hotel_manager.util;
 
 import com.vaka.hotel_manager.util.exception.CreatingException;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -50,10 +47,10 @@ public class SqlParser {
 
     public Map<String, String> createAndGetQueryByClassAndMethodName() {
         Arrays.stream(paths).forEach(fileName -> {
-            try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+            try(BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(fileName)))) {
                 reader.lines().forEach(this::parseLine);
-            } catch (FileNotFoundException ex) {
+            } catch (IOException ex) {
                 throw new CreatingException(ex);
             }
         });
