@@ -24,7 +24,7 @@
             bundle="${bundle}"/></h3></c:when>
 </c:choose>
 <table id="reservationRequestTable" class="display" cellpadding="0">
-    <tr><th colspan="2"><h2>Reservation Info</h2></th></tr>
+    <tr><th colspan="2"><h2><fmt:message key="ReservationInfo" bundle="${bundle}"/></h2></th></tr>
     <tr>
         <th><fmt:message key="ReservationId" bundle="${bundle}"/>:</th>
         <td>${reservation.id}</td>
@@ -66,7 +66,8 @@
         </form></td>
 </c:if>
         <c:if test="${reservation.status.name().equals('CONFIRMED')}">
-            <td><a href="/bills/byReservation?id=${reservation.id}">Bill</a></td>
+            <td><a href="/bills/byReservation?id=${reservation.id}"><fmt:message key="Bill"
+                                                                                 bundle="${bundle}"/></a></td>
     </c:if>
     </tr>
 
