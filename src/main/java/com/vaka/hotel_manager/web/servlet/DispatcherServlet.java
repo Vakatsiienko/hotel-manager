@@ -107,7 +107,7 @@ public class DispatcherServlet extends HttpServlet {
                 getRoomController().create(req, resp);
             } else if (strUri.matches("/rooms/[0-9]+")) {
                 String method = req.getParameter("method");
-                if (method.equals("POST")) {
+                if (method.equals("PUT")) {
                     getRoomController().update(req, resp);
                 } else if (method.equals("DELETE")) {
                     getRoomController().delete(req, resp);

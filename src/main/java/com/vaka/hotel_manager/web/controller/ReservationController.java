@@ -85,11 +85,18 @@ public class ReservationController {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("ID can be only integer value");
         }
-        boolean success = getReservationService().applyRoom(loggedUser, roomId, reservationId);
+        String exceptionMessage = "Given room doesn't fit ";
+        boolean success = false;
+        try {
+            success = getReservationService().applyRoom(loggedUser, roomId, reservationId);
+        } catch (IllegalStateException ex) {
+            LOG.debug(ex.getMessage(), ex);
+            exceptionMessage = ex.getMessage();
+        }
         if (!success) {
             req.setAttribute("reservation", getReservationService().getById(loggedUser, reservationId));
             req.setAttribute("rooms", getRoomService().findAvailableForReservation(loggedUser, reservationId));
-            req.setAttribute("exception", "Can't apply given room");
+            req.setAttribute("exception", exceptionMessage);
             req.getRequestDispatcher("/reservationInfo.jsp").forward(req, resp);
         }
         LOG.debug("Redirect to reservation page, reservationId: {}", reservationId);

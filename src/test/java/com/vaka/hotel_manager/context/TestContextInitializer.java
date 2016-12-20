@@ -20,7 +20,7 @@ public class TestContextInitializer {
 
     private static void init(ApplicationContextConfig config){
         try {
-            String connectionProp = TestContextInitializer.class.getClassLoader().getResource("testPersistence.properties").getPath();
+            String connectionProp = TestContextInitializer.class.getClassLoader().getResource("persistence.properties").getPath();
             URL repository = TestContextInitializer.class.getClassLoader().getResource("repository");
             File[] files = new File(repository.getFile()).listFiles();
             String[] filesPath = Arrays.stream(files)

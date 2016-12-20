@@ -50,12 +50,13 @@ public class ReservationServiceImpl implements ReservationService {
         }
         if (request.get().getStatus() != ReservationStatus.REQUESTED) {
             applyRoomLock.unlock();
-            LOG.debug("Reservation is in illegal state");
-            return false;
+            throw new IllegalStateException(String.format("Reservation is in illegal state, expected status Requested, actual %s", request.get().getStatus()));
         }
         boolean datesOverlap = getReservationRepository().existOverlapReservation(roomId, request.get().getArrivalDate(), request.get().getDepartureDate());
-        if (datesOverlap)
+        if (datesOverlap) {
+            applyRoomLock.unlock();
             return false;
+        }
         request.get().setRoom(room.get());
         request.get().setStatus(ReservationStatus.CONFIRMED);
         update(loggedUser, reservationId, request.get());

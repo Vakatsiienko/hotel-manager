@@ -57,8 +57,8 @@
             <jsp:useBean id="reservation" scope="page"
                          type="com.vaka.hotel_manager.domain.DTO.ReservationDTO"/>
             <tr>
-                <th>${reservation.id}</th>
-                <th><a href="/users/${reservation.userId}"/></th>
+                <th><a href="/reservations/${reservation.id}">${reservation.id}</a></th>
+                <th><a href="/users/${reservation.userId}">${reservation.userId}</a></th>
                 <th>${reservation.guests}</th>
                 <th><fmt:message key="${reservation.requestedRoomClass.name()}" bundle="${bundle}"/></th>
                 <th>${reservation.roomId}</th>

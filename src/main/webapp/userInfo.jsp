@@ -57,7 +57,7 @@
 
     <tr>
         <th><fmt:message key="Email" bundle="${bundle}"/></th>
-        <td>${user.name}</td>
+        <td>${user.email}</td>
     </tr>
 
     <tr>

@@ -75,7 +75,7 @@
 
         <tr>
             <td></td>
-            <td><input hidden name="method" value="POST"></td>
+            <td><input hidden name="method" value="PUT"></td>
             <td>
                 <button onclick="submitRoomForm()"><fmt:message key="Submit"
                                                                 bundle="${bundle}"/></button>

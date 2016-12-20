@@ -22,7 +22,7 @@ public class DBTestUtil {
     public static void reset() throws SQLException, ClassNotFoundException, IOException {
         String aSQLScriptFilePath = DBTestUtil.class.getClassLoader().getResource("init.sql").getPath();
         Properties props = new Properties();
-        props.load(DBTestUtil.class.getClassLoader().getResourceAsStream("testPersistence.properties"));
+        props.load(DBTestUtil.class.getClassLoader().getResourceAsStream("persistence.properties"));
 
         Class.forName(props.getProperty("dataSource.driver"));
         // Create MySql Connection
