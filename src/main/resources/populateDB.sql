@@ -14,10 +14,9 @@ INSERT INTO hotel_manager.room (id, created_datetime, number, capacity, cost_per
 INSERT INTO hotel_manager.room (id, created_datetime, number, capacity, cost_per_day, room_class) VALUES (11, '2016-12-06 17:43:23', 32, 10, 150000, 'KING');
 INSERT INTO hotel_manager.room (id, created_datetime, number, capacity, cost_per_day, room_class) VALUES (12, '2016-12-06 17:43:23', 33, 20, 200000, 'KING');
 
-INSERT INTO hotel_manager.reservation (id, created_datetime, user_id, room_id, guests, requested_room_class, status, arrival_date, departure_date) VALUES (1, '2016-12-20 14:13:32', 13, null, 4, 'KING', 'REJECTED', '2016-12-20', '2016-12-21');
-INSERT INTO hotel_manager.reservation (id, created_datetime, user_id, room_id, guests, requested_room_class, status, arrival_date, departure_date) VALUES (2, '2016-12-20 14:15:21', 11, null, 3, 'STANDARD', 'REQUESTED', '2016-12-27', '2017-01-18');
-INSERT INTO hotel_manager.reservation (id, created_datetime, user_id, room_id, guests, requested_room_class, status, arrival_date, departure_date) VALUES (3, '2016-12-20 14:15:33', 11, null, 2, 'HALF_SUITE', 'REQUESTED', '2016-12-22', '2017-01-04');
-INSERT INTO hotel_manager.reservation (id, created_datetime, user_id, room_id, guests, requested_room_class, status, arrival_date, departure_date) VALUES (4, '2016-12-20 14:15:51', 11, null, 4, 'SUITE', 'REQUESTED', '2016-12-29', '2016-12-31');
-INSERT INTO hotel_manager.reservation (id, created_datetime, user_id, room_id, guests, requested_room_class, status, arrival_date, departure_date) VALUES (5, '2016-12-20 14:17:55', 11, 11, 2, 'KING', 'CONFIRMED', '2017-02-08', '2017-02-10');
+INSERT INTO hotel_manager.reservation (id, created_datetime, user_id, room_id, guests, requested_room_class, status, arrival_date, departure_date) VALUES (1, '2016-12-20 14:15:21', 11, null, 3, 'STANDARD', 'REQUESTED', '2016-12-27', '2017-01-18');
+INSERT INTO hotel_manager.reservation (id, created_datetime, user_id, room_id, guests, requested_room_class, status, arrival_date, departure_date) VALUES (2, '2016-12-20 14:15:33', 11, null, 2, 'HALF_SUITE', 'REQUESTED', '2016-12-22', '2017-01-04');
+INSERT INTO hotel_manager.reservation (id, created_datetime, user_id, room_id, guests, requested_room_class, status, arrival_date, departure_date) VALUES (3, '2016-12-20 14:15:51', 11, null, 4, 'SUITE', 'REQUESTED', '2016-12-29', '2016-12-31');
+INSERT INTO hotel_manager.reservation (id, created_datetime, user_id, room_id, guests, requested_room_class, status, arrival_date, departure_date) VALUES (4, '2016-12-20 14:17:55', 11, 11, 2, 'KING', 'CONFIRMED', '2017-02-08', '2017-02-10');
 
-INSERT INTO hotel_manager.bill (id, created_datetime, reservation_id, total_cost, paid) VALUES (1, '2016-12-20 14:17:55', 5, 300000, false);
+INSERT INTO hotel_manager.bill (id, created_datetime, reservation_id, total_cost, paid) VALUES (1, '2016-12-20 14:17:55', 4, 300000, false);
