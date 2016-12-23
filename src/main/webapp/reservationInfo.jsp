@@ -65,10 +65,16 @@
             <input type="submit" name="submit" value="<fmt:message key="Reject" bundle="${bundle}"/>" required/>
         </form></td>
 </c:if>
-        <c:if test="${reservation.status.name().equals('CONFIRMED')}">
-            <td><a href="/bills/byReservation?id=${reservation.id}"><fmt:message key="Bill"
-                                                                                 bundle="${bundle}"/></a></td>
-    </c:if>
+            <td>
+                <c:if test="${reservation.status.name().equals('CONFIRMED')}">
+                <a href="/bills/byReservation?id=${reservation.id}"><fmt:message key="Bill"
+                                                                                 bundle="${bundle}"/></a>
+                </c:if>
+<c:if test="${reservation.status.name().equals('REQUESTED')}">
+
+                <a href="/reservations/${reservation.id}/availableRooms"><fmt:message key="FindAvailable" bundle="${bundle}"/> </a>
+</c:if>
+            </td>
     </tr>
 
 </table>

@@ -1,10 +1,7 @@
 package com.vaka.hotel_manager.web.controller;
 
 import com.vaka.hotel_manager.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.Reservation;
-import com.vaka.hotel_manager.domain.ReservationStatus;
-import com.vaka.hotel_manager.domain.Role;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.*;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomService;
 import com.vaka.hotel_manager.service.SecurityService;
@@ -33,6 +30,15 @@ public class ReservationController {
 
     private SecurityService securityService;
 
+    public void findAvailable(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("Find available by class and dates");
+        String strId = req.getRequestURI().split("/")[2];
+        Integer resId = Integer.valueOf(strId);
+        req.setAttribute("roomList", getRoomService().findAvailableForReservation(loggedUser, resId));
+        LOG.debug("Return home page");
+        req.getRequestDispatcher("/availableRooms.jsp").forward(req, resp);
+    }
     /**
      * Creating reservation and if user isn't authenticated - trying to register by given info
      */
@@ -67,6 +73,7 @@ public class ReservationController {
             if (!reservation.isPresent()) {
                 throw new NotFoundException("There are no user with given ID");
             }
+            req.setAttribute("availableRooms", getRoomService().findAvailableForReservation(loggedUser, reservation.get().getId()));
             req.setAttribute("reservation", reservation.get());
             req.getRequestDispatcher("/reservationInfo.jsp").forward(req, resp);
         } catch (NumberFormatException ex) {

@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -26,6 +27,18 @@ public class RoomController {
     private RoomService roomService;
     private SecurityService securityService;
     private static final Logger LOG = LoggerFactory.getLogger(RoomController.class);
+
+    public void findAvailableByClassAndDates(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("Find available by class and dates");
+        LocalDate arrivalDate = LocalDate.parse(req.getParameter("arrivalDate"));
+        LocalDate departureDate = LocalDate.parse(req.getParameter("departureDate"));
+        RoomClass roomClass = RoomClass.valueOf(req.getParameter("roomClass"));
+        req.setAttribute("availableRooms", getRoomService().findAvailableByClassAndDates(loggedUser, roomClass, arrivalDate, departureDate));
+        LOG.debug("Return home page");
+        req.setAttribute("roomClasses", RoomClass.values());
+        req.getRequestDispatcher("/home.jsp").forward(req, resp);
+    }
 
     public void roomsPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());

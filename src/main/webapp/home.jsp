@@ -1,5 +1,5 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix='c'%>
+<%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix='c' %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -11,8 +11,18 @@
             src="https://code.jquery.com/jquery-3.1.1.js"
             integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
             crossorigin="anonymous"></script>
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+          href="//cdn.datatables.net/1.10.8/css/jquery.dataTables.min.css"/>
+    <script type="text/javascript"
+            src="//cdn.datatables.net/1.10.8/js/jquery.dataTables.min.js"></script>
+
     <script type="text/javascript">
 
+        function findAvailable() {
+            document.reservationForm.action = '/';
+            document.getElementById('reservationForm').submit();
+        }
         function changeDeparture(arrival) {
             var nextDate = new Date();
             var arrivalDate = new Date(arrival);
@@ -35,7 +45,7 @@
 
             nextDate = yyyy + '-' + mm + '-' + dd;
             document.getElementById("departureDate").setAttribute("min", nextDate);
-            var departureValue= document.getElementById("departureDate").value;
+            var departureValue = document.getElementById("departureDate").value;
             if (arrivalDate >= new Date(departureValue) || departureDate.toString() == "") {
                 document.getElementById("departureDate").setAttribute("value", nextDate);
             }
@@ -73,6 +83,25 @@
             document.getElementById("departureDate").setAttribute("min", tomorrow);
             document.getElementById("departureDate").setAttribute("value", tomorrow);
         });
+        $(document).ready(function () {
+            $("#availableRooms").dataTable({
+                "dom": "<lftip>",
+                "language": {
+                    "lengthMenu": '<fmt:message key="dataTable.lengthMenu" bundle="${bundle}"/>' ,
+                    "zeroRecords": '<fmt:message key="dataTable.zeroRecords" bundle="${bundle}"/>' ,
+                    "info": '<fmt:message key="dataTable.info" bundle="${bundle}"/>',
+                    "infoEmpty": '<fmt:message key="dataTable.infoEmpty" bundle="${bundle}"/>',
+                    "infoFiltered": '<fmt:message key="dataTable.infoFiltered" bundle="${bundle}"/>',
+                    "search":         '<fmt:message key="dataTable.search" bundle="${bundle}"/>',
+                    "paginate": {
+                        "first":      '<fmt:message key="dataTable.first" bundle="${bundle}"/>',
+                        "last":       '<fmt:message key="dataTable.last" bundle="${bundle}"/>',
+                        "next":       '<fmt:message key="dataTable.next" bundle="${bundle}"/>',
+                        "previous":   '<fmt:message key="dataTable.previous" bundle="${bundle}"/>'
+                    }
+                }
+            });
+        });
     </script>
     <style type="text/css">
         th {
@@ -83,20 +112,21 @@
             text-align: center;
             border-bottom: 1px solid #ccc
         }
-        #AddReservationBlock{
-            position: absolute;
-            left:30%;
+
+        #AddReservationBlock {
+            position: relative;
+            left: 30%;
         }
 
     </style>
 </head>
 <body>
 <div id="AddReservationBlock">
-<c:if test="${loggedUser.role == 'ANONYMOUS'}">
-<p><fmt:message key="SubmitFormMessage" bundle="${bundle}"/></p>
-</c:if>
+    <c:if test="${loggedUser.role == 'ANONYMOUS'}">
+        <p><fmt:message key="SubmitFormMessage" bundle="${bundle}"/></p>
+    </c:if>
 
-    <form action="/reservations" method="post" id="createForm">
+    <form action="/reservations" name="reservationForm" method="post" id="reservationForm">
         <table>
             <tr>
                 <th class="ftitle" colspan="2"><fmt:message key="ContactInfo" bundle="${bundle}"/></th>
@@ -108,9 +138,8 @@
                             <label for="nameReg"><fmt:message key="Name" bundle="${bundle}"/>:</label>
                         </th>
                         <td>
-                            <input id="nameReg" name="name"
-                                   value="${loggedUser.name}"
-                                   required readonly>
+                            <p id="nameReg"> ${loggedUser.name}
+                            </p>
                         </td>
                     </tr>
                     <tr class="fitem">
@@ -118,9 +147,7 @@
                             <label for="emailReg"><fmt:message key="Email" bundle="${bundle}"/>:</label>
                         </th>
                         <td>
-                            <input id="emailReg" name="email" type="email"
-                                   value="${loggedUser.email}"
-                                   required readonly>
+                            <p id="emailReg">${loggedUser.email}</p>
                         </td>
                     </tr>
                     <tr class="fitem">
@@ -129,11 +156,7 @@
                                                                      bundle="${bundle}"/>:</label>
                         </th>
                         <td>
-                            <input id="phoneNumberReg" type="tel"
-                                   pattern="[\+]\d{2}[\(]\d{3}[\)]\d{7}"
-                                   value="${loggedUser.phoneNumber}"
-                                   title="Phone number should be in format '+38(044)1234567'"
-                                   name="phoneNumber" readonly required>
+                            <p id="phoneNumberReg">${loggedUser.phoneNumber}</p>
                         </td>
                     </tr>
                     <tr>
@@ -155,7 +178,8 @@
                         </th>
                         <td>
                             <input id="email" name="email" type="email"
-                                   required>
+                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$"
+                                   required title="<fmt:message key="emailTitle" bundle="${bundle}"/>">
                         </td>
                     </tr>
                     <tr class="fitem">
@@ -194,7 +218,8 @@
                         <c:forEach items="${roomClasses}" var="clazz">
                             <jsp:useBean id="clazz" scope="page"
                                          type="com.vaka.hotel_manager.domain.RoomClass"/>
-                            <option value="${clazz.name()}" selected><fmt:message key="${clazz.name()}" bundle="${bundle}"/></option>
+                            <option value="${clazz.name()}" selected><fmt:message key="${clazz.name()}"
+                                                                                  bundle="${bundle}"/></option>
                         </c:forEach>
                     </select>
                 </td>
@@ -221,12 +246,41 @@
             <tr>
                 <th></th>
                 <td>
-                    <input type="submit" name="submit" value="<fmt:message key="Submit" bundle="${bundle}"/>" required/>
+                    <input type="submit" name="submitReservation" value="<fmt:message key="Submit" bundle="${bundle}"/>" required/>
                     <a href="/"><fmt:message key="Cancel" bundle="${bundle}"/></a>
                 </td>
             </tr>
         </table>
     </form>
+    <button id="findAvailable" type="submit" onclick="findAvailable()"><fmt:message key="FindAvailable" bundle="${bundle}"/></button>
+
 </div>
+
+<br>
+    <c:if test="${!empty availableRooms}">
+    <h3 id="tableTitle"><fmt:message key="MatchingRooms" bundle="${bundle}"/></h3>
+    <table id="availableRooms" class="display" cellspacing="0" width="100%">
+        <thead>
+        <tr>
+            <th><fmt:message key="Number" bundle="${bundle}"/></th>
+            <th><fmt:message key="Capacity" bundle="${bundle}"/></th>
+            <th><fmt:message key="CostPerDay" bundle="${bundle}"/> ($)</th>
+            <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach items="${availableRooms}" var="room">
+            <jsp:useBean id="room" scope="page"
+                         type="com.vaka.hotel_manager.domain.Room"/>
+            <tr>
+                <th>${room.number}</th>
+                <th>${room.capacity}</th>
+                <th>${room.costPerDay / 100}</th>
+                <th><fmt:message key="${room.roomClazz.name()}" bundle="${bundle}"/></th>
+            </tr>
+        </c:forEach>
+
+        </tbody>
+    </c:if>
 </body>
 </html>

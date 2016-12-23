@@ -1,21 +1,20 @@
 package com.vaka.hotel_manager.service.impl;
 
 import com.vaka.hotel_manager.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.Reservation;
-import com.vaka.hotel_manager.domain.Role;
-import com.vaka.hotel_manager.domain.Room;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.*;
 import com.vaka.hotel_manager.repository.ReservationRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
 import com.vaka.hotel_manager.service.RoomService;
 import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.util.SecurityUtil;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
+import com.vaka.hotel_manager.util.exception.NotFoundException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -33,14 +32,22 @@ public class RoomServiceImpl implements RoomService {
     private static final Logger LOG = LoggerFactory.getLogger(RoomServiceImpl.class);
 
     @Override
+    public List<Room> findAvailableByClassAndDates(User loggedUser, RoomClass roomClass,
+                                                   LocalDate arrivalDate, LocalDate departureDate) {
+        getSecurityService().authorize(loggedUser, SecurityUtil.ANONYMOUS_ACCESS_ROLES);
+        LOG.debug("Finding available rooms by RoomClass and dates");
+        return getRoomRepository().findAvailableForReservation(roomClass, arrivalDate, departureDate);
+    }
+
+    @Override
     public List<Room> findAvailableForReservation(User loggedUser, Integer reservationId) {
-        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtil.CUSTOMER_ACCESS_ROLES);
         LOG.debug("Finding available rooms for reservation by reservationId: {}", reservationId);
         Optional<Reservation> request = getReservationRepository().getById(reservationId);
         if (request.isPresent())
             return getRoomRepository().findAvailableForReservation(request.get().getRequestedRoomClass(),
                     request.get().getArrivalDate(), request.get().getDepartureDate());
-        else return new ArrayList<>();
+        else throw new NotFoundException("ReservationNotFound");
     }
 
     @Override

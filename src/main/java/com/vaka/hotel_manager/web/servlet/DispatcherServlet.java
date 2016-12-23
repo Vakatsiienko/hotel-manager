@@ -56,7 +56,10 @@ public class DispatcherServlet extends HttpServlet {
                     getReservationController().processingPage(req, resp);
                 } else if (uri.matches("/reservations/[0-9]+")) {
                     getReservationController().getById(req, resp);
-                } else {
+                } else if(uri.matches("/reservations/[0-9]+/availableRooms")){
+                    getReservationController().findAvailable(req, resp);
+                }
+                else{
                     resp.sendError(404, "Not Found");
                 }
             } else if (uri.startsWith("/bills")) {
@@ -95,7 +98,9 @@ public class DispatcherServlet extends HttpServlet {
         try {
             String strUri = req.getRequestURI();
             LOG.debug("POST request uri {}", strUri);
-            if ("/signin".equals(strUri)) {
+            if ("/".equals(strUri)) {
+                getRoomController().findAvailableByClassAndDates(req, resp);
+            } else if ("/signin".equals(strUri)) {
                 getUserController().signIn(req, resp);
             } else if ("/signup".equals(strUri)) {
                 getUserController().signUp(req, resp);
@@ -103,15 +108,19 @@ public class DispatcherServlet extends HttpServlet {
                 getReservationController().create(req, resp);
             } else if (strUri.matches("/reservations/[0-9]+/reject")) {
                 getReservationController().reject(req, resp);
-            } else if (strUri.equals("/rooms")) {
-                getRoomController().create(req, resp);
-            } else if (strUri.matches("/rooms/[0-9]+")) {
-                String method = req.getParameter("method");
-                if (method.equals("PUT")) {
-                    getRoomController().update(req, resp);
-                } else if (method.equals("DELETE")) {
-                    getRoomController().delete(req, resp);
-                } else resp.sendError(404, "Not Found");
+            } else if (strUri.startsWith("/rooms")) {
+                if ("/rooms".equals(strUri)) {
+                    getRoomController().create(req, resp);
+                } else if (strUri.matches("/rooms/[0-9]+")) {
+                    String method = req.getParameter("method");
+                    if ("PUT".equals(method)) {
+                        getRoomController().update(req, resp);
+                    } else if ("DELETE".equals(method)) {
+                        getRoomController().delete(req, resp);
+                    } else resp.sendError(404, "Not Found");
+                } else {
+                    resp.sendError(404, "Not Found");
+                }
             } else {
                 resp.sendError(404, "Not Found");
             }

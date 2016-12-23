@@ -44,8 +44,8 @@
                 <label for="phoneNumber"><fmt:message key="PhoneNumber" bundle="${bundle}"/>:</label>
             </th>
             <td>
-                <input id="phoneNumber" type="tel" pattern='[\+]\d{2}[\(]?\s?\d{3}[\)]?\s?\d{7}'
-                       value="+3 80"
+                <input id="phoneNumber" type="tel" pattern='[\+]\d{2}[\s]?\d{3}[\s]?\d{7}'
+                       value="+38 0"
                        title="Phone number should be in format '+38 044 1234567'"
                        name="phoneNumber" required>
             </td>
@@ -55,7 +55,7 @@
                 <label for="email"><fmt:message key="Email" bundle="${bundle}"/>:</label>
             </th>
             <td>
-                <input id="email" name="email" type="email"
+                <input id="email" name="email" type="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$"
                        required>
             </td>
         </tr>
