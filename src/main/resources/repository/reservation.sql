@@ -70,9 +70,9 @@ SELECT
   res.arrival_date         AS reservation_arrival_date,
   res.departure_date       AS reservation_departure_date
 FROM reservation res
-  INNER JOIN user u ON u.id = :userId
+  INNER JOIN user u ON u.id = res.user_id
   LEFT JOIN room r ON res.room_id = r.id
-WHERE res.departure_date >= CURRENT_DATE ORDER BY res.created_datetime DESC;
+WHERE res.departure_date >= CURRENT_DATE AND u.id = :userId ORDER BY res.created_datetime DESC;
 # reservation.create
 INSERT INTO reservation (created_datetime, user_id, guests, requested_room_class, status, arrival_date, departure_date)
 VALUES (:createdDatetime, :userId, :guests, :requestedRoomClass, :status, :arrivalDate, :departureDate);

@@ -68,7 +68,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public List<ReservationDTO> findActiveByUserId(User loggedUser, Integer userId) {
-        LOG.debug("Looking reservations by userId: {}", userId);
+        LOG.debug("Searching active reservations by userId: {}", userId);
         if (!loggedUser.getId().equals(userId))
             getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
         return getReservationRepository().findActiveByUserId(userId);

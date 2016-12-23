@@ -52,12 +52,8 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     }
 
 
-    private List<ReservationDTO> fetchDTOList(ResultSet resultSet, ResultSet resultCountSet) throws SQLException {
-        int count = 0;
-        if (resultCountSet.next())
-            count = resultCountSet.getInt(1);
-
-        List<ReservationDTO> reservations = new ArrayList<>(count);
+    private List<ReservationDTO> fetchDTOList(ResultSet resultSet) throws SQLException {
+        List<ReservationDTO> reservations = new ArrayList<>(resultSet.getMetaData().getColumnCount());
         while (resultSet.next()) {
             reservations.add(StatementToDomainExtractor.extractReservationDTO(resultSet));
         }
@@ -66,15 +62,12 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
     @Override
     public List<ReservationDTO> findByUserIdAndStatus(Integer userId, ReservationStatus status) {
-        String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findByUserIdAndStatus_count");
         String strQuery = getQueryByClassAndMethodName().get("reservation.findByUserIdAndStatus");
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = getFindByUserIdAndStatusStatement(connection, strQuery, userId, status);
-             ResultSet resultSet = statement.executeQuery();
-             NamedPreparedStatement countStatement = getFindByUserIdAndStatusStatement(connection, strCountRowsQuery, userId, status);
-             ResultSet countSet = countStatement.executeQuery()) {
+             ResultSet resultSet = statement.executeQuery();) {
 
-            return fetchDTOList(resultSet, countSet);
+            return fetchDTOList(resultSet);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -90,15 +83,12 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
     @Override
     public List<ReservationDTO> findByStatusFromDate(ReservationStatus status, LocalDate fromDate) {
-        String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findByStatusFromDate_count");
         String strQuery = getQueryByClassAndMethodName().get("reservation.findByStatusFromDate");
         try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement countStatement = getStatusStatementFromDate(connection, strCountRowsQuery, status, fromDate);
-             ResultSet countSet = countStatement.executeQuery();
              NamedPreparedStatement statement = getStatusStatementFromDate(connection, strQuery, status, fromDate);
              ResultSet resultSet = statement.executeQuery()) {
 
-            return fetchDTOList(resultSet, countSet);
+            return fetchDTOList(resultSet);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -113,15 +103,12 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
 
     @Override
     public List<ReservationDTO> findActiveByUserId(Integer userId) {
-        String strCountRowsQuery = getQueryByClassAndMethodName().get("reservation.findActiveByUserId_count");
         String strQuery = getQueryByClassAndMethodName().get("reservation.findActiveByUserId");
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = getFindActiveByUserIdStatement(connection, strQuery, userId);
-             ResultSet resultSet = statement.executeQuery();
-             NamedPreparedStatement countStatement = getFindActiveByUserIdStatement(connection, strCountRowsQuery, userId);
-             ResultSet countSet = countStatement.executeQuery()) {
+             ResultSet resultSet = statement.executeQuery()) {
 
-            return fetchDTOList(resultSet, countSet);
+            return fetchDTOList(resultSet);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);

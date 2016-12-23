@@ -35,7 +35,6 @@ public class BillController {
         req.setAttribute("bill", bill.get());
         req.setAttribute("loggedUser", loggedUser);
         req.getRequestDispatcher("/billInfo.jsp").forward(req, resp);
-
     }
 
     public void getByReservationId(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
