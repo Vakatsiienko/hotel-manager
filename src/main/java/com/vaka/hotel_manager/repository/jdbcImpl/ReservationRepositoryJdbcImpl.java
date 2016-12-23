@@ -5,11 +5,11 @@ import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.repository.ReservationRepository;
+import com.vaka.hotel_manager.repository.util.JdbcCrudUtil;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
-import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
-import com.vaka.hotel_manager.util.repository.DomainToStatementExtractor;
-import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
-import com.vaka.hotel_manager.util.repository.StatementToDomainExtractor;
+import com.vaka.hotel_manager.repository.util.DomainToStatementExtractor;
+import com.vaka.hotel_manager.repository.util.NamedPreparedStatement;
+import com.vaka.hotel_manager.repository.util.StatementToDomainExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +139,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     public Reservation create(Reservation reservation) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.create");
         try {
-            return CrudRepositoryUtil.create(
+            return JdbcCrudUtil.create(
                     DomainToStatementExtractor::extract,
                     getDataSource(), strQuery, reservation);
         } catch (SQLException e) {
@@ -152,7 +152,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     public Optional<Reservation> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.getById");
         try {
-            return CrudRepositoryUtil.getById(StatementToDomainExtractor::extractReservation, getDataSource(), strQuery, id);
+            return JdbcCrudUtil.getById(StatementToDomainExtractor::extractReservation, getDataSource(), strQuery, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -168,7 +168,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
         else
             strQuery = getQueryByClassAndMethodName().get("reservation.update_withoutRoom");
         try {
-            return CrudRepositoryUtil.update(DomainToStatementExtractor::extract, getDataSource(), strQuery, entity, id);
+            return JdbcCrudUtil.update(DomainToStatementExtractor::extract, getDataSource(), strQuery, entity, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -178,7 +178,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.delete");
-        return CrudRepositoryUtil.delete(getDataSource(), strQuery, id);
+        return JdbcCrudUtil.delete(getDataSource(), strQuery, id);
     }
 
 

@@ -3,13 +3,11 @@ package com.vaka.hotel_manager.repository.jdbcImpl;
 import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.UserRepository;
-import com.vaka.hotel_manager.util.repository.StatementToDomainExtractor;
+import com.vaka.hotel_manager.repository.util.JdbcCrudUtil;
+import com.vaka.hotel_manager.repository.util.StatementToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
-import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
-import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
-import com.vaka.hotel_manager.util.repository.DomainToStatementExtractor;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import com.vaka.hotel_manager.repository.util.NamedPreparedStatement;
+import com.vaka.hotel_manager.repository.util.DomainToStatementExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +15,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Map;
 import java.util.Optional;
 
@@ -55,7 +52,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
     public User create(User entity) {
         String strQuery = getQueryByClassAndMethodName().get("user.create");
         try {
-            return CrudRepositoryUtil.create(
+            return JdbcCrudUtil.create(
                     DomainToStatementExtractor::extract,
                     getDataSource(), strQuery, entity);
         } catch (SQLException e) {
@@ -68,7 +65,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
     public Optional<User> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("user.getById");
         try {
-            return CrudRepositoryUtil.getById(StatementToDomainExtractor::extractUser, getDataSource(), strQuery, id);
+            return JdbcCrudUtil.getById(StatementToDomainExtractor::extractUser, getDataSource(), strQuery, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -79,7 +76,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("user.delete");
-        return CrudRepositoryUtil.delete(getDataSource(), strQuery, id);
+        return JdbcCrudUtil.delete(getDataSource(), strQuery, id);
     }
 
 
@@ -87,7 +84,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
     public boolean update(Integer id, User entity) {
         String strQuery = getQueryByClassAndMethodName().get("user.update");
         try {
-            return CrudRepositoryUtil.update(DomainToStatementExtractor::extract, getDataSource(), strQuery, entity, id);
+            return JdbcCrudUtil.update(DomainToStatementExtractor::extract, getDataSource(), strQuery, entity, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);

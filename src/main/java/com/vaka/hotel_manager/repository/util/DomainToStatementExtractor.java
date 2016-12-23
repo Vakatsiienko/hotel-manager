@@ -1,10 +1,9 @@
-package com.vaka.hotel_manager.util.repository;
+package com.vaka.hotel_manager.repository.util;
 
 import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.User;
-import com.vaka.hotel_manager.util.DateAndTimeUtil;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

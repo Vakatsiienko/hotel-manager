@@ -45,11 +45,11 @@ public class ReservationController {
     public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Creating reservation request");
-        Reservation reservation = ServletToDomainExtractor.extractReservation(req);
+        Reservation reservation = ServletToDomainExtractor.extractRequested(req);
         IntegrityUtil.check(reservation);
         if (loggedUser.getRole() == Role.ANONYMOUS) {
             LOG.debug("Creating user for reservation");
-            User created = ServletToDomainExtractor.extractUser(req);
+            User created = ServletToDomainExtractor.extractCustomer(req);
             created.setPassword(created.getPhoneNumber());
             IntegrityUtil.check(created);
             created = getUserService().create(loggedUser, created);

@@ -11,12 +11,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 /**
- * Same as repository extractors, only with Servlet.
+ * Same as util extractors, only with Servlet.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ServletToDomainExtractor {
     private static final Logger LOG = LoggerFactory.getLogger(ServletToDomainExtractor.class);
-    public static Reservation extractReservation(HttpServletRequest req) {
+    public static Reservation extractRequested(HttpServletRequest req) {
         try {
             Reservation reservation = new Reservation();
             String strId = req.getParameter("id");
@@ -34,7 +34,7 @@ public class ServletToDomainExtractor {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
-    public static User extractUser(HttpServletRequest req) {
+    public static User extractCustomer(HttpServletRequest req) {
         User user = new User();
         user.setEmail(req.getParameter("email"));
         user.setPhoneNumber(req.getParameter("phoneNumber"));

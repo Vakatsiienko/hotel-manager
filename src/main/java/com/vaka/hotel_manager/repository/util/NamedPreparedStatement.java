@@ -1,4 +1,4 @@
-package com.vaka.hotel_manager.util.repository;
+package com.vaka.hotel_manager.repository.util;
 
 import lombok.Getter;
 

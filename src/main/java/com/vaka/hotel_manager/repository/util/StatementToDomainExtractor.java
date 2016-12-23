@@ -1,4 +1,4 @@
-package com.vaka.hotel_manager.util.repository;
+package com.vaka.hotel_manager.repository.util;
 
 import com.vaka.hotel_manager.domain.*;
 import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
@@ -9,8 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Optional;
 
 /**
  * Class that help to retrieve entities from ResultSet

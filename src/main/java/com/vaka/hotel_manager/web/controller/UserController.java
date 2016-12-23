@@ -2,7 +2,6 @@ package com.vaka.hotel_manager.web.controller;
 
 import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
-import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.ReservationService;
@@ -68,7 +67,6 @@ public class UserController {
         LOG.debug("Sign up page request");
         LOG.debug("Return signup page");
         req.getRequestDispatcher("/signup.jsp").forward(req, resp);
-
     }
 
     /**
@@ -78,7 +76,7 @@ public class UserController {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Sign up request");
         try {
-            User user = ServletToDomainExtractor.extractUser(req);
+            User user = ServletToDomainExtractor.extractCustomer(req);
             if (!user.getPassword().equals(req.getParameter("passwordCheck")))
                 throw new CreatingException("PasswordCheckException");
             IntegrityUtil.check(user);

@@ -3,7 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
-
+    <security-constraint>
+        <display-name>Restrict direct access to certain folders</display-name>
+        <web-resource-collection>
+            <web-resource-name>Restricted folders</web-resource-name>
+            <url-pattern>*.jsp</url-pattern>
+        </web-resource-collection>
+        <auth-constraint />
+    </security-constraint>
 
     <jsp-config>
         <jsp-property-group>

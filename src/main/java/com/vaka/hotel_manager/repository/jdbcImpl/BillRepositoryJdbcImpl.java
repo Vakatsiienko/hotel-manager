@@ -3,13 +3,11 @@ package com.vaka.hotel_manager.repository.jdbcImpl;
 import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.repository.BillRepository;
-import com.vaka.hotel_manager.util.repository.StatementToDomainExtractor;
+import com.vaka.hotel_manager.repository.util.JdbcCrudUtil;
+import com.vaka.hotel_manager.repository.util.StatementToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
-import com.vaka.hotel_manager.util.repository.CrudRepositoryUtil;
-import com.vaka.hotel_manager.util.repository.NamedPreparedStatement;
-import com.vaka.hotel_manager.util.repository.DomainToStatementExtractor;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import com.vaka.hotel_manager.repository.util.NamedPreparedStatement;
+import com.vaka.hotel_manager.repository.util.DomainToStatementExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +15,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,7 +30,7 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     public Bill create(Bill entity) {
         String strQuery = getQueryByClassAndMethodName().get("bill.create");
         try {
-            return CrudRepositoryUtil.create(
+            return JdbcCrudUtil.create(
                     DomainToStatementExtractor::extract,
                     getDataSource(), strQuery, entity);
         } catch (SQLException e) {
@@ -67,7 +64,7 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     public Optional<Bill> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("bill.getById");
         try {
-            return CrudRepositoryUtil.getById(StatementToDomainExtractor::extractBill, getDataSource(), strQuery, id);
+            return JdbcCrudUtil.getById(StatementToDomainExtractor::extractBill, getDataSource(), strQuery, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -77,14 +74,14 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("bill.delete");
-        return CrudRepositoryUtil.delete(getDataSource(), strQuery, id);
+        return JdbcCrudUtil.delete(getDataSource(), strQuery, id);
     }
 
     @Override
     public boolean update(Integer id, Bill entity) {
         String strQuery = getQueryByClassAndMethodName().get("bill.update");
         try {
-            return CrudRepositoryUtil.update(DomainToStatementExtractor::extract, getDataSource(), strQuery, entity, id);
+            return JdbcCrudUtil.update(DomainToStatementExtractor::extract, getDataSource(), strQuery, entity, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);

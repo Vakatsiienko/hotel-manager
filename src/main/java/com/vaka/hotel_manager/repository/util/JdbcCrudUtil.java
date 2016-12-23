@@ -1,6 +1,5 @@
-package com.vaka.hotel_manager.util.repository;
+package com.vaka.hotel_manager.repository.util;
 
-import com.vaka.hotel_manager.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.BaseEntity;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import lombok.AccessLevel;
@@ -12,13 +11,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
- * Util that contains duplicates of crud repository methods which may be moved
+ * Util that contains duplicates of crud util methods which may be moved
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CrudRepositoryUtil {
+public class JdbcCrudUtil {
 
 
     /**
@@ -69,7 +67,7 @@ public class CrudRepositoryUtil {
      */
     public static <T> Optional<T> getById(SQLFunction<ResultSet, T> function, DataSource dataSource, String strQuery, Integer id) throws SQLException {
         try (Connection connection = dataSource.getConnection();
-             NamedPreparedStatement statement = CrudRepositoryUtil.createGetByIdStatement(connection, strQuery, id);
+             NamedPreparedStatement statement = JdbcCrudUtil.createGetByIdStatement(connection, strQuery, id);
              ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next())
                 return Optional.of(function.apply(resultSet));
