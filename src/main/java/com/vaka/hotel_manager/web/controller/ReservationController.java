@@ -8,6 +8,7 @@ import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.service.UserService;
 import com.vaka.hotel_manager.util.IntegrityUtil;
 import com.vaka.hotel_manager.util.ServletToDomainExtractor;
+import com.vaka.hotel_manager.util.exception.CreatingException;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Created by Iaroslav on 12/1/2016.
@@ -52,7 +54,20 @@ public class ReservationController {
             User created = ServletToDomainExtractor.extractCustomer(req);
             created.setPassword(created.getPhoneNumber());
             IntegrityUtil.check(created);
-            created = getUserService().create(loggedUser, created);
+            try {
+                created = getUserService().create(loggedUser, created);
+            } catch (CreatingException e){
+                LOG.debug(e.getMessage(), e);
+                StringJoiner uri = new StringJoiner("&");
+                uri.add("/signin?exception=emailExistException&redirectUri=/");
+                uri.add(String.join("=", "arrivalDate", req.getParameter("arrivalDate")));
+                uri.add(String.join("=", "departureDate", req.getParameter("departureDate")));
+                uri.add(String.join("=", "guests", req.getParameter("guests")));
+                uri.add(String.join("=", "roomClass", req.getParameter("roomClass")));
+                LOG.debug("Redirecting to " + uri.toString());
+                resp.sendRedirect(uri.toString());
+                return;
+            }
             reservation.setUser(created);
             getSecurityService().signIn(req.getSession(), created.getEmail(), created.getPhoneNumber());
         } else {

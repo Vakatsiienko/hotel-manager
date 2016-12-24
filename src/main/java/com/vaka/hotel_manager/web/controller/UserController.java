@@ -20,7 +20,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Created by Iaroslav on 11/24/2016.
@@ -53,7 +55,19 @@ public class UserController {
             req.getRequestDispatcher("/signin.jsp").forward(req, resp);
             return;
         }
-        resp.sendRedirect("/");
+        String redirectUri = req.getParameter("redirectUri");
+        if (redirectUri == null){
+            resp.sendRedirect("/");
+            return;
+        }
+        //redirect to redirecting url and filter sensitive params
+        StringJoiner params = new StringJoiner("&");
+        req.getParameterMap().entrySet().stream()
+                .filter(entry -> !entry.getKey().equals("email")
+                        && !entry.getKey().equals("password"))
+                .forEach(entry -> params.add(String.join("=", entry.getKey(), entry.getValue()[0])));
+        redirectUri = String.join("?", redirectUri, params.toString());
+        resp.sendRedirect(redirectUri);
     }
 
     public void toRoot(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

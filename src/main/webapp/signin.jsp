@@ -22,7 +22,19 @@
 <div id="hrefs">
 
     <form action="${pageContext.request.contextPath}" id="signinForm" method="post">
-    <table >
+    <table>
+        <tr>
+            <th colspan="2"><fmt:message key="Manager" bundle="${bundle}"/></th>
+        </tr>
+        <tr>
+            <td colspan="2">admin@gmail.com / admin</td>
+        </tr>
+        <tr>
+            <th colspan="2"><fmt:message key="Customer" bundle="${bundle}"/></th>
+        </tr>
+        <tr>
+            <td colspan="2">customer@gmail.com / customer</td>
+        </tr>
         <tr>
             <th>
                 <label for="email">
@@ -30,7 +42,7 @@
                 </label>
             </th>
             <td>
-                <input id="email" type="email" required maxlength="20" min="5" name="email">
+                <input id="email" type="email" value="${param.email}" required maxlength="20" min="5" name="email">
             </td>
         </tr>
         <tr>
@@ -46,6 +58,7 @@
             <c:if test="${!empty exception}">
                 <td colspan="2" id = "exception"><fmt:message key="${exception}" bundle="${bundle}"/></td>
             </c:if>
+            <%--TODO make exception param, --%>
         </tr>
         <tr>
             <td><br><input type="submit"

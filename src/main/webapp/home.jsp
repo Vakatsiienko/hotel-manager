@@ -19,6 +19,7 @@
 
     <script type="text/javascript">
 
+
         function findAvailable() {
             document.reservationForm.action = '/';
             document.getElementById('reservationForm').submit();
@@ -50,6 +51,16 @@
                 document.getElementById("departureDate").setAttribute("value", nextDate);
             }
         }
+        function getParameter(parameterName) {
+            var result = null,
+                    tmp = [];
+            var items = location.search.substr(1).split("&");
+            for (var index = 0; index < items.length; index++) {
+                tmp = items[index].split("=");
+                if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+            }
+            return result;
+        }
         //setting default and min value for date imput
         $(function () {
             var today = new Date();
@@ -63,10 +74,20 @@
                 m = '0' + m
             }
 
-            today = y + '-' + m + '-' + d;
-            document.getElementById("arrivalDate").setAttribute("min", today);
-            document.getElementById("arrivalDate").setAttribute("value", today);
+            var todayStr = y + '-' + m + '-' + d;
+            document.getElementById("arrivalDate").min = todayStr;
 
+            var arrivalDateParam = getParameter('arrivalDate');
+            if (arrivalDateParam != null)
+                if (new Date(arrivalDateParam) >= today) {
+                    debugger;
+                    todayStr = arrivalDateParam;
+                }
+            debugger;
+            document.getElementById("arrivalDate").value = todayStr;
+        });
+
+        $(function () {
             var tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             var dd = tomorrow.getDate();
@@ -79,9 +100,25 @@
                 mm = '0' + mm
             }
 
-            tomorrow = yyyy + '-' + mm + '-' + dd;
-            document.getElementById("departureDate").setAttribute("min", tomorrow);
-            document.getElementById("departureDate").setAttribute("value", tomorrow);
+            var tomorrowStr = yyyy + '-' + mm + '-' + dd;
+            document.getElementById("departureDate").min = tomorrowStr;
+            var departureDateParam = getParameter('departureDate');
+
+            if (departureDateParam != null)
+                if (new Date(departureDateParam) >= tomorrow) {
+                    debugger;
+                    tomorrowStr = departureDateParam;
+                }
+            debugger;
+            document.getElementById("departureDate").value = tomorrowStr;
+        });
+        $(function () {
+            var roomClass = getParameter('roomClass');
+            debugger;
+            if (roomClass != null) {
+                document.getElementById('roomClass').value = roomClass;
+            }
+            else document.getElementById('roomClass').value = 'STANDARD';
         });
         $(document).ready(function () {
             $("#availableRooms").dataTable({
@@ -206,7 +243,8 @@
                     <label for="guests"><fmt:message key="Guests" bundle="${bundle}"/>:</label>
                 </th>
                 <td>
-                    <input id="guests" name="guests" type="number" min="1" required>
+                    <input id="guests" name="guests" type="number" min="1"
+                           value="${param.guests}" required>
                 </td>
             </tr>
             <tr class="fitem">
@@ -218,8 +256,8 @@
                         <c:forEach items="${roomClasses}" var="clazz">
                             <jsp:useBean id="clazz" scope="page"
                                          type="com.vaka.hotel_manager.domain.RoomClass"/>
-                            <option value="${clazz.name()}" selected><fmt:message key="${clazz.name()}"
-                                                                                  bundle="${bundle}"/></option>
+                            <option value="${clazz.name()}"><fmt:message key="${clazz.name()}"
+                                                                         bundle="${bundle}"/></option>
                         </c:forEach>
                     </select>
                 </td>
