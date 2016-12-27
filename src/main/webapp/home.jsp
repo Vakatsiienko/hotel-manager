@@ -1,6 +1,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix='c' %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="fn" uri="com.vaka.hotel_manager" %>
 <html>
 <head>
     <%@include file="header.jspf" %>
@@ -20,13 +21,9 @@
     <script type="text/javascript">
 
 
-        function findAvailable() {
-            document.reservationForm.action = '/';
-            document.getElementById('reservationForm').submit();
-        }
-        function changeDeparture(arrival) {
-            var nextDate = new Date();
-            var arrivalDate = new Date(arrival);
+        function changeDeparture() {
+            var arrivalDate = new Date(document.getElementById('arrivalDate').value);
+            var nextDate = arrivalDate;
             nextDate.setDate(arrivalDate.getDate() + 1);
             var departureDate = nextDate;
             var dd = nextDate.getDate();
@@ -45,21 +42,11 @@
             }
 
             nextDate = yyyy + '-' + mm + '-' + dd;
-            document.getElementById("departureDate").setAttribute("min", nextDate);
+            document.getElementById("departureDate").min = nextDate;
             var departureValue = document.getElementById("departureDate").value;
             if (arrivalDate >= new Date(departureValue) || departureDate.toString() == "") {
-                document.getElementById("departureDate").setAttribute("value", nextDate);
+                document.getElementById("departureDate").value = nextDate;
             }
-        }
-        function getParameter(parameterName) {
-            var result = null,
-                    tmp = [];
-            var items = location.search.substr(1).split("&");
-            for (var index = 0; index < items.length; index++) {
-                tmp = items[index].split("=");
-                if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
-            }
-            return result;
         }
         //setting default and min value for date imput
         $(function () {
@@ -76,14 +63,11 @@
 
             var todayStr = y + '-' + m + '-' + d;
             document.getElementById("arrivalDate").min = todayStr;
-
-            var arrivalDateParam = getParameter('arrivalDate');
-            if (arrivalDateParam != null)
-                if (new Date(arrivalDateParam) >= today) {
-                    debugger;
-                    todayStr = arrivalDateParam;
+            var arrivalDateValue = document.getElementById("arrivalDate").value;
+            if (arrivalDateValue != null)
+                if (new Date(arrivalDateValue) >= today) {
+                    todayStr = arrivalDateValue;
                 }
-            debugger;
             document.getElementById("arrivalDate").value = todayStr;
         });
 
@@ -102,24 +86,15 @@
 
             var tomorrowStr = yyyy + '-' + mm + '-' + dd;
             document.getElementById("departureDate").min = tomorrowStr;
-            var departureDateParam = getParameter('departureDate');
 
-            if (departureDateParam != null)
-                if (new Date(departureDateParam) >= tomorrow) {
-                    debugger;
-                    tomorrowStr = departureDateParam;
+            var departureDateValue = document.getElementById("departureDate").value;
+            if (departureDateValue != null)
+                if (new Date(departureDateValue) >= tomorrow) {
+                    tomorrowStr = departureDateValue;
                 }
-            debugger;
             document.getElementById("departureDate").value = tomorrowStr;
         });
-        $(function () {
-            var roomClass = getParameter('roomClass');
-            debugger;
-            if (roomClass != null) {
-                document.getElementById('roomClass').value = roomClass;
-            }
-            else document.getElementById('roomClass').value = 'STANDARD';
-        });
+
         $(document).ready(function () {
             $("#availableRooms").dataTable({
                 "dom": "<lftip>",
@@ -234,7 +209,11 @@
                     </tr>
                 </c:otherwise>
             </c:choose>
-
+            <c:if test="${!empty reservation}">
+                <jsp:useBean id="reservation" scope="session"
+                             type="com.vaka.hotel_manager.domain.Reservation"
+                             beanName="reservation"/>
+            </c:if>
             <tr>
                 <th class="ftitle" colspan="2"><fmt:message key="ReservationInfo" bundle="${bundle}"/></th>
             </tr>
@@ -244,7 +223,7 @@
                 </th>
                 <td>
                     <input id="guests" name="guests" type="number" min="1"
-                           value="${param.guests}" required>
+                           value="${reservation.guests}" required>
                 </td>
             </tr>
             <tr class="fitem">
@@ -256,7 +235,11 @@
                         <c:forEach items="${roomClasses}" var="clazz">
                             <jsp:useBean id="clazz" scope="page"
                                          type="com.vaka.hotel_manager.domain.RoomClass"/>
-                            <option value="${clazz.name()}"><fmt:message key="${clazz.name()}"
+                            <option value="${clazz.name()}"
+                                    <c:if test="${reservation.requestedRoomClass == clazz.name()}">
+                                        selected
+                                    </c:if>
+                            ><fmt:message key="${clazz.name()}"
                                                                          bundle="${bundle}"/></option>
                         </c:forEach>
                     </select>
@@ -267,8 +250,8 @@
                     <label for="arrivalDate"><fmt:message key="ArrivalDate" bundle="${bundle}"/></label>
                 </th>
                 <td>
-                    <input id="arrivalDate" name="arrivalDate" type="date"
-                           onchange="changeDeparture(document.getElementById('arrivalDate').value)"
+                    <input id="arrivalDate" name="arrivalDate" type="date" value="${fn:htmlFormatDate(reservation.arrivalDate)}"
+                           onchange="changeDeparture()"
                            required>
                 </td>
             </tr>
@@ -277,8 +260,8 @@
                     <label for="departureDate"><fmt:message key="DepartureDate" bundle="${bundle}"/></label>
                 </th>
                 <td>
-                    <input id="departureDate" name="departureDate" type="date"
-                           title="Departure date cant be lower than arrival">
+                    <input id="departureDate" name="departureDate" type="date" value="${fn:htmlFormatDate(reservation.departureDate)}"
+                           title="Departure date cant be lower than arrival" required>
                 </td>
             </tr>
             <tr>
@@ -290,35 +273,9 @@
             </tr>
         </table>
     </form>
-    <button id="findAvailable" type="submit" onclick="findAvailable()"><fmt:message key="FindAvailable" bundle="${bundle}"/></button>
 
 </div>
 
 <br>
-    <c:if test="${!empty availableRooms}">
-    <h3 id="tableTitle"><fmt:message key="MatchingRooms" bundle="${bundle}"/></h3>
-    <table id="availableRooms" class="display" cellspacing="0" width="100%">
-        <thead>
-        <tr>
-            <th><fmt:message key="Number" bundle="${bundle}"/></th>
-            <th><fmt:message key="Capacity" bundle="${bundle}"/></th>
-            <th><fmt:message key="CostPerDay" bundle="${bundle}"/> ($)</th>
-            <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
-        </tr>
-        </thead>
-        <tbody>
-        <c:forEach items="${availableRooms}" var="room">
-            <jsp:useBean id="room" scope="page"
-                         type="com.vaka.hotel_manager.domain.Room"/>
-            <tr>
-                <th>${room.number}</th>
-                <th>${room.capacity}</th>
-                <th>${room.costPerDay / 100}</th>
-                <th><fmt:message key="${room.roomClazz.name()}" bundle="${bundle}"/></th>
-            </tr>
-        </c:forEach>
-
-        </tbody>
-    </c:if>
 </body>
 </html>

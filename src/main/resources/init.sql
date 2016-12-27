@@ -15,13 +15,13 @@ USE hotel_manager;
 
 CREATE TABLE user
 (
-  id               BIGINT(20) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-  created_datetime TIMESTAMP                             NOT NULL,
-  email            VARCHAR(32)                           NOT NULL,
-  password         VARCHAR(64)                           NOT NULL,
-  name             VARCHAR(20)                           NOT NULL,
-  role             VARCHAR(20)                           NOT NULL,
-  phone_number     VARCHAR(20)                           NOT NULL
+  id               BIGINT(20) PRIMARY KEY AUTO_INCREMENT    NOT NULL,
+  created_datetime TIMESTAMP                                NOT NULL,
+  email            VARCHAR(32) UNIQUE                       NOT NULL,
+  password         VARCHAR(64)                              NOT NULL,
+  name             VARCHAR(20)                              NOT NULL,
+  role             VARCHAR(20)                              NOT NULL,
+  phone_number     VARCHAR(20)                              NOT NULL
 );
 CREATE TABLE bill
 (

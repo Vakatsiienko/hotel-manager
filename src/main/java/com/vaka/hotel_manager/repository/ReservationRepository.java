@@ -35,5 +35,5 @@ public interface ReservationRepository extends CrudRepository<Reservation> {
     /**
      * @return true if given room cannot be reserve in given date period
      */
-    boolean existOverlapReservation(Integer roomId, LocalDate arrivalDate, LocalDate departureDate);
+    boolean existOverlapReservations(Integer roomId, LocalDate arrivalDate, LocalDate departureDate);
 }

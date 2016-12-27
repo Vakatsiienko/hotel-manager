@@ -7,6 +7,33 @@
     <%@include file="header.jspf" %>
 
     <title><fmt:message key="ReservationInfo" bundle="${bundle}"/></title>
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+          href="//cdn.datatables.net/1.10.8/css/jquery.dataTables.min.css"/>
+    <script type="text/javascript"
+            src="//cdn.datatables.net/1.10.8/js/jquery.dataTables.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#availableRooms").dataTable({
+                "dom": "<lftip>",
+                "language": {
+                    "lengthMenu": '<fmt:message key="dataTable.lengthMenu" bundle="${bundle}"/>',
+                    "zeroRecords": '<fmt:message key="dataTable.zeroRecords" bundle="${bundle}"/>',
+                    "info": '<fmt:message key="dataTable.info" bundle="${bundle}"/>',
+                    "infoEmpty": '<fmt:message key="dataTable.infoEmpty" bundle="${bundle}"/>',
+                    "infoFiltered": '<fmt:message key="dataTable.infoFiltered" bundle="${bundle}"/>',
+                    "search": '<fmt:message key="dataTable.search" bundle="${bundle}"/>',
+                    "paginate": {
+                        "first": '<fmt:message key="dataTable.first" bundle="${bundle}"/>',
+                        "last": '<fmt:message key="dataTable.last" bundle="${bundle}"/>',
+                        "next": '<fmt:message key="dataTable.next" bundle="${bundle}"/>',
+                        "previous": '<fmt:message key="dataTable.previous" bundle="${bundle}"/>'
+                    }
+                }
+            });
+        });
+    </script>
 
 </head>
 <body>
@@ -59,25 +86,49 @@
         <td>${fn:formatDate(reservation.departureDate)}</td>
     </tr>
     <tr>
-<c:if test="${!reservation.status.name().equals('REJECTED')}">
+        <c:if test="${!reservation.status.name().equals('REJECTED')}">
 
-<td><form action="/reservations/${reservation.id}/reject" method="post">
+            <td>
+                <form action="/reservations/${reservation.id}/reject" method="post">
             <input type="submit" name="submit" value="<fmt:message key="Reject" bundle="${bundle}"/>" required/>
-        </form></td>
-</c:if>
+                </form>
+            </td>
+        </c:if>
             <td>
                 <c:if test="${reservation.status.name().equals('CONFIRMED')}">
                 <a href="/bills/byReservation?id=${reservation.id}"><fmt:message key="Bill"
                                                                                  bundle="${bundle}"/></a>
                 </c:if>
-<c:if test="${reservation.status.name().equals('REQUESTED')}">
-
-                <a href="/reservations/${reservation.id}/availableRooms"><fmt:message key="FindAvailable" bundle="${bundle}"/> </a>
-</c:if>
             </td>
     </tr>
 
 </table>
+
+<c:if test="${!empty availableRooms}">
+<h3 id="tableTitle"><fmt:message key="MatchingRooms" bundle="${bundle}"/></h3>
+<table id="availableRooms" class="display" cellspacing="0" width="100%">
+    <thead>
+    <tr>
+        <th><fmt:message key="Number" bundle="${bundle}"/></th>
+        <th><fmt:message key="Capacity" bundle="${bundle}"/></th>
+        <th><fmt:message key="CostPerDay" bundle="${bundle}"/> ($)</th>
+        <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach items="${availableRooms}" var="room">
+        <jsp:useBean id="room" scope="page"
+                     type="com.vaka.hotel_manager.domain.Room"/>
+        <tr>
+            <th>${room.number}</th>
+            <th>${room.capacity}</th>
+            <th>${room.costPerDay / 100}</th>
+            <th><fmt:message key="${room.roomClazz.name()}" bundle="${bundle}"/></th>
+        </tr>
+    </c:forEach>
+
+    </tbody>
+    </c:if>
 
 </body>
 </html>

@@ -56,10 +56,7 @@ public class DispatcherServlet extends HttpServlet {
                     getReservationController().processingPage(req, resp);
                 } else if (uri.matches("/reservations/[0-9]+")) {
                     getReservationController().getById(req, resp);
-                } else if(uri.matches("/reservations/[0-9]+/availableRooms")){
-                    getReservationController().findAvailable(req, resp);
-                }
-                else{
+                } else{
                     resp.sendError(404, "Not Found");
                 }
             } else if (uri.startsWith("/bills")) {
@@ -98,9 +95,7 @@ public class DispatcherServlet extends HttpServlet {
         try {
             String strUri = req.getRequestURI();
             LOG.debug("POST request uri {}", strUri);
-            if ("/".equals(strUri)) {
-                getRoomController().findAvailableByClassAndDates(req, resp);
-            } else if ("/signin".equals(strUri)) {
+            if ("/signin".equals(strUri)) {
                 getUserController().signIn(req, resp);
             } else if ("/signup".equals(strUri)) {
                 getUserController().signUp(req, resp);

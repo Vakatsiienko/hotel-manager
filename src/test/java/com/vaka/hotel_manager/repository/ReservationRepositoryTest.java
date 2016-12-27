@@ -47,11 +47,11 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
 
         Integer roomId = reservation.getRoom().getId();
 
-        assertFalse(reservationRepository.existOverlapReservation(roomId, LocalDate.of(2016, 10, 1), LocalDate.of(2016, 10, 4)));
-        assertTrue(reservationRepository.existOverlapReservation(roomId, LocalDate.of(2016, 10, 1), LocalDate.of(2016, 10, 5)));
-        assertTrue(reservationRepository.existOverlapReservation(roomId, LocalDate.of(2016, 10, 5), LocalDate.of(2016, 10, 10)));
-        assertTrue(reservationRepository.existOverlapReservation(roomId, LocalDate.of(2016, 10, 24), LocalDate.of(2016, 10, 29)));
-        assertFalse(reservationRepository.existOverlapReservation(roomId, LocalDate.of(2016, 10, 25), LocalDate.of(2016, 10, 29)));
+        assertFalse(reservationRepository.existOverlapReservations(roomId, LocalDate.of(2016, 10, 1), LocalDate.of(2016, 10, 4)));
+        assertTrue(reservationRepository.existOverlapReservations(roomId, LocalDate.of(2016, 10, 1), LocalDate.of(2016, 10, 5)));
+        assertTrue(reservationRepository.existOverlapReservations(roomId, LocalDate.of(2016, 10, 5), LocalDate.of(2016, 10, 10)));
+        assertTrue(reservationRepository.existOverlapReservations(roomId, LocalDate.of(2016, 10, 24), LocalDate.of(2016, 10, 29)));
+        assertFalse(reservationRepository.existOverlapReservations(roomId, LocalDate.of(2016, 10, 25), LocalDate.of(2016, 10, 29)));
     }
 
     @Test

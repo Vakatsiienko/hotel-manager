@@ -29,7 +29,7 @@ public class BillServiceImpl implements BillService {
     private BillRepository billRepository;
 
     @Override
-    public void createFromReservation(User loggedUser, Reservation reservation) {
+    public void createForReservation(User loggedUser, Reservation reservation) {
         getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
         LOG.debug("Creating bill from reservation: {}", reservation);
         create(loggedUser, DomainFactory.createBillFromReservation(reservation));

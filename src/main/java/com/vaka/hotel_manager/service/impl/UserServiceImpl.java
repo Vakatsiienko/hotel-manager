@@ -24,13 +24,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(User loggedUser, User user) {
-        LOG.debug("Creating user: {}", user);
-        if (getUserRepository().getByEmail(user.getEmail()).isPresent()) {
-            throw new CreatingException("User with such email already exist.");
+        synchronized (this) {
+            LOG.debug("Creating user: {}", user);
+            if (getUserRepository().getByEmail(user.getEmail()).isPresent()) {
+                throw new CreatingException("User with such email already exist.");
+            }
+            user.setPassword(SecurityUtil.generatePassword(user));
+            user.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+            return getUserRepository().create(user);
         }
-        user.setPassword(SecurityUtil.generatePassword(user));
-        user.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        return getUserRepository().create(user);
     }
 
     @Override

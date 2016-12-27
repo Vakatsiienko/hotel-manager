@@ -17,16 +17,20 @@ public class DateAndTimeUtil {
 
     public static final DateTimeFormatter DATE_TME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    public static final DateTimeFormatter HTML_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
 
     public static String toString(LocalDateTime dateTime) {
         return dateTime == null ? "" : dateTime.format(DATE_TME_FORMATTER);
-
     }
 
     public static String toString(LocalDate date) {
         return date == null ? "" : date.format(DATE_FORMATTER);
+    }
+
+    public static String toHtmlString(LocalDate date) {
+        return date == null ? "" : date.format(HTML_DATE_FORMATTER);
     }
 
 }

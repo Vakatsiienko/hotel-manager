@@ -1,7 +1,10 @@
 package com.vaka.hotel_manager.web.controller;
 
 import com.vaka.hotel_manager.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.*;
+import com.vaka.hotel_manager.domain.Reservation;
+import com.vaka.hotel_manager.domain.ReservationStatus;
+import com.vaka.hotel_manager.domain.Role;
+import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomService;
 import com.vaka.hotel_manager.service.SecurityService;
@@ -19,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.StringJoiner;
 
 /**
  * Created by Iaroslav on 12/1/2016.
@@ -32,22 +34,23 @@ public class ReservationController {
 
     private SecurityService securityService;
 
-    public void findAvailable(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
-        User loggedUser = getSecurityService().authenticate(req.getSession());
-        LOG.debug("Find available by class and dates");
-        String strId = req.getRequestURI().split("/")[2];
-        Integer resId = Integer.valueOf(strId);
-        req.setAttribute("roomList", getRoomService().findAvailableForReservation(loggedUser, resId));
-        LOG.debug("Return home page");
-        req.getRequestDispatcher("/availableRooms.jsp").forward(req, resp);
-    }
+//    public void findAvailable(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+//        User loggedUser = getSecurityService().authenticate(req.getSession());
+//        LOG.debug("Find available by class and dates");
+//        String strId = req.getRequestURI().split("/")[2];
+//        Integer resId = Integer.valueOf(strId);
+//        req.setAttribute("roomList", getRoomService().findAvailableForReservation(loggedUser, resId));
+//        LOG.debug("Return home page");
+//        req.getRequestDispatcher("/availableRooms.jsp").forward(req, resp);
+//    }
+
     /**
      * Creating reservation and if user isn't authenticated - trying to register by given info
      */
     public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Creating reservation request");
-        Reservation reservation = ServletToDomainExtractor.extractRequested(req);
+        Reservation reservation = ServletToDomainExtractor.extractReservation(req);
         IntegrityUtil.check(reservation);
         if (loggedUser.getRole() == Role.ANONYMOUS) {
             LOG.debug("Creating user for reservation");
@@ -58,14 +61,8 @@ public class ReservationController {
                 created = getUserService().create(loggedUser, created);
             } catch (CreatingException e){
                 LOG.debug(e.getMessage(), e);
-                StringJoiner uri = new StringJoiner("&");
-                uri.add("/signin?exception=emailExistException&redirectUri=/");
-                uri.add(String.join("=", "arrivalDate", req.getParameter("arrivalDate")));
-                uri.add(String.join("=", "departureDate", req.getParameter("departureDate")));
-                uri.add(String.join("=", "guests", req.getParameter("guests")));
-                uri.add(String.join("=", "roomClass", req.getParameter("roomClass")));
-                LOG.debug("Redirecting to " + uri.toString());
-                resp.sendRedirect(uri.toString());
+                req.getSession().setAttribute("reservation", reservation);
+                resp.sendRedirect("/signin?redirectUrl=/");
                 return;
             }
             reservation.setUser(created);
@@ -74,6 +71,7 @@ public class ReservationController {
             reservation.setUser(loggedUser);
         }
         reservation = getReservationService().create(loggedUser, reservation);
+        req.getSession().removeAttribute("reservation");
         LOG.debug("To reservation page, reservationId: {}", reservation.getId());
         resp.sendRedirect("/reservations/" + reservation.getId());
     }
@@ -88,7 +86,8 @@ public class ReservationController {
             if (!reservation.isPresent()) {
                 throw new NotFoundException("There are no user with given ID");
             }
-            req.setAttribute("availableRooms", getRoomService().findAvailableForReservation(loggedUser, reservation.get().getId()));
+            if (reservation.get().getStatus() == ReservationStatus.REQUESTED)
+                req.setAttribute("availableRooms", getRoomService().findAvailableForReservation(loggedUser, reservation.get().getId()));
             req.setAttribute("reservation", reservation.get());
             req.getRequestDispatcher("/reservationInfo.jsp").forward(req, resp);
         } catch (NumberFormatException ex) {

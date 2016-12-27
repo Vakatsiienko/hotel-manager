@@ -1,10 +1,10 @@
 package com.vaka.hotel_manager.web.controller;
 
 import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.domain.User;
-import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomService;
 import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.util.IntegrityUtil;
@@ -17,7 +17,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -28,17 +27,17 @@ public class RoomController {
     private SecurityService securityService;
     private static final Logger LOG = LoggerFactory.getLogger(RoomController.class);
 
-    public void findAvailableByClassAndDates(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
-        User loggedUser = getSecurityService().authenticate(req.getSession());
-        LOG.debug("Find available by class and dates");
-        LocalDate arrivalDate = LocalDate.parse(req.getParameter("arrivalDate"));
-        LocalDate departureDate = LocalDate.parse(req.getParameter("departureDate"));
-        RoomClass roomClass = RoomClass.valueOf(req.getParameter("roomClass"));
-        req.setAttribute("availableRooms", getRoomService().findAvailableByClassAndDates(loggedUser, roomClass, arrivalDate, departureDate));
-        LOG.debug("Return home page");
-        req.setAttribute("roomClasses", RoomClass.values());
-        req.getRequestDispatcher("/home.jsp").forward(req, resp);
-    }
+//    public void findAvailableByClassAndDates(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+//        User loggedUser = getSecurityService().authenticate(req.getSession());
+//        LOG.debug("Find available by class and dates");
+//        Reservation reservation = ServletToDomainExtractor.extractReservation(req);
+//        req.setAttribute("availableRooms", getRoomService().findAvailableByClassAndDates(loggedUser,
+//                reservation.getRequestedRoomClass(), reservation.getArrivalDate(), reservation.getDepartureDate()));
+//        LOG.debug("Return home page");
+//        req.getSession().setAttribute("reservation", reservation);
+//        req.setAttribute("roomClasses", RoomClass.values());
+//        req.getRequestDispatcher("/home.jsp").forward(req, resp);
+//    }
 
     public void roomsPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());

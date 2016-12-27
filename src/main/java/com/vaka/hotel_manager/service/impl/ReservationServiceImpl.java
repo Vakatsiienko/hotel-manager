@@ -41,28 +41,29 @@ public class ReservationServiceImpl implements ReservationService {
         LOG.debug("Trying to apply room with id: {} , by reservation with id: {}", roomId, reservationId);
         getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
         Optional<Room> room = getRoomRepository().getById(roomId);
-        applyRoomLock.lock();
-        Optional<Reservation> request = getReservationRepository().getById(reservationId);
+        Optional<Reservation> request = Optional.empty();
+        try {
+            applyRoomLock.lock();//TODO change to transaction
+            request = getReservationRepository().getById(reservationId);
 
-        if (!room.isPresent() || !request.isPresent()) {
+            if (!room.isPresent() || !request.isPresent()) {
+                throw new NotFoundException(String.format("Not found room or request by given id, founded room: %s, request: %s", room.get(), request.get()));
+            }
+            if (request.get().getStatus() != ReservationStatus.REQUESTED) {
+                throw new IllegalStateException(String.format("Reservation is in illegal state, expected status Requested, actual %s", request.get().getStatus()));
+            }
+            boolean datesOverlap = getReservationRepository().existOverlapReservations(roomId, request.get().getArrivalDate(), request.get().getDepartureDate());
+            if (datesOverlap) {
+                return false;
+            }
+            request.get().setRoom(room.get());
+            request.get().setStatus(ReservationStatus.CONFIRMED);
+            update(loggedUser, reservationId, request.get());
+        } finally {
             applyRoomLock.unlock();
-            throw new NotFoundException(String.format("Not found room or request by given id, founded room: %s, request: %s", room.get(), request.get()));
         }
-        if (request.get().getStatus() != ReservationStatus.REQUESTED) {
-            applyRoomLock.unlock();
-            throw new IllegalStateException(String.format("Reservation is in illegal state, expected status Requested, actual %s", request.get().getStatus()));
-        }
-        boolean datesOverlap = getReservationRepository().existOverlapReservation(roomId, request.get().getArrivalDate(), request.get().getDepartureDate());
-        if (datesOverlap) {
-            applyRoomLock.unlock();
-            return false;
-        }
-        request.get().setRoom(room.get());
-        request.get().setStatus(ReservationStatus.CONFIRMED);
-        update(loggedUser, reservationId, request.get());
-        applyRoomLock.unlock();
         LOG.debug("Room applied and reservation confirmed");
-        getBillService().createFromReservation(loggedUser, request.get());
+        getBillService().createForReservation(loggedUser, request.get());
         return true;
     }
 

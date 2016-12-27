@@ -30,7 +30,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     private Map<String, String> queryByClassAndMethodName;
 
     @Override
-    public boolean existOverlapReservation(Integer roomId, LocalDate arrivalDate, LocalDate departureDate) {
+    public boolean existOverlapReservations(Integer roomId, LocalDate arrivalDate, LocalDate departureDate) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.existOverlapReservation");
         try (Connection connection = getDataSource().getConnection();
              NamedPreparedStatement statement = getExistOverlapReservationStatement(connection, strQuery, roomId, arrivalDate, departureDate);

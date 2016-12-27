@@ -16,7 +16,7 @@ import java.time.format.DateTimeParseException;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ServletToDomainExtractor {
     private static final Logger LOG = LoggerFactory.getLogger(ServletToDomainExtractor.class);
-    public static Reservation extractRequested(HttpServletRequest req) {
+    public static Reservation extractReservation(HttpServletRequest req) {
         try {
             Reservation reservation = new Reservation();
             String strId = req.getParameter("id");
