@@ -1,7 +1,7 @@
-package com.vaka.hotel_manager.context;
+package com.vaka.hotel_manager.core.context;
 
-import com.vaka.hotel_manager.context.config.ApplicationContextConfig;
-import com.vaka.hotel_manager.context.config.PersistenceConfig;
+import com.vaka.hotel_manager.core.context.config.ApplicationContextConfig;
+import com.vaka.hotel_manager.core.context.config.PersistenceConfig;
 import com.vaka.hotel_manager.util.exception.ApplicationContextInitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

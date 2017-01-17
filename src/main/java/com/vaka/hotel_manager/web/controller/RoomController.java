@@ -1,13 +1,12 @@
 package com.vaka.hotel_manager.web.controller;
 
-import com.vaka.hotel_manager.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.Reservation;
+import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.RoomService;
 import com.vaka.hotel_manager.service.SecurityService;
-import com.vaka.hotel_manager.util.IntegrityUtil;
+import com.vaka.hotel_manager.util.ValidationUtil;
 import com.vaka.hotel_manager.util.ServletToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
 import org.slf4j.Logger;
@@ -51,7 +50,7 @@ public class RoomController {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Creating room request");
         Room room = ServletToDomainExtractor.extractRoom(req);
-        IntegrityUtil.check(room);
+        ValidationUtil.validate(room);
         room = getRoomService().create(loggedUser, room);
         req.setAttribute("room", room);
         LOG.debug("To room page, roomId: {}", room.getId());
@@ -84,7 +83,7 @@ public class RoomController {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Updating room");
         Room room = ServletToDomainExtractor.extractRoom(req);
-        IntegrityUtil.check(room);
+        ValidationUtil.validate(room);
         Integer id = Integer.valueOf(req.getRequestURI().split("/rooms/")[1]);
         getRoomService().update(loggedUser, id, room);
         LOG.debug("To room page, roomId: {}", id);

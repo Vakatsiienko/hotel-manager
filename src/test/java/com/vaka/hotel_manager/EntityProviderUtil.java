@@ -6,7 +6,7 @@ import com.vaka.hotel_manager.repository.BillRepository;
 import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.repository.ReservationRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
-import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.util.DomainFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

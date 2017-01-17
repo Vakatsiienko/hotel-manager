@@ -1,6 +1,8 @@
 package com.vaka.hotel_manager.service.impl;
 
-import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.core.tx.TransactionHelper;
+import com.vaka.hotel_manager.core.tx.TransactionManager;
+import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.UserRepository;
@@ -20,9 +22,11 @@ import java.util.Set;
  * Created by Iaroslav on 11/26/2016.
  */
 public class SecurityServiceImpl implements SecurityService {
-    private UserRepository userRepository;
-    private static final User anonymous = new User();
     private static final Logger LOG = LoggerFactory.getLogger(SecurityServiceImpl.class);
+    private static final User anonymous = new User();
+    private UserRepository userRepository;
+    private TransactionHelper transactionHelper;
+
 
     static {
         anonymous.setRole(Role.ANONYMOUS);
@@ -44,8 +48,8 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     private User getUserByCredentials(String email, String password) throws AuthenticationException {
-        LOG.debug("Searching and checking password user with email: {}", email);
-        Optional<User> user = getUserRepository().getByEmail(email);
+        LOG.debug("Searching and checking user password with email: {}", email);
+        Optional<User> user = getTransactionHelper().doTransactional(() -> getUserRepository().getByEmail(email));
 
         if (!user.isPresent() || (!BCrypt.checkpw(password, user.get().getPassword()))) {
             throw new AuthenticationException("SignInException");
@@ -83,5 +87,15 @@ public class SecurityServiceImpl implements SecurityService {
             }
         }
         return userRepository;
+    }
+    public TransactionHelper getTransactionHelper() {
+        if (transactionHelper == null) {
+            synchronized (this) {
+                if (transactionHelper == null) {
+                    transactionHelper = ApplicationContext.getInstance().getBean(TransactionHelper.class);
+                }
+            }
+        }
+        return transactionHelper;
     }
 }

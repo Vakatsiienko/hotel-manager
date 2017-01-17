@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.web.controller;
 
-import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.Role;
@@ -9,7 +9,7 @@ import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomService;
 import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.service.UserService;
-import com.vaka.hotel_manager.util.IntegrityUtil;
+import com.vaka.hotel_manager.util.ValidationUtil;
 import com.vaka.hotel_manager.util.ServletToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.CreatingException;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
@@ -51,12 +51,12 @@ public class ReservationController {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Creating reservation request");
         Reservation reservation = ServletToDomainExtractor.extractReservation(req);
-        IntegrityUtil.check(reservation);
+        ValidationUtil.validate(reservation);
         if (loggedUser.getRole() == Role.ANONYMOUS) {
             LOG.debug("Creating user for reservation");
             User created = ServletToDomainExtractor.extractCustomer(req);
             created.setPassword(created.getPhoneNumber());
-            IntegrityUtil.check(created);
+            ValidationUtil.validate(created);
             try {
                 created = getUserService().create(loggedUser, created);
             } catch (CreatingException e){

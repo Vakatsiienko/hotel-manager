@@ -1,4 +1,4 @@
-package com.vaka.hotel_manager.context.config;
+package com.vaka.hotel_manager.core.context.config;
 
 import com.vaka.hotel_manager.util.SqlParser;
 import org.apache.tomcat.jdbc.pool.DataSource;

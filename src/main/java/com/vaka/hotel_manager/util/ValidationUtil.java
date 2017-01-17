@@ -9,17 +9,17 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 /**
- * Util that check object for null values(excluding nullable and generating fields)
+ * Util that validate object for null values(excluding nullable and generating fields)
  * and throw proper exception with proper message.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class IntegrityUtil {
+public class ValidationUtil {
 
     /**
      * Checks if reservation have inappropriate fields - throwing {@link IllegalArgumentException} with problem specific message
      * @param reservation checking object
      */
-    public static void check(Reservation reservation) throws IllegalArgumentException {
+    public static void validate(Reservation reservation) throws IllegalArgumentException {
         String message = null;
         if (hasNull(reservation))
             message = "Some reservation parameters are missing";
@@ -34,7 +34,7 @@ public class IntegrityUtil {
      * Checks if user have inappropriate fields - throwing {@link IllegalArgumentException}
      * @param user checking object
      */
-    public static void check(User user) throws IllegalArgumentException {
+    public static void validate(User user) throws IllegalArgumentException {
         String message = null;
         if (hasNull(user))
             message = "Some user parameters are missing";
@@ -45,7 +45,7 @@ public class IntegrityUtil {
      * Checks if room have inappropriate fields - throwing {@link IllegalArgumentException}
      * @param room checking object
      */
-    public static void check(Room room) throws IllegalArgumentException {
+    public static void validate(Room room) throws IllegalArgumentException {
         String message = null;
         if (hasNull(room))
             message = "Some user parameters are missing";

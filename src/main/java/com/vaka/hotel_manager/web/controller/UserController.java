@@ -1,13 +1,13 @@
 package com.vaka.hotel_manager.web.controller;
 
-import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
 import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.SecurityService;
 import com.vaka.hotel_manager.service.UserService;
-import com.vaka.hotel_manager.util.IntegrityUtil;
+import com.vaka.hotel_manager.util.ValidationUtil;
 import com.vaka.hotel_manager.util.ServletToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.AuthenticationException;
 import com.vaka.hotel_manager.util.exception.CreatingException;
@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -93,7 +92,7 @@ public class UserController {
             User user = ServletToDomainExtractor.extractCustomer(req);
             if (!user.getPassword().equals(req.getParameter("passwordCheck")))
                 throw new CreatingException("PasswordCheckException");
-            IntegrityUtil.check(user);
+            ValidationUtil.validate(user);
             getUserService().create(loggedUser, user);
             getSecurityService().signIn(req.getSession(), user.getEmail(), req.getParameter("password"));
             resp.sendRedirect("/");

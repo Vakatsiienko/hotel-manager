@@ -1,10 +1,11 @@
 package com.vaka.hotel_manager.repository.jdbcImpl;
 
-import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.tx.ConnectionProvider;
 import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.repository.RoomRepository;
-import com.vaka.hotel_manager.repository.util.JdbcCrudUtil;
+import com.vaka.hotel_manager.repository.util.JdbcCrudHelper;
 import com.vaka.hotel_manager.repository.util.StatementToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.repository.util.NamedPreparedStatement;
@@ -12,7 +13,6 @@ import com.vaka.hotel_manager.repository.util.DomainToStatementExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -25,17 +25,18 @@ import java.util.Optional;
  */
 public class RoomRepositoryJdbcImpl implements RoomRepository {
     private static final Logger LOG = LoggerFactory.getLogger(RoomRepositoryJdbcImpl.class);
-    private DataSource dataSource;
+    private ConnectionProvider connectionProvider;
     private Map<String, String> queryByClassAndMethodName;
+    private JdbcCrudHelper crudHelper;
+
 
     @Override
     public List<Room> findAll() {
         String strQuery = getQueryByClassAndMethodName().get("room.findAll");
         String strCountQuery = getQueryByClassAndMethodName().get("room.findAll_count");
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = new NamedPreparedStatement(connection, strQuery).init();
+        try (NamedPreparedStatement statement = new NamedPreparedStatement(getConnectionProvider().getConnection(), strQuery).init();
              ResultSet resultSet = statement.executeQuery();
-             NamedPreparedStatement countStatement = new NamedPreparedStatement(connection, strCountQuery).init();
+             NamedPreparedStatement countStatement = new NamedPreparedStatement(getConnectionProvider().getConnection(), strCountQuery).init();
              ResultSet countResultSet = countStatement.executeQuery()) {
             return fetchToList(resultSet, countResultSet);
         } catch (SQLException e) {
@@ -59,11 +60,10 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     public List<Room> findAvailableForReservation(RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate) {
         String strQuery = getQueryByClassAndMethodName().get("room.findAvailableForReservation");
         String strCountQuery = getQueryByClassAndMethodName().get("room.findAvailableForReservation_count");
-
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = getFindAvailableForReservationStatement(connection, strQuery, roomClass, arrivalDate, departureDate);
+        //TODO remove countQuery
+        try (NamedPreparedStatement statement = getFindAvailableForReservationStatement(getConnectionProvider().getConnection(), strQuery, roomClass, arrivalDate, departureDate);
              ResultSet resultSet = statement.executeQuery();
-             NamedPreparedStatement countStatement = getFindAvailableForReservationStatement(connection, strCountQuery, roomClass, arrivalDate, departureDate);
+             NamedPreparedStatement countStatement = getFindAvailableForReservationStatement(getConnectionProvider().getConnection(), strCountQuery, roomClass, arrivalDate, departureDate);
              ResultSet countResultSet = countStatement.executeQuery()) {
             return fetchToList(resultSet, countResultSet);
         } catch (SQLException e) {
@@ -84,9 +84,9 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     public Room create(Room entity) {
         String strQuery = getQueryByClassAndMethodName().get("room.create");
         try {
-            return JdbcCrudUtil.create(
+            return getCrudHelper().create(
                     DomainToStatementExtractor::extract,
-                    getDataSource(), strQuery, entity);
+                    strQuery, entity);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -97,7 +97,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     public Optional<Room> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("room.getById");
         try {
-            return JdbcCrudUtil.getById(StatementToDomainExtractor::extractRoom, getDataSource(), strQuery, id);
+            return getCrudHelper().getById(StatementToDomainExtractor::extractRoom, strQuery, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -108,29 +108,23 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("room.delete");
-        return JdbcCrudUtil.delete(getDataSource(), strQuery, id);
-    }
-
-    @Override
-    public boolean update(Integer id, Room entity) {
-        String strQuery = getQueryByClassAndMethodName().get("room.update");
         try {
-            return JdbcCrudUtil.update(DomainToStatementExtractor::extract, getDataSource(), strQuery, entity, id);
+            return getCrudHelper().delete(strQuery, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
         }
     }
 
-    public DataSource getDataSource() {
-        if (dataSource == null) {
-            synchronized (this) {
-                if (dataSource == null) {
-                    dataSource = ApplicationContext.getInstance().getBean(DataSource.class);
-                }
-            }
+    @Override
+    public boolean update(Integer id, Room entity) {
+        String strQuery = getQueryByClassAndMethodName().get("room.update");
+        try {
+            return getCrudHelper().update(DomainToStatementExtractor::extract, strQuery, entity, id);
+        } catch (SQLException e) {
+            LOG.info(e.getMessage());
+            throw new RepositoryException(e);
         }
-        return dataSource;
     }
 
     public Map<String, String> getQueryByClassAndMethodName() {
@@ -142,5 +136,27 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
             }
         }
         return queryByClassAndMethodName;
+    }
+
+    public ConnectionProvider getConnectionProvider() {
+        if (connectionProvider == null) {
+            synchronized (this) {
+                if (connectionProvider == null) {
+                    connectionProvider = ApplicationContext.getInstance().getBean(ConnectionProvider.class);
+                }
+            }
+        }
+        return connectionProvider;
+    }
+
+    public JdbcCrudHelper getCrudHelper() {
+        if (crudHelper == null) {
+            synchronized (this) {
+                if (crudHelper == null) {
+                    crudHelper = ApplicationContext.getInstance().getBean(JdbcCrudHelper.class);
+                }
+            }
+        }
+        return crudHelper;
     }
 }

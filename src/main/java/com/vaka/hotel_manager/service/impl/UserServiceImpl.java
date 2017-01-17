@@ -1,6 +1,7 @@
 package com.vaka.hotel_manager.service.impl;
 
-import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.service.SecurityService;
@@ -14,44 +15,46 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
+
 /**
  * Created by Iaroslav on 12/1/2016.
  */
 public class UserServiceImpl implements UserService {
+    private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
     private UserRepository userRepository;
     private SecurityService securityService;
-    private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
+    private TransactionHelper transactionHelper;
 
     @Override
     public User create(User loggedUser, User user) {
-        synchronized (this) {
-            LOG.debug("Creating user: {}", user);
-            if (getUserRepository().getByEmail(user.getEmail()).isPresent()) {
-                throw new CreatingException("User with such email already exist.");
-            }
-            user.setPassword(SecurityUtil.generatePassword(user));
-            user.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-            return getUserRepository().create(user);
+        LOG.debug("Creating user: {}", user);
+        if (getUserRepository().getByEmail(user.getEmail()).isPresent()) {
+            throw new CreatingException("User with such email already exist.");
         }
+        user.setPassword(SecurityUtil.generatePassword(user));
+        user.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        return getTransactionHelper().doTransactional(() -> getUserRepository().create(user));
     }
 
     @Override
     public Optional<User> getById(User loggedUser, Integer id) {
         LOG.debug("Getting user by id: {}", id);
         Optional<User> requested = getUserRepository().getById(id);
-        if (requested.isPresent()) {
-            SecurityUtil.eraseSensitivityCredentials(requested.get());
-            if (!id.equals(loggedUser.getId()))
-                getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
-        }
-        return requested;
+        return getTransactionHelper().doTransactional(() -> {
+            if (requested.isPresent()) {
+                SecurityUtil.eraseSensitivityCredentials(requested.get());
+                if (!id.equals(loggedUser.getId()))
+                    getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+            }
+            return requested;
+        });
     }
 
     @Override
     public boolean delete(User loggedUser, Integer id) {
         LOG.debug("Deleting user by id: {}", id);
         getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
-        return getUserRepository().delete(id);
+        return getTransactionHelper().doTransactional(() -> getUserRepository().delete(id));
     }
 
     @Override
@@ -59,7 +62,7 @@ public class UserServiceImpl implements UserService {
         LOG.debug("Updating user with id: %s, state: {}", id, user);
         if (!loggedUser.getId().equals(id))
             getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
-        return getUserRepository().update(id, user);
+        return getTransactionHelper().doTransactional(() -> getUserRepository().update(id, user));
     }
 
     public UserRepository getUserRepository() {
@@ -82,5 +85,16 @@ public class UserServiceImpl implements UserService {
             }
         }
         return securityService;
+    }
+
+    public TransactionHelper getTransactionHelper() {
+        if (transactionHelper == null) {
+            synchronized (this) {
+                if (transactionHelper == null) {
+                    transactionHelper = ApplicationContext.getInstance().getBean(TransactionHelper.class);
+                }
+            }
+        }
+        return transactionHelper;
     }
 }

@@ -1,11 +1,10 @@
 package com.vaka.hotel_manager.context;
 
-import com.vaka.hotel_manager.context.config.ApplicationContextConfig;
+import com.vaka.hotel_manager.core.context.config.ApplicationContextConfig;
 import com.vaka.hotel_manager.repository.BillRepository;
 import com.vaka.hotel_manager.repository.ReservationRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
 import com.vaka.hotel_manager.repository.UserRepository;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 

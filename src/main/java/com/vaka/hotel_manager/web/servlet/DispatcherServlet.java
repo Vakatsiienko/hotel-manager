@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.web.servlet;
 
-import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.util.exception.ApplicationException;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
 import com.vaka.hotel_manager.util.exception.NotFoundException;

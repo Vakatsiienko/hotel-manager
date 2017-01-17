@@ -1,9 +1,10 @@
 package com.vaka.hotel_manager.repository.jdbcImpl;
 
-import com.vaka.hotel_manager.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.tx.ConnectionProvider;
 import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.repository.BillRepository;
-import com.vaka.hotel_manager.repository.util.JdbcCrudUtil;
+import com.vaka.hotel_manager.repository.util.JdbcCrudHelper;
 import com.vaka.hotel_manager.repository.util.StatementToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.repository.util.NamedPreparedStatement;
@@ -23,16 +24,17 @@ import java.util.Optional;
  */
 public class BillRepositoryJdbcImpl implements BillRepository {
     private static final Logger LOG = LoggerFactory.getLogger(BillRepositoryJdbcImpl.class);
-    private DataSource dataSource;
     private Map<String, String> queryByClassAndMethodName;
+    private ConnectionProvider connectionProvider;
+    private JdbcCrudHelper crudHelper;
 
     @Override
     public Bill create(Bill entity) {
         String strQuery = getQueryByClassAndMethodName().get("bill.create");
         try {
-            return JdbcCrudUtil.create(
+            return getCrudHelper().create(
                     DomainToStatementExtractor::extract,
-                    getDataSource(), strQuery, entity);
+                    strQuery, entity);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -42,9 +44,8 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     @Override
     public Optional<Bill> getByReservationId(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("bill.getByReservationId");
-        try (Connection connection = getDataSource().getConnection();
-             NamedPreparedStatement statement = getGetByReservationIdStatement(connection, strQuery, id);
-             ResultSet resultSet = statement.executeQuery()){
+        try (NamedPreparedStatement statement = getGetByReservationIdStatement(getConnectionProvider().getConnection(), strQuery, id);
+             ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next())
                 return Optional.of(StatementToDomainExtractor.extractBill(resultSet));
             else return Optional.empty();
@@ -64,7 +65,7 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     public Optional<Bill> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("bill.getById");
         try {
-            return JdbcCrudUtil.getById(StatementToDomainExtractor::extractBill, getDataSource(), strQuery, id);
+            return getCrudHelper().getById(StatementToDomainExtractor::extractBill, strQuery, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -74,14 +75,19 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("bill.delete");
-        return JdbcCrudUtil.delete(getDataSource(), strQuery, id);
+        try {
+            return getCrudHelper().delete(strQuery, id);
+        } catch (SQLException e) {
+            LOG.info(e.getMessage());
+            throw new RepositoryException(e);
+        }
     }
 
     @Override
     public boolean update(Integer id, Bill entity) {
         String strQuery = getQueryByClassAndMethodName().get("bill.update");
         try {
-            return JdbcCrudUtil.update(DomainToStatementExtractor::extract, getDataSource(), strQuery, entity, id);
+            return getCrudHelper().update(DomainToStatementExtractor::extract, strQuery, entity, id);
         } catch (SQLException e) {
             LOG.info(e.getMessage());
             throw new RepositoryException(e);
@@ -89,15 +95,27 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     }
 
 
-    public DataSource getDataSource() {
-        if (dataSource == null) {
+
+    public ConnectionProvider getConnectionProvider() {
+        if (connectionProvider == null) {
             synchronized (this) {
-                if (dataSource == null) {
-                    dataSource = ApplicationContext.getInstance().getBean(DataSource.class);
+                if (connectionProvider == null) {
+                    connectionProvider = ApplicationContext.getInstance().getBean(ConnectionProvider.class);
                 }
             }
         }
-        return dataSource;
+        return connectionProvider;
+    }
+
+    public JdbcCrudHelper getCrudHelper() {
+        if (crudHelper == null) {
+            synchronized (this) {
+                if (crudHelper == null) {
+                    crudHelper = ApplicationContext.getInstance().getBean(JdbcCrudHelper.class);
+                }
+            }
+        }
+        return crudHelper;
     }
 
     public Map<String, String> getQueryByClassAndMethodName() {
