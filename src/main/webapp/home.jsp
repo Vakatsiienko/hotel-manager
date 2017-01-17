@@ -23,7 +23,7 @@
 
         function changeDeparture() {
             var arrivalDate = new Date(document.getElementById('arrivalDate').value);
-            var nextDate = arrivalDate;
+            var nextDate = new Date(document.getElementById('arrivalDate').value);
             nextDate.setDate(arrivalDate.getDate() + 1);
             var departureDate = nextDate;
             var dd = nextDate.getDate();
@@ -275,7 +275,6 @@
     </form>
 
 </div>
-
 <br>
 </body>
 </html>
