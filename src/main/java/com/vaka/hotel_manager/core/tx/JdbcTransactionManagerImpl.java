@@ -1,7 +1,11 @@
 package com.vaka.hotel_manager.core.tx;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.repository.util.SQLFunction;
+import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.exception.TransactionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -10,7 +14,8 @@ import java.sql.SQLException;
 /**
  * Created by Iaroslav on 12/30/2016.
  */
-public class JdbcTransactionManagerImpl implements TransactionManager, ConnectionProvider {
+public class JdbcTransactionManagerImpl implements TransactionManager, ConnectionManager {
+    private static final Logger LOG = LoggerFactory.getLogger(JdbcTransactionManagerImpl.class);
     private static final ThreadLocal<Connection> CONNECTION = new ThreadLocal<>();
     private static final ThreadLocal<TransactionStatus> STATUS = new ThreadLocal<TransactionStatus>() {
         @Override
@@ -27,7 +32,7 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
 
     @Override
     public void begin(int isolationLevel) throws TransactionException {
-        if (CONNECTION.get() != null) {
+        if (STATUS.get() != TransactionStatus.NOT_ACTIVE) {
             if (isRollBackOnly()) {
                 //no-op if transaction is in rollbackOnly state that signs about inner transactions
                 return;
@@ -55,7 +60,7 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
             throw new TransactionException(String.format("Transaction is in illegal state: %s", STATUS.get()));
         try (Connection connection = CONNECTION.get()) {
             connection.commit();
-            STATUS.set(TransactionStatus.COMMITTED);
+            STATUS.set(TransactionStatus.NOT_ACTIVE);
             CONNECTION.remove();
         } catch (SQLException e) {
             throw new TransactionException(e);
@@ -69,7 +74,7 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
         if (STATUS.get() == TransactionStatus.ACTIVE || STATUS.get() == TransactionStatus.ACTIVE_ROLLBACK_ONLY) {
             try (Connection connection = CONNECTION.get()) {
                 connection.rollback();
-                STATUS.set(TransactionStatus.ROLLED_BACK);
+                STATUS.set(TransactionStatus.NOT_ACTIVE);
                 CONNECTION.remove();
             } catch (SQLException e) {
                 throw new TransactionException(e);
@@ -111,11 +116,13 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
     }
 
     @Override
-    public Connection getConnection() {
-        if (CONNECTION.get() == null)
-            throw new TransactionException("Transaction hasn't started");
-        //TODO consider about explicitly and Liskov substitution, method should return connection only if tx started or create a connection if there are no connection in threadLocal
-        return CONNECTION.get();
+    public <T> T withConnection(SQLFunction<Connection, T> withCon) {
+        try {
+            return withCon.apply(CONNECTION.get());
+        } catch (SQLException e) {
+            LOG.info(e.getMessage(), e);//TODO consider to add exception handler
+            throw new RepositoryException("Internal server error");
+        }
     }
 
     public DataSource getDataSource() {

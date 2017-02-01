@@ -7,11 +7,12 @@ import com.vaka.hotel_manager.util.NullaryFunction;
  * Created by Iaroslav on 1/15/2017.
  */
 public class TransactionHelper {
+
+    private TransactionManager transactionManager;
+
     public TransactionHelper(TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
     }
-
-    private TransactionManager transactionManager;
 
     public <T> T doTransactional(int isolationLevel, NullaryFunction<T> function) {
         transactionManager.begin(isolationLevel);

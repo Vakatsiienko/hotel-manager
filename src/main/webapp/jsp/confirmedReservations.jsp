@@ -18,7 +18,7 @@
         var requestTable;
         $(document).ready(function () {
             roomTable = $("#myTable").dataTable({
-                "dom": "<lftip>",
+                "dom": "<t>",
                 "language": {
                     "lengthMenu": '<fmt:message key="dataTable.lengthMenu" bundle="${bundle}"/>' ,
                     "zeroRecords": '<fmt:message key="dataTable.zeroRecords" bundle="${bundle}"/>' ,
@@ -60,7 +60,7 @@
                 <th><a href="/reservations/${reservation.id}">${reservation.id}</a></th>
                 <th><a href="/users/${reservation.userId}">${reservation.userId}</a></th>
                 <th>${reservation.guests}</th>
-                <th><fmt:message key="${reservation.requestedRoomClass.name()}" bundle="${bundle}"/></th>
+                <th>${reservation.requestedRoomClass.name}</th>
                 <th>${reservation.roomId}</th>
                 <th>${fn:formatDate(reservation.arrivalDate)}</th>
                 <th>${fn:formatDate(reservation.departureDate)}</th>

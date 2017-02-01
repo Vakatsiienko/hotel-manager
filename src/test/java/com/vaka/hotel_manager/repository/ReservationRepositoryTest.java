@@ -16,9 +16,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+
 
 /**
  * Created by iaroslav on 02.12.16.
@@ -27,6 +28,8 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
     private ReservationRepository reservationRepository = ApplicationContext.getInstance().getBean(ReservationRepository.class);
     private RoomRepository roomRepository = ApplicationContext.getInstance().getBean(RoomRepository.class);
     private UserRepository userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
+    private RoomClassRepository roomClassRepository = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
+//TODO write own connectionManageer
 
     @Before
     public void setUp() throws SQLException, ClassNotFoundException, IOException {
@@ -39,7 +42,7 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
         reservation.setDepartureDate(LocalDate.of(2016, 10, 25));
         reservation.setArrivalDate(LocalDate.of(2016, 10, 4));
         reservationRepository.create(reservation);
-        reservation.setRoom(roomRepository.create(EntityProviderUtil.createRoom()));
+        reservation.setRoom(roomRepository.create(EntityProviderUtil.createRoom(EntityProviderUtil.createOrGetStoredRoomClass("Standard"))));
         reservation.setStatus(ReservationStatus.CONFIRMED);
         reservationRepository.update(reservation.getId(), reservation);
 
@@ -68,7 +71,7 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
         expected2.setDepartureDate(LocalDate.now().plusDays(5));
         expected2.setStatus(ReservationStatus.CONFIRMED);
         reservationRepository.create(expected2);
-        expected2.setRoom(roomRepository.create(EntityProviderUtil.createRoom()));
+        expected2.setRoom(roomRepository.create(EntityProviderUtil.createRoom(EntityProviderUtil.createOrGetStoredRoomClass("Standard"))));
         reservationRepository.update(expected2.getId(), expected2);
         expectedList.add(EntityProviderUtil.toReservationDTO(expected2));
 
@@ -84,7 +87,7 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
         expected4.setDepartureDate(LocalDate.now().plusDays(5));
         expected4.setStatus(ReservationStatus.REJECTED);
         reservationRepository.create(expected4);
-        expected4.setRoom(roomRepository.create(EntityProviderUtil.createRoom()));
+        expected4.setRoom(roomRepository.create(EntityProviderUtil.createRoom(EntityProviderUtil.createOrGetStoredRoomClass("Standard"))));
         reservationRepository.update(expected4.getId(), expected4);
         expectedList.add(EntityProviderUtil.toReservationDTO(expected4));
 
@@ -134,7 +137,7 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
             reservation.setUser(user);
             reservation.setStatus(ReservationStatus.CONFIRMED);
             reservation = reservationRepository.create(reservation);
-            reservation.setRoom(roomRepository.create(EntityProviderUtil.createRoom()));
+            reservation.setRoom(roomRepository.create(EntityProviderUtil.createRoom(EntityProviderUtil.createOrGetStoredRoomClass("Standard"))));
             reservationRepository.update(reservation.getId(), reservation);
             expectedList.add(EntityProviderUtil.toReservationDTO(reservation));
         }
@@ -229,6 +232,8 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
 
     @Override
     protected Reservation createEntity() {
-        return EntityProviderUtil.createReservationWithoutRoom();
+        return EntityProviderUtil.createReservationWithoutRoom(
+                EntityProviderUtil.createOrGetStoredRoomClass("Standard"),
+                userRepository.create(EntityProviderUtil.createUser()));
     }
 }

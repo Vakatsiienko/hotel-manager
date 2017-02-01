@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface UserRepository extends CrudRepository<User> {
 
     Optional<User> getByEmail(String email);
+
+    Optional<User> getByVkId(String vkId);
 }

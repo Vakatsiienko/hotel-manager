@@ -1,23 +1,26 @@
 package com.vaka.hotel_manager.web.controller;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
-import com.vaka.hotel_manager.domain.RoomClass;
+import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.ReservationService;
-import com.vaka.hotel_manager.service.SecurityService;
+import com.vaka.hotel_manager.service.RoomClassService;
 import com.vaka.hotel_manager.service.UserService;
+import com.vaka.hotel_manager.util.ServletExtractor;
 import com.vaka.hotel_manager.util.ValidationUtil;
-import com.vaka.hotel_manager.util.ServletToDomainExtractor;
 import com.vaka.hotel_manager.util.exception.AuthenticationException;
 import com.vaka.hotel_manager.util.exception.CreatingException;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -32,11 +35,49 @@ public class UserController {
 
     private ReservationService reservationService;
     private UserService userService;
+    private RoomClassService roomClassService;
 
+    public void signUpVk(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("Sign up vk");
+        if (loggedUser.getRole() != Role.ANONYMOUS) {
+            throw new UnsupportedOperationException();
+        }
+        User vkUser = (User) req.getSession().getAttribute("vkUser");
+        if (vkUser == null) {
+            throw new IllegalStateException("");
+        }
+        String phone = req.getParameter("phoneNumber");
+        String name = req.getParameter("name");
+        vkUser.setPhoneNumber(phone);
+        vkUser.setName(name);
+        vkUser.setPassword(RandomStringUtils.random(8));
+        getUserService().create(loggedUser, vkUser);
+        resp.sendRedirect("/");
+    }
+
+    public void signInVk(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        HttpSession session = req.getSession();
+        User loggedUser = getSecurityService().authenticate(session);
+        LOG.debug("Sign in vk");
+        if (loggedUser.getRole() != Role.ANONYMOUS) {
+            throw new UnsupportedOperationException();
+        }
+        String code = req.getParameter("code");
+        if (code == null) {
+            String error = req.getParameter("error");
+            String errorDescription = req.getParameter("error_description");
+            resp.sendError(400, String.format("Error: %s, error description: %s", error, errorDescription));
+            return;
+        }
+        if (getSecurityService().signInVk(session, code)) {
+            resp.sendRedirect(String.format("/users/%s", loggedUser.getId()));
+        } else req.getRequestDispatcher("/jsp/vkSignUp.jsp").forward(req, resp);
+    }
 
     public void signinPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         LOG.debug("To signin page");
-        req.getRequestDispatcher("/signin.jsp").forward(req, resp);
+        req.getRequestDispatcher("/jsp/signin.jsp").forward(req, resp);
     }
 
     public void signIn(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -51,35 +92,28 @@ public class UserController {
         } catch (AuthenticationException e) {
             LOG.debug(e.getMessage(), e);
             req.setAttribute("exception", e.getMessage());
-            req.getRequestDispatcher("/signin.jsp").forward(req, resp);
+            req.getRequestDispatcher("/jsp/signin.jsp").forward(req, resp);
             return;
         }
         String redirectUri = req.getParameter("redirectUri");
         if (redirectUri == null){
-            resp.sendRedirect("/");
+            resp.sendRedirect("/users/" + ((User) req.getSession().getAttribute("loggedUser")).getId());
             return;
         }
-        //redirect to redirecting url and filter sensitive params
-        StringJoiner params = new StringJoiner("&");
-        req.getParameterMap().entrySet().stream()
-                .filter(entry -> !entry.getKey().equals("email")
-                        && !entry.getKey().equals("password"))
-                .forEach(entry -> params.add(String.join("=", entry.getKey(), entry.getValue()[0])));
-        redirectUri = String.join("?", redirectUri, params.toString());
         resp.sendRedirect(redirectUri);
     }
 
     public void toRoot(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        getSecurityService().authenticate(req.getSession());
+        User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Return home page");
-        req.setAttribute("roomClasses", RoomClass.values());
-        req.getRequestDispatcher("/home.jsp").forward(req, resp);
+        req.setAttribute("roomClasses", getRoomClassService().findAll(loggedUser));
+        req.getRequestDispatcher("/jsp/home.jsp").forward(req, resp);
     }
 
     public void signupPage(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         LOG.debug("Sign up page request");
         LOG.debug("Return signup page");
-        req.getRequestDispatcher("/signup.jsp").forward(req, resp);
+        req.getRequestDispatcher("/jsp/signup.jsp").forward(req, resp);
     }
 
     /**
@@ -89,7 +123,7 @@ public class UserController {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Sign up request");
         try {
-            User user = ServletToDomainExtractor.extractCustomer(req);
+            User user = ServletExtractor.extractCustomer(req);
             if (!user.getPassword().equals(req.getParameter("passwordCheck")))
                 throw new CreatingException("PasswordCheckException");
             ValidationUtil.validate(user);
@@ -99,7 +133,7 @@ public class UserController {
         } catch (CreatingException ex) {
             LOG.debug(ex.getMessage(), ex);
             req.setAttribute("exception", ex.getMessage());
-            req.getRequestDispatcher("/signup.jsp").forward(req, resp);
+            req.getRequestDispatcher("/jsp/signup.jsp").forward(req, resp);
         }
     }
 
@@ -122,7 +156,7 @@ public class UserController {
         List<ReservationDTO> list = getReservationService().findActiveByUserId(loggedUser, userId);
 
         req.setAttribute("reservationList", list);
-        req.getRequestDispatcher("/userInfo.jsp").forward(req, resp);
+        req.getRequestDispatcher("/jsp/userInfo.jsp").forward(req, resp);
     }
 
     public ReservationService getReservationService() {
@@ -145,6 +179,17 @@ public class UserController {
             }
         }
         return userService;
+    }
+
+    public RoomClassService getRoomClassService() {
+        if (roomClassService == null) {
+            synchronized (this) {
+                if (roomClassService == null) {
+                    roomClassService = ApplicationContext.getInstance().getBean(RoomClassService.class);
+                }
+            }
+        }
+        return roomClassService;
     }
 
     private SecurityService getSecurityService() {

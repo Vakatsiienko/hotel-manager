@@ -30,7 +30,7 @@ public class ReservationDTO {
 
     private final ReservationStatus status;
 
-    private final RoomClass requestedRoomClass;
+    private final RoomClassDTO requestedRoomClass;
 
     private final LocalDate arrivalDate;
 

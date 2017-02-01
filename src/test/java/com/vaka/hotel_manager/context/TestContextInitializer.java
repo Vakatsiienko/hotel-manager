@@ -35,7 +35,7 @@ public class TestContextInitializer {
     }
 
     public static void initForRepositories() {
-        init(new ApplicationContextConfig());
+        init(new RepositoryTestContextConfig());
     }
 
     public static void initForServices() {

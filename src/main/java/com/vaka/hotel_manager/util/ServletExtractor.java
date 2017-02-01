@@ -9,13 +9,23 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Same as util extractors, only with Servlet.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ServletToDomainExtractor {
-    private static final Logger LOG = LoggerFactory.getLogger(ServletToDomainExtractor.class);
+public class ServletExtractor {
+    private static final Logger LOG = LoggerFactory.getLogger(ServletExtractor.class);
+
+    public static <T> T extractOrDefault(String paramValue, T defaultValue, Function<String, T> parser) {
+        Optional<String> defaultOpt = Optional.ofNullable(paramValue);
+        if (defaultOpt.isPresent())
+            return parser.apply(defaultOpt.get());
+        else return defaultValue;
+    }
+
     public static Reservation extractReservation(HttpServletRequest req) {
         try {
             Reservation reservation = new Reservation();
@@ -23,11 +33,9 @@ public class ServletToDomainExtractor {
             if (strId != null)
                 reservation.setId(Integer.valueOf(strId));
             reservation.setGuests(Integer.valueOf(req.getParameter("guests")));
-            String[] roomClass = req.getParameter("roomClass").toUpperCase().split(" ");
-            reservation.setRequestedRoomClass(RoomClass.valueOf(String.join("_", roomClass)));
+            reservation.setRequestedRoomClass(extractRoomClass(req));
             reservation.setArrivalDate(LocalDate.parse(req.getParameter("arrivalDate")));
             reservation.setDepartureDate(LocalDate.parse(req.getParameter("departureDate")));
-            reservation.setStatus(ReservationStatus.REQUESTED);
             return reservation;
         } catch (DateTimeParseException | NumberFormatException e) {
             LOG.debug(e.getMessage(), e);
@@ -49,12 +57,28 @@ public class ServletToDomainExtractor {
             Room room = new Room();
             room.setCapacity(Integer.valueOf(req.getParameter("capacity")));
             room.setCostPerDay(Integer.valueOf(req.getParameter("costPerDay")));
-            room.setRoomClazz(RoomClass.valueOf(req.getParameter("roomClass")));
+            room.setRoomClass(extractRoomClass(req));
             room.setNumber(Integer.valueOf(req.getParameter("number")));
             return room;
         } catch (NumberFormatException e) {
             LOG.debug(e.getMessage(), e);
             throw new IllegalArgumentException(e.getMessage());
         }
+    }
+
+    public static RoomClass extractRoomClass(HttpServletRequest req) {
+        String strId = req.getParameter("roomClassId");
+        String name = req.getParameter("roomClassName");
+        RoomClass roomClass = new RoomClass();
+        roomClass.setName(name);
+        if (strId != null) {
+            try {
+                roomClass.setId(Integer.parseInt(strId));
+            } catch (NumberFormatException e) {
+                LOG.info(e.getMessage(), e);
+                throw new IllegalArgumentException(e.getMessage());
+            }
+        }
+        return roomClass;
     }
 }

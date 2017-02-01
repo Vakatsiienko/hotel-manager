@@ -1,17 +1,15 @@
 package com.vaka.hotel_manager.service.impl;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.security.SecurityUtils;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
-import com.vaka.hotel_manager.core.tx.TransactionManager;
-import com.vaka.hotel_manager.core.tx.TransactionStatus;
 import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.BillRepository;
 import com.vaka.hotel_manager.service.BillService;
-import com.vaka.hotel_manager.service.SecurityService;
+import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.util.DomainFactory;
-import com.vaka.hotel_manager.util.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +28,9 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public Bill createForReservation(User loggedUser, Reservation reservation) {
-        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Creating bill from reservation: {}", reservation);
-        return getTransactionHelper().doTransactional(() -> create(loggedUser, DomainFactory.createBillFromReservation(reservation)));
+        return getTransactionHelper().doTransactional(() -> getTransactionHelper().doInner(() -> create(loggedUser, DomainFactory.createBillFromReservation(reservation))));
     }
 
     @Override
@@ -43,14 +41,14 @@ public class BillServiceImpl implements BillService {
         //appropriate role produce AuthorizationException
         if (bill.isPresent()) {
             if (!bill.get().getReservation().getUser().getId().equals(loggedUser.getId()))
-                getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+                getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         }
         return bill;
     }
 
     @Override
     public Bill create(User loggedUser, Bill bill) {
-        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         bill.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         LOG.debug("Creating bill: {}", bill);
         return getTransactionHelper().doTransactional(() -> getBillRepository().create(bill));
@@ -62,7 +60,7 @@ public class BillServiceImpl implements BillService {
         Optional<Bill> bill = getTransactionHelper().doTransactional(() -> getBillRepository().getById(id));
         if (bill.isPresent()) {
             if (bill.get().getReservation().getUser().getId().equals(loggedUser.getId()))
-                getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+                getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         }
         return bill;
     }
@@ -70,14 +68,14 @@ public class BillServiceImpl implements BillService {
     @Override
     public boolean delete(User loggedUser, Integer id) {
         LOG.debug("Deleting bill with id: {}", id);
-        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         return getTransactionHelper().doTransactional(() -> getBillRepository().delete(id));
     }
 
     @Override
     public boolean update(User loggedUser, Integer id, Bill bill) {
         LOG.debug("Updating bill with id: {} , bill: {}", id, bill);
-        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         return getTransactionHelper().doTransactional(() -> getBillRepository().update(id, bill));
     }
 

@@ -18,7 +18,8 @@
         var requestTable;
         $(document).ready(function () {
             roomTable = $("#roomsTable").dataTable({
-                "dom": "<lftip>",
+                "dom": "<t>",
+                "ordering": false,
                 "language": {
                     "lengthMenu": '<fmt:message key="dataTable.lengthMenu" bundle="${bundle}"/>' ,
                     "zeroRecords": '<fmt:message key="dataTable.zeroRecords" bundle="${bundle}"/>' ,
@@ -66,7 +67,7 @@
 
         <tr>
             <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
-            <td><fmt:message key="${reservation.requestedRoomClass}" bundle="${bundle}"/></td>
+            <td>${reservation.requestedRoomClass.name}</td>
         </tr>
 
         <tr>
@@ -108,7 +109,7 @@
                          type="com.vaka.hotel_manager.domain.Room"/>
             <tr>
                 <td>${room.number}</td>
-                <td><fmt:message key="${room.roomClazz}" bundle="${bundle}"/></td>
+                <td>${room.roomClass.name}</td>
                 <td>${room.capacity}</td>
                 <c:set var="cost" value="${room.costPerDay /100}"/>
                 <td>${cost}</td>

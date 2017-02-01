@@ -1,24 +1,30 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="com.vaka.hotel_manager" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
 <html>
 <head>
     <%@include file="header.jspf" %>
-
-    <title>RequestsList</title>
+    <title>User Information</title>
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <link rel="stylesheet" type="text/css"
           href="//cdn.datatables.net/1.10.8/css/jquery.dataTables.min.css"/>
     <script type="text/javascript"
             src="//cdn.datatables.net/1.10.8/js/jquery.dataTables.min.js"></script>
+    <style type="text/css">
 
+        #userTable {
+            position: absolute;
+            left: 15%;
+            top: 1%;
+        }
+
+    </style>
     <script type="text/javascript">
-        var table;
         $(document).ready(function () {
-            table = $("#myTable").dataTable({
-                "dom": "<lftip>",
+            $("#reservationTable").dataTable({
+                "dom": "<t>",
+                "ordering": false,
                 "language": {
                     "lengthMenu": '<fmt:message key="dataTable.lengthMenu" bundle="${bundle}"/>' ,
                     "zeroRecords": '<fmt:message key="dataTable.zeroRecords" bundle="${bundle}"/>' ,
@@ -36,25 +42,45 @@
             });
         })
     </script>
-
-    <style type="text/css">
-        #requestTableTitle{
-            position: relative;
-            left: 40%;
-        }
-    </style>
 </head>
 <body>
-<h3 id="requestTableTitle"><fmt:message key="RequestedReservations" bundle="${bundle}"/></h3>
-<table id="myTable" class="display" cellspacing="0" width="100%">
+
+<jsp:useBean id="user" scope="request"
+             type="com.vaka.hotel_manager.domain.User"/>
+<table id="userTable" class="display" cellpadding="0">
+    <tr>
+        <th colspan="2"><h2><fmt:message key="ContactInfo" bundle="${bundle}"/></h2></th>
+    </tr>
+    <tr>
+        <th><fmt:message key="Name" bundle="${bundle}"/></th>
+        <td>${user.name}</td>
+    </tr>
+
+    <tr>
+        <th><fmt:message key="Email" bundle="${bundle}"/></th>
+        <td>${user.email}</td>
+    </tr>
+
+    <tr>
+        <th><fmt:message key="PhoneNumber" bundle="${bundle}"/></th>
+        <td>${user.phoneNumber}</td>
+    </tr>
+
+</table>
+<br>
+<br>
+<br>
+<h3><fmt:message key="Reservations" bundle="${bundle}"/>:</h3>
+<table id="reservationTable" class="display" cellspacing="0" width="100%">
     <thead>
     <tr>
         <th><fmt:message key="ReservationId" bundle="${bundle}"/></th>
-        <th><fmt:message key="ClientId" bundle="${bundle}"/></th>
         <th><fmt:message key="Guests" bundle="${bundle}"/></th>
         <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
-        <th><fmt:message key="CreatedDatetime" bundle="${bundle}"/></th>
-        <th><fmt:message key="Action" bundle="${bundle}"/></th>
+        <th><fmt:message key="ArrivalDate" bundle="${bundle}"/></th>
+        <th><fmt:message key="DepartureDate" bundle="${bundle}"/></th>
+        <th><fmt:message key="Status" bundle="${bundle}"/></th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -63,12 +89,13 @@
                      type="com.vaka.hotel_manager.domain.DTO.ReservationDTO"/>
         <tr>
             <th>${reservation.id}</th>
-            <th>${reservation.userId}</th>
             <th>${reservation.guests}</th>
-            <th><fmt:message key="${reservation.requestedRoomClass.name()}" bundle="${bundle}"/></th>
-            <th>${fn:formatDateTime(reservation.createdDatetime)}</th>
-            <th><a href="/reservations/process/${reservation.id}"><fmt:message key="toProcess"
-                                                                               bundle="${bundle}"/></a>
+            <th>${reservation.requestedRoomClass.name}</th>
+            <th>${reservation.arrivalDate}</th>
+            <th>${reservation.departureDate}</th>
+            <th>${reservation.status}</th>
+            <th><a href="/reservations/${reservation.id}"><fmt:message key="Details"
+                                                                       bundle="${bundle}"/></a>
             </th>
         </tr>
     </c:forEach>

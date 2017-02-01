@@ -2,6 +2,7 @@ package com.vaka.hotel_manager.util;
 
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.Room;
+import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.domain.User;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ public class ValidationUtil {
      * Checks if reservation have inappropriate fields - throwing {@link IllegalArgumentException} with problem specific message
      * @param reservation checking object
      */
-    public static void validate(Reservation reservation) throws IllegalArgumentException {
+    public static void validate(Reservation reservation) {
         String message = null;
         if (hasNull(reservation))
             message = "Some reservation parameters are missing";
@@ -34,9 +35,9 @@ public class ValidationUtil {
      * Checks if user have inappropriate fields - throwing {@link IllegalArgumentException}
      * @param user checking object
      */
-    public static void validate(User user) throws IllegalArgumentException {
+    public static void validate(User user) {
         String message = null;
-        if (hasNull(user))
+        if (hasNull(user))//TODO add fields validation
             message = "Some user parameters are missing";
         if (message != null)
             throw new IllegalArgumentException(message);
@@ -45,17 +46,21 @@ public class ValidationUtil {
      * Checks if room have inappropriate fields - throwing {@link IllegalArgumentException}
      * @param room checking object
      */
-    public static void validate(Room room) throws IllegalArgumentException {
+    public static void validate(Room room) {
         String message = null;
         if (hasNull(room))
-            message = "Some user parameters are missing";
+            message = "Some room parameters are missing";
         if (message != null)
             throw new IllegalArgumentException(message);
     }
 
+    private static boolean hasNull(RoomClass roomClass) {
+        return roomClass.getName() == null;
+    }
+
     private static boolean hasNull(Room room) {
         return room.getCapacity() == null || room.getCostPerDay() == null ||
-                room.getNumber() == null || room.getRoomClazz() == null;
+                room.getNumber() == null || room.getRoomClass() == null;
     }
 
     private static boolean hasNull(User user) {
@@ -64,8 +69,8 @@ public class ValidationUtil {
     }
 
     private static boolean hasNull(Reservation reservation) {
-        return reservation.getStatus() == null || reservation.getArrivalDate() == null ||
+        return reservation.getArrivalDate() == null ||
                 reservation.getDepartureDate() == null || reservation.getGuests() == null ||
-                reservation.getRequestedRoomClass() == null;
+                reservation.getRequestedRoomClass().getName() == null;
     }
 }

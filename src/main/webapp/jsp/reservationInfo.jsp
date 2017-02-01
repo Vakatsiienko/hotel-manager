@@ -16,7 +16,8 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $("#availableRooms").dataTable({
-                "dom": "<lftip>",
+                "dom": "<t>",
+                "ordering": false,
                 "language": {
                     "lengthMenu": '<fmt:message key="dataTable.lengthMenu" bundle="${bundle}"/>',
                     "zeroRecords": '<fmt:message key="dataTable.zeroRecords" bundle="${bundle}"/>',
@@ -73,7 +74,7 @@
 
     <tr>
         <th><fmt:message key="RoomClass" bundle="${bundle}"/>:</th>
-        <td><fmt:message key="${reservation.requestedRoomClass.name()}" bundle="${bundle}"/></td>
+        <td>${reservation.requestedRoomClass.name}</td>
     </tr>
 
     <tr>
@@ -123,7 +124,7 @@
             <th>${room.number}</th>
             <th>${room.capacity}</th>
             <th>${room.costPerDay / 100}</th>
-            <th><fmt:message key="${room.roomClazz.name()}" bundle="${bundle}"/></th>
+            <th>${room.roomClass.name}</th>
         </tr>
     </c:forEach>
 

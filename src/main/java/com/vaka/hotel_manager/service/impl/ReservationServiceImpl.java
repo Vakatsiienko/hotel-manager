@@ -1,19 +1,17 @@
 package com.vaka.hotel_manager.service.impl;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.security.SecurityService;
+import com.vaka.hotel_manager.core.security.SecurityUtils;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
-import com.vaka.hotel_manager.domain.Reservation;
-import com.vaka.hotel_manager.domain.ReservationStatus;
-import com.vaka.hotel_manager.domain.Room;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.*;
 import com.vaka.hotel_manager.repository.ReservationRepository;
+import com.vaka.hotel_manager.repository.RoomClassRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
 import com.vaka.hotel_manager.service.BillService;
 import com.vaka.hotel_manager.service.ReservationService;
-import com.vaka.hotel_manager.service.SecurityService;
-import com.vaka.hotel_manager.util.SecurityUtil;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
 import org.slf4j.Logger;
 
@@ -34,12 +32,13 @@ public class ReservationServiceImpl implements ReservationService {
     private RoomRepository roomRepository;
     private BillService billService;
     private SecurityService securityService;
+    private RoomClassRepository roomClassRepository;
     private TransactionHelper transactionHelper;
 
     @Override
     public boolean applyRoom(User loggedUser, Integer roomId, Integer reservationId) {
         LOG.debug("Trying to apply room with id: {} , by reservation with id: {}", roomId, reservationId);
-        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE, () -> {
             Optional<Room> room = getRoomRepository().getById(roomId);
             Optional<Reservation> request = getReservationRepository().getById(reservationId);
@@ -52,12 +51,11 @@ public class ReservationServiceImpl implements ReservationService {
             }
             boolean datesOverlap = getReservationRepository().existOverlapReservations(roomId, request.get().getArrivalDate(), request.get().getDepartureDate());
             if (datesOverlap) {
-                //TODO нужен ли роллбек
                 return false;
             }
             request.get().setRoom(room.get());
             request.get().setStatus(ReservationStatus.CONFIRMED);
-            update(loggedUser, reservationId, request.get());
+            getReservationRepository().update(reservationId, request.get());
             LOG.debug("Room applied and reservation confirmed");
 
             getTransactionHelper().doInner(() -> getBillService().createForReservation(loggedUser, request.get()));
@@ -69,14 +67,14 @@ public class ReservationServiceImpl implements ReservationService {
     public List<ReservationDTO> findActiveByUserId(User loggedUser, Integer userId) {
         LOG.debug("Searching active reservations by userId: {}", userId);
         if (!userId.equals(loggedUser.getId()))
-            getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+            getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         return getTransactionHelper().doTransactional(() -> getReservationRepository().findActiveByUserId(userId));
     }
 
     @Override
     public List<ReservationDTO> findByStatusFromDate(User loggedUser, ReservationStatus status, LocalDate fromDate) {
         LOG.debug("Searching reservations by status: {}, from date: {}", status, fromDate);
-        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         return getTransactionHelper().doTransactional(() -> getReservationRepository().findByStatusFromDate(status, fromDate));
 
     }
@@ -85,18 +83,18 @@ public class ReservationServiceImpl implements ReservationService {
     public List<ReservationDTO> findByStatusAndUserId(User loggedUser, ReservationStatus status, Integer userId) {
         LOG.debug("Searching reservations by status: {}, and userId: {}", status, userId);
         if (!userId.equals(loggedUser.getId()))
-            getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+            getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         return getTransactionHelper().doTransactional(() -> getReservationRepository().findByUserIdAndStatus(userId, status));
     }
 
     @Override
     public boolean reject(User loggedUser, Integer reservationId) {
         LOG.debug("Rejecting reservationId: {}", reservationId);
-        return getTransactionHelper().doTransactional(() -> {
+        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
             Optional<Reservation> reservationOptional = getReservationRepository().getById(reservationId);
             if (reservationOptional.isPresent()) {
                 if (!reservationOptional.get().getUser().getId().equals(loggedUser.getId())) {
-                    getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+                    getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
                 }
                 if (reservationOptional.get().getStatus() == ReservationStatus.REJECTED)
                     throw new IllegalStateException("Reservation already rejected");
@@ -112,7 +110,14 @@ public class ReservationServiceImpl implements ReservationService {
     public Reservation create(User loggedUser, Reservation reservation) {
         reservation.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         LOG.debug("Creating reservation: {}", reservation);
-        return getTransactionHelper().doTransactional(() -> getReservationRepository().create(reservation));
+        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
+            Optional<RoomClass> rc = getRoomClassRepository().getByName(reservation.getRequestedRoomClass().getName());
+            if (!rc.isPresent())
+                throw new NotFoundException("Such Room Class doesn't exist");
+            reservation.setRequestedRoomClass(rc.get());
+            reservation.setStatus(ReservationStatus.REQUESTED);
+            return getReservationRepository().create(reservation);
+        });
     }
 
     @Override
@@ -122,9 +127,9 @@ public class ReservationServiceImpl implements ReservationService {
         Optional<Reservation> reservation = getTransactionHelper().doTransactional(() -> getReservationRepository().getById(id));
         if (reservation.isPresent()) {
             if (!reservation.get().getUser().getId().equals(loggedUser.getId())) {
-                getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+                getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
             }
-            }
+        }
         return reservation;
     }
 
@@ -135,7 +140,7 @@ public class ReservationServiceImpl implements ReservationService {
             Optional<Reservation> reservationOptional = getById(loggedUser, id);
             if (reservationOptional.isPresent()) {
                 if (!reservation.getUser().getId().equals(loggedUser.getId()))
-                    getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+                    getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
                 return getReservationRepository().update(id, reservation);
             } else return false;
         });
@@ -144,7 +149,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public boolean delete(User loggedUser, Integer id) {
-        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Deleting reservation with id: {}", id);
         return getTransactionHelper().doTransactional(() -> getReservationRepository().delete(id));
     }
@@ -200,5 +205,16 @@ public class ReservationServiceImpl implements ReservationService {
             }
         }
         return transactionHelper;
+    }
+
+    public RoomClassRepository getRoomClassRepository() {
+        if (roomClassRepository == null) {
+            synchronized (this) {
+                if (roomClassRepository == null) {
+                    roomClassRepository = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
+                }
+            }
+        }
+        return roomClassRepository;
     }
 }

@@ -3,6 +3,7 @@ package com.vaka.hotel_manager.service;
 import com.vaka.hotel_manager.EntityProviderUtil;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Reservation;
+import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.CrudRepository;
 import com.vaka.hotel_manager.repository.ReservationRepository;
@@ -31,10 +32,8 @@ public class ReservationServiceTest extends CrudServiceTest<Reservation> {
 
     @Override
     protected Reservation createEntity() {
-        Reservation reservation = EntityProviderUtil.createReservationWithoutRoom();
         User user = EntityProviderUtil.createUser();
         user.setId(2);
-        reservation.setUser(user);
-        return reservation;
+        return EntityProviderUtil.createReservationWithoutRoom(EntityProviderUtil.createOrGetStoredRoomClass("Standard"), user);
     }
 }

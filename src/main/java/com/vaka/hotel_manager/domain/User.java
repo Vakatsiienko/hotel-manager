@@ -16,8 +16,9 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 public class User extends BaseEntity implements Serializable {
     private String email;
-    private transient String password;
+    private String password;
     private String name;
+    private String vkId;
     private Role role;
     private String phoneNumber;
 }

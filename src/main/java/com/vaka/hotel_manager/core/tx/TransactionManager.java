@@ -43,7 +43,7 @@ public interface TransactionManager {
     void begin(int isolationLevel) throws TransactionException;
 
     default void begin() throws TransactionException {
-        begin(TRANSACTION_READ_COMMITTED);
+        begin(getIsolationDefault());
     }
 
     void commit() throws TransactionException;

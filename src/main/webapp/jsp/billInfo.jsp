@@ -40,7 +40,7 @@
 
     <tr>
         <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
-        <td><fmt:message key="${bill.reservation.requestedRoomClass}" bundle="${bundle}"/></td>
+        <td>${bill.reservation.requestedRoomClass.name}</td>
     </tr>
 
     <tr>
@@ -55,14 +55,12 @@
 
     <tr>
         <th><fmt:message key="CostPerDay" bundle="${bundle}"/></th>
-        <c:set var="costPerDay" value="${bill.reservation.room.costPerDay / 100}"/>
-        <td>${costPerDay}$</td>
+        <td><fmt:formatNumber value="${bill.reservation.room.costPerDay / 100}"/>$</td>
     </tr>
 
     <tr>
         <th><fmt:message key="TotalCost" bundle="${bundle}"/></th>
-        <c:set var="totalCost" value="${bill.totalCost / 100}"/>
-        <td>${totalCost}$</td>
+        <td><fmt:formatNumber value="${bill.totalCost / 100}"/>$</td>
     </tr>
 
 </table>

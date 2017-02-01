@@ -22,7 +22,7 @@ public class NamedPreparedStatement implements AutoCloseable {
      * After instantiation should be called {@link #init()} method,
      * for parse strQuery to statement, and creating PreparedStatement
      */
-    public NamedPreparedStatement(Connection connection, String strQuery) throws SQLException {
+    private NamedPreparedStatement(Connection connection, String strQuery) throws SQLException {
         this.strQuery = strQuery;
         this.connection = connection;
     }
@@ -31,14 +31,21 @@ public class NamedPreparedStatement implements AutoCloseable {
      * After instantiation should be called {@link #init()} method,
      * for parse strQuery to statement, and creating PreparedStatement
      */
-    public NamedPreparedStatement(Connection connection, String strQuery, int statementCode) throws SQLException {
+    private NamedPreparedStatement(Connection connection, String strQuery, int statementCode) throws SQLException {
         this.strQuery = strQuery;
         this.statementCode = statementCode;
         this.connection = connection;
         statementCodeIsSet = true;
     }
 
-    public NamedPreparedStatement init() throws SQLException {
+    public static NamedPreparedStatement create(Connection connection, String strQuery) throws SQLException {
+        return new NamedPreparedStatement(connection, strQuery).init();
+    }
+    public static NamedPreparedStatement create(Connection connection, String strQuery, int statementCode) throws SQLException {
+        return new NamedPreparedStatement(connection, strQuery, statementCode).init();
+    }
+
+    private NamedPreparedStatement init() throws SQLException {
         parseStringToStatement();
         if (statementCodeIsSet)
             preparedStatement = connection.prepareStatement(strQuery, statementCode);

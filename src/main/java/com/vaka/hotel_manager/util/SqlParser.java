@@ -37,12 +37,19 @@ public class SqlParser {
                 throw new CreatingException("Incoming lines are not in appropriate format, check line: " + count);
         } else if (line.endsWith(";")) {
             query.add(line.substring(0, line.length() - 1));
-            queryByClassAndMethodName.put(classAndMethodName, query.toString());
+            queryByClassAndMethodName.put(classAndMethodName, format(query.toString()));
             readyToNextQuery = true;
             query = new StringJoiner(" ");
         } else {
             query.add(line);
         }
+    }
+
+    private String format(String str) {
+        String[] strArray = str.split(" ");
+        StringJoiner joiner = new StringJoiner(" ");
+        Arrays.stream(strArray).forEach(joiner::add);
+        return joiner.toString();
     }
 
     public Map<String, String> createAndGetQueryByClassAndMethodName() {

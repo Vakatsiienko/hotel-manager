@@ -1,10 +1,8 @@
 package com.vaka.hotel_manager.repository;
 
 import com.vaka.hotel_manager.EntityProviderUtil;
-import com.vaka.hotel_manager.domain.Bill;
+import com.vaka.hotel_manager.domain.*;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.Reservation;
-import com.vaka.hotel_manager.domain.Room;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,20 +15,15 @@ public class BillRepositoryTest extends CrudRepositoryTest<Bill> {
     private BillRepository billRepository = ApplicationContext.getInstance().getBean(BillRepository.class);
     private RoomRepository roomRepository  = ApplicationContext.getInstance().getBean(RoomRepository.class);
     private ReservationRepository reservationRepository = ApplicationContext.getInstance().getBean(ReservationRepository.class);
-
+    private RoomClassRepository roomClassRepository = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
+    private UserRepository userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
 
     @Test
     public void testGetByReservationId() throws Exception {
-        Room room = roomRepository.create(EntityProviderUtil.createRoom());
-        Reservation reservation = reservationRepository.create(EntityProviderUtil.createReservationWithoutRoom());
-        reservation.setRoom(room);
-        reservationRepository.update(reservation.getId(), reservation);
-        Bill bill = createEntity();
-        bill.setReservation(reservation);
-        billRepository.create(bill);
-        Optional<Bill> expected = billRepository.getById(bill.getId());
-        Optional<Bill> actual = billRepository.getByReservationId(reservation.getId());
-        Assert.assertEquals(expected.get(), actual.get());
+        Bill expected = createEntity();
+        billRepository.create(expected);
+        Optional<Bill> actual = billRepository.getByReservationId(expected.getReservation().getId());
+        Assert.assertEquals(expected, actual.get());
     }
 
     @Override
@@ -40,6 +33,12 @@ public class BillRepositoryTest extends CrudRepositoryTest<Bill> {
 
     @Override
     protected Bill createEntity() {
-        return EntityProviderUtil.createBill();
+        User user = userRepository.create(EntityProviderUtil.createUser());
+        Room room = roomRepository.create(EntityProviderUtil.createRoom(EntityProviderUtil.createOrGetStoredRoomClass("Standard")));
+        Reservation reservation = reservationRepository.create(EntityProviderUtil.createReservationWithoutRoom(EntityProviderUtil.createOrGetStoredRoomClass("Standard"), user));
+        reservation.setRoom(room);
+        reservation.setStatus(ReservationStatus.CONFIRMED);
+        reservationRepository.update(reservation.getId(), reservation);
+        return EntityProviderUtil.createBill(reservation);
     }
 }

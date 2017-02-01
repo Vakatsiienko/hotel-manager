@@ -21,6 +21,6 @@
     <function>
         <name>htmlFormatDate</name>
         <function-class>com.vaka.hotel_manager.util.DateAndTimeUtil</function-class>
-        <function-signature>java.lang.String toHtmlString(java.time.LocalDate)</function-signature>
+        <function-signature>java.lang.String toHtmlFormatString(java.time.LocalDate)</function-signature>
     </function>
 </taglib>

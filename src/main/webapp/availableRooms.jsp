@@ -4,7 +4,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <%@include file="header.jspf" %>
+    <%@include file="jsp/header.jspf" %>
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <link rel="stylesheet" type="text/css"
           href="//cdn.datatables.net/1.10.8/css/jquery.dataTables.min.css"/>
@@ -56,7 +56,7 @@
             <th>${room.number}</th>
             <th>${room.capacity}</th>
             <th>${room.costPerDay / 100}</th>
-            <th><fmt:message key="${room.roomClazz.name()}" bundle="${bundle}"/></th>
+            <th>${room.roomClass.name}</th>
         </tr>
     </c:forEach>
 

@@ -4,7 +4,7 @@ import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.BillService;
-import com.vaka.hotel_manager.service.SecurityService;
+import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +33,7 @@ public class BillController {
             throw new NotFoundException("There are no bill with given ID");
         }
         req.setAttribute("bill", bill.get());
-        req.setAttribute("loggedUser", loggedUser);
-        req.getRequestDispatcher("/billInfo.jsp").forward(req, resp);
+        req.getRequestDispatcher("/jsp/billInfo.jsp").forward(req, resp);
     }
 
     public void getByReservationId(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -49,9 +48,8 @@ public class BillController {
         Optional<Bill> bill = getBillService().getBillByReservationId(loggedUser, id);
         if (!bill.isPresent())
             throw new NotFoundException("Not found");
-        req.setAttribute("loggedUser", loggedUser);
         req.setAttribute("bill", bill.get());
-        req.getRequestDispatcher("/billInfo.jsp").forward(req, resp);
+        req.getRequestDispatcher("/jsp/billInfo.jsp").forward(req, resp);
     }
 
     public SecurityService getSecurityService() {

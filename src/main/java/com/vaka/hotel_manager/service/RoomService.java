@@ -1,5 +1,6 @@
 package com.vaka.hotel_manager.service;
 
+import com.vaka.hotel_manager.domain.Page;
 import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.domain.User;
@@ -25,6 +26,10 @@ public interface RoomService extends CrudService<Room> {
      */
     List<Room> findAll(User loggedUser);
 
+
     List<Room> findAvailableByClassAndDates(User loggedUser, RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate);
+
+    Page<Room> findPage(User loggedUser, Integer page, Integer rows);
+
 
 }

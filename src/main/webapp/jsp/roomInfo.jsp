@@ -7,9 +7,11 @@
     <title><fmt:message key="RoomInfo" bundle="${bundle}"/></title>
     <script type="text/javascript">
         function submitRoomForm() {
-            var costPerDayInput = document.getElementById("costPerDay");
-            costPerDayInput.value *= 100;
-            document.getElementById("editRoomForm").submit();
+            if ($("#editRoomForm").checkValidity()) {
+                var costPerDayInput = document.getElementById("costPerDay");
+                costPerDayInput.value *= 100;
+                document.getElementById("editRoomForm").submit();
+            }
         }
     </script>
 
@@ -27,45 +29,46 @@
         <tr>
             <th><fmt:message key="ID" bundle="${bundle}"/></th>
             <td>${room.id}</td>
-            <td><input type="number" name="id" value="${room.id}" readonly></td>
+            <td><input type="number" name="id" value="${room.id}" hidden></td>
 
         </tr>
         <tr>
             <th><fmt:message key="Number" bundle="${bundle}"/></th>
             <td>${room.number}</td>
-            <td><input type="number" name="number" value="${room.number}" min="0"></td>
+            <td><input type="number" name="number" value="${room.number}" min="0" step="1">
+            </td>
 
         </tr>
 
         <tr>
             <th><fmt:message key="Capacity" bundle="${bundle}"/></th>
             <td>${room.capacity}</td>
-            <td><input type="number" name="capacity" value="${room.capacity}" min="0"></td>
+            <td><input type="number" name="capacity" value="${room.capacity}" min="0" step="1">
+            </td>
         </tr>
 
         <tr>
             <th><fmt:message key="CostPerDay" bundle="${bundle}"/></th>
-            <td>${room.costPerDay / 100}</td>
+            <td><fmt:formatNumber value="${room.costPerDay / 100}"/></td>
             <td><input id="costPerDay" type="number" name="costPerDay"
-                       value="${room.costPerDay / 100}" min="0"></td>
+                       value="<fmt:formatNumber value="${room.costPerDay / 100}"/>" min="0" step="1"></td>
         </tr>
 
         <tr>
             <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
-            <td><fmt:message key="${room.roomClazz.name()}" bundle="${bundle}"/></td>
+            <td>${room.roomClass.name}</td>
             <td>
-                <select name="roomClass">
+                <select name="roomClassName">
                     <c:forEach items="${roomClasses}" var="roomClass">
                         <jsp:useBean id="roomClass" scope="page"
                                      type="com.vaka.hotel_manager.domain.RoomClass"/>
                         <c:choose>
-                            <c:when test="${roomClass == room.roomClazz}">
-                                <option value="${roomClass.name()}" selected><fmt:message
-                                        key="${roomClass.name()}" bundle="${bundle}"/></option>
+                            <c:when test="${roomClass.name == room.roomClass.name}">
+                                <option value="${roomClass.name}"
+                                        selected>${roomClass.name}</option>
                             </c:when>
                             <c:otherwise>
-                                <option value="${roomClass.name()}"><fmt:message
-                                        key="${roomClass.name()}" bundle="${bundle}"/></option>
+                                <option value="${roomClass.name}">${roomClass.name}</option>
                             </c:otherwise>
                         </c:choose>
                     </c:forEach>

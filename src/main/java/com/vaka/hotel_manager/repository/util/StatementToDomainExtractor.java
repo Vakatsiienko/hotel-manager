@@ -2,6 +2,7 @@ package com.vaka.hotel_manager.repository.util;
 
 import com.vaka.hotel_manager.domain.*;
 import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
+import com.vaka.hotel_manager.domain.DTO.RoomClassDTO;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -25,22 +26,37 @@ public class StatementToDomainExtractor {
             roomId = null;
         Integer guests = resultSet.getInt("reservation_guests");
         ReservationStatus status = ReservationStatus.valueOf(resultSet.getString("reservation_status"));
-        RoomClass requestedRoomClass = RoomClass.valueOf(resultSet.getString("reservation_requested_room_class"));
+        RoomClassDTO requestedRoomClass = new RoomClassDTO(resultSet.getString("requested_room_class_name"));
         LocalDate arrivalDate = resultSet.getDate("reservation_arrival_date").toLocalDate();
         LocalDate departureDate = resultSet.getDate("reservation_departure_date").toLocalDate();
         return new ReservationDTO(id, createdDateTime, userId, roomId, guests, status, requestedRoomClass, arrivalDate, departureDate);
     }
 
+    public static RoomClassDTO extractRoomClassDTO(ResultSet resultSet, String prefix) throws SQLException {
+        return new RoomClassDTO(resultSet.getString(prefix + "room_class_name"));
+    }
+
+    public static RoomClass extractRoomClass(ResultSet resultSet, String prefix) throws SQLException {
+        RoomClass roomClass = new RoomClass();
+        roomClass.setId(resultSet.getInt(prefix + "room_class_id"));
+        roomClass.setCreatedDatetime(resultSet.getTimestamp(prefix + "room_class_created_datetime").toLocalDateTime());
+        roomClass.setName(resultSet.getString(prefix + "room_class_name"));
+        return roomClass;
+    }
+    public static RoomClass extractRoomClass(ResultSet resultSet) throws SQLException {
+        return extractRoomClass(resultSet, "");
+    }
+
     public static Reservation extractReservation(ResultSet resultSet) throws SQLException {
         Reservation reservation = new Reservation();
-        if (resultSet.getString("room_room_class") != null) {
+        if (resultSet.getInt("room_id") != 0) {
             reservation.setRoom(extractRoom(resultSet));
         }
         reservation.setUser(extractUser(resultSet));
         reservation.setId(resultSet.getInt("reservation_id"));
         reservation.setCreatedDatetime(resultSet.getTimestamp("reservation_created_datetime").toLocalDateTime());
         reservation.setGuests(resultSet.getInt("reservation_guests"));
-        reservation.setRequestedRoomClass(RoomClass.valueOf(resultSet.getString("reservation_requested_room_class")));
+        reservation.setRequestedRoomClass(extractRoomClass(resultSet, "requested_"));
         reservation.setStatus(ReservationStatus.valueOf(resultSet.getString("reservation_status")));
         reservation.setArrivalDate(resultSet.getDate("reservation_arrival_date").toLocalDate());
         reservation.setDepartureDate(resultSet.getDate("reservation_departure_date").toLocalDate());
@@ -54,7 +70,7 @@ public class StatementToDomainExtractor {
         room.setNumber(resultSet.getInt("room_number"));
         room.setCapacity(resultSet.getInt("room_capacity"));
         room.setCostPerDay(resultSet.getInt("room_cost_per_day"));
-        room.setRoomClazz(RoomClass.valueOf(resultSet.getString("room_room_class")));
+        room.setRoomClass(extractRoomClass(resultSet));
         return room;
     }
 

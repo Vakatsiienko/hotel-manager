@@ -1,16 +1,16 @@
 package com.vaka.hotel_manager.service.impl;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.security.SecurityUtils;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
-import com.vaka.hotel_manager.domain.Reservation;
-import com.vaka.hotel_manager.domain.Room;
-import com.vaka.hotel_manager.domain.RoomClass;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.core.tx.TransactionManager;
+import com.vaka.hotel_manager.domain.*;
 import com.vaka.hotel_manager.repository.ReservationRepository;
+import com.vaka.hotel_manager.repository.RoomClassRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
 import com.vaka.hotel_manager.service.RoomService;
-import com.vaka.hotel_manager.service.SecurityService;
-import com.vaka.hotel_manager.util.SecurityUtil;
+import com.vaka.hotel_manager.core.security.SecurityService;
+import com.vaka.hotel_manager.util.exception.CreatingException;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +28,14 @@ public class RoomServiceImpl implements RoomService {
     private RoomRepository roomRepository;
     private ReservationRepository reservationRepository;
     private SecurityService securityService;
+    private RoomClassRepository roomClassRepository;
     private TransactionHelper transactionHelper;
     private static final Logger LOG = LoggerFactory.getLogger(RoomServiceImpl.class);
 
     @Override
     public List<Room> findAvailableByClassAndDates(User loggedUser, RoomClass roomClass,
                                                    LocalDate arrivalDate, LocalDate departureDate) {
-        getSecurityService().authorize(loggedUser, SecurityUtil.ANONYMOUS_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.ANONYMOUS_ACCESS_ROLES);
         LOG.debug("Finding available rooms by RoomClass and dates");
         return getTransactionHelper().doTransactional(() ->
                 getRoomRepository().findAvailableForReservation(roomClass, arrivalDate, departureDate)
@@ -43,14 +44,14 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<Room> findAvailableForReservation(User loggedUser, Integer reservationId) {
-        getSecurityService().authorize(loggedUser, SecurityUtil.CUSTOMER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.CUSTOMER_ACCESS_ROLES);
         LOG.debug("Finding available rooms for reservation by reservationId: {}", reservationId);
         return getTransactionHelper().doTransactional(() -> {
             Optional<Reservation> request = getReservationRepository().getById(reservationId);
             if (request.isPresent()) {
                 return getRoomRepository().findAvailableForReservation(request.get().getRequestedRoomClass(),
                         request.get().getArrivalDate(), request.get().getDepartureDate());
-            } else throw new NotFoundException("ReservationNotFound");
+            } else throw new NotFoundException("Reservation Not Found");
         });
     }
 
@@ -62,10 +63,18 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room create(User loggedUser, Room room) {
-        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         room.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         LOG.debug("Creating room: {}", room);
-        return getTransactionHelper().doTransactional(() -> getRoomRepository().create(room));
+        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
+            Optional<RoomClass> rc = getRoomClassRepository().getByName(room.getRoomClass().getName());
+            if (!rc.isPresent())
+                throw new IllegalArgumentException("Such room class doesn't exist");
+            room.setRoomClass(rc.get());
+            if (!getRoomRepository().getByNumber(room.getNumber()).isPresent()) {
+                return getRoomRepository().create(room);
+            } else throw new IllegalArgumentException("Room with such number already exist");
+        });
     }
 
     @Override
@@ -76,16 +85,36 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public boolean delete(User loggedUser, Integer id) {
-        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Deleting room by id: {}", id);
         return getTransactionHelper().doTransactional(() -> getRoomRepository().delete(id));
     }
 
     @Override
     public boolean update(User loggedUser, Integer id, Room room) {
-        getSecurityService().authorize(loggedUser, SecurityUtil.MANAGER_ACCESS_ROLES);
+        getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Updating room with id: {}, state: {}", id, room);
-        return getTransactionHelper().doTransactional(() -> getRoomRepository().update(id, room));
+        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
+            Optional<RoomClass> rc = getRoomClassRepository().getByName(room.getRoomClass().getName());
+            if (!rc.isPresent())
+                throw new IllegalArgumentException("Such room class doesn't exist");
+            room.setRoomClass(rc.get());
+            Optional<Room> old = getRoomRepository().getById(id);
+            if (!old.isPresent())
+                throw new IllegalArgumentException("Room with such id doesn't exist");
+            else {
+                if (!old.get().getNumber().equals(room.getNumber()))
+                    if (getRoomRepository().getByNumber(room.getNumber()).isPresent())
+                        throw new IllegalArgumentException("Room with such number already exist");
+            }
+            return getRoomRepository().update(id, room);
+        });
+    }
+
+    @Override
+    public Page<Room> findPage(User loggedUser, Integer page, Integer rows) {
+        LOG.debug(String.format("Finding room page, page: %s, rows count: %s", page, rows));
+        return getTransactionHelper().doTransactional(() -> getRoomRepository().findPage(page, rows));
     }
 
     public RoomRepository getRoomRepository() {
@@ -130,5 +159,16 @@ public class RoomServiceImpl implements RoomService {
             }
         }
         return transactionHelper;
+    }
+
+    public RoomClassRepository getRoomClassRepository() {
+        if (roomClassRepository == null) {
+            synchronized (this) {
+                if (roomClassRepository == null) {
+                    roomClassRepository = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
+                }
+            }
+        }
+        return roomClassRepository;
     }
 }

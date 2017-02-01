@@ -3,7 +3,7 @@ package com.vaka.hotel_manager.web.servlet;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
-import com.vaka.hotel_manager.service.SecurityService;
+import com.vaka.hotel_manager.core.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +31,10 @@ public class SecurityFilter implements Filter {
             String uri = req.getRequestURI();
             if (loggedUser.getRole() == Role.ANONYMOUS) {
                 if ("/signin".equals(uri) || "/signup".equals(uri) ||
-                        "/".equals(uri) || "/rooms".equals(uri) || "/reservations".equals(uri));
+                        "/".equals(uri) || "/rooms".equals(uri) || "/reservations".equals(uri)|| "/users/signup-vk".equals(uri));
                 else {
                     LOG.debug("Anonymous trying to get {}, but was redirected to /signin", uri);
-                    ((HttpServletResponse) response).sendRedirect("/signin");
+                    ((HttpServletResponse) response).sendRedirect(String.format("/signin?redirectUri=%s", uri));
                     return;
                 }
             } else if (loggedUser.getRole() != Role.ANONYMOUS){

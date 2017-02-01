@@ -19,9 +19,13 @@
     }
 </style>
 <body>
-<div id="hrefs">
 
-    <form action="${pageContext.request.contextPath}" id="signinForm" method="post">
+<form
+      <c:choose>
+              <c:when test="${empty param.redirectUri}">action="/signin"</c:when>
+        <c:otherwise>action="/signin?redirectUri=${param.redirectUri}"</c:otherwise>
+</c:choose>
+      id="signinForm" method="post">
     <table>
         <tr>
             <th colspan="2"><fmt:message key="Manager" bundle="${bundle}"/></th>
@@ -42,7 +46,8 @@
                 </label>
             </th>
             <td>
-                <input id="email" type="email" value="${param.email}" required maxlength="20" min="5" name="email">
+                <input id="email" type="email" value="${param.email}" required maxlength="32"
+                       min="5" name="email">
             </td>
         </tr>
         <tr>
@@ -67,7 +72,6 @@
         </tr>
     </table>
 </form>
-
 
 </body>
 </html>

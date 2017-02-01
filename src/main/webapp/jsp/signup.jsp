@@ -36,7 +36,7 @@
             </th>
             <td>
                 <input id="name" name="name"
-                       required min="3" max="20">
+                       required min="3" max="32">
             </td>
         </tr>
         <tr class="fitem">
@@ -44,9 +44,9 @@
                 <label for="phoneNumber"><fmt:message key="PhoneNumber" bundle="${bundle}"/>:</label>
             </th>
             <td>
-                <input id="phoneNumber" type="tel" pattern='[\+]\d{2}[\s]?\d{3}[\s]?\d{7}'
-                       value="+38 0"
-                       title="Phone number should be in format '+38 044 1234567'"
+                <input id="phoneNumber" type="tel" pattern='[\+]\d{12}'
+                       value="+380"
+                       title="Phone number should be in format '+380441234567'"
                        name="phoneNumber" required>
             </td>
         </tr>

@@ -1,4 +1,4 @@
-package com.vaka.hotel_manager.service;
+package com.vaka.hotel_manager.core.security;
 
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
@@ -32,6 +32,8 @@ public interface SecurityService {
      * @param session session which will be invalidated
      */
     void logout(HttpSession session);
+
+    boolean signInVk(HttpSession session, String code);
 
     /**
      * Check user role by expectedRoles, if user role do not contains in expectedRoles method threw AuthorizationException

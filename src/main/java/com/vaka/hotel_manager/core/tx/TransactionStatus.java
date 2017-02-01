@@ -13,15 +13,7 @@ public enum TransactionStatus {
      */
     ACTIVE,
     /**
-     * Same as active, but all methods(e.g. commit, begin) except rollback is disabled.
+     * Same as active, but all methods(e.g. commit, begin) except rollback are disabled.
      */
     ACTIVE_ROLLBACK_ONLY,
-    /**
-     * The transaction has been competed successfully.
-     */
-    COMMITTED,
-    /**
-     * The transaction has been rolled back.
-     */
-    ROLLED_BACK,
 }

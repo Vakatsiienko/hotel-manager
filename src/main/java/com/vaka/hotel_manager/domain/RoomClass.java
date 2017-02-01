@@ -1,21 +1,16 @@
 package com.vaka.hotel_manager.domain;
 
+import lombok.*;
+
 /**
  * Created by Iaroslav on 11/26/2016.
  */
-public enum RoomClass {
-    STANDARD("Standard"), HALF_SUITE("Half Suite"), SUITE("Suite"), KING("King"),;
-
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class RoomClass extends BaseEntity {
     private String name;
-
-
-    RoomClass(String name) {
-        this.name = name;
-    }
-
-
-    @Override
-    public String toString() {
-        return name;
-    }
 }

@@ -29,7 +29,7 @@ public class DateAndTimeUtil {
         return date == null ? "" : date.format(DATE_FORMATTER);
     }
 
-    public static String toHtmlString(LocalDate date) {
+    public static String toHtmlFormatString(LocalDate date) {
         return date == null ? "" : date.format(HTML_DATE_FORMATTER);
     }
 

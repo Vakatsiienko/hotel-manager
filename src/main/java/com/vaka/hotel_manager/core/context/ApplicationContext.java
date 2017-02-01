@@ -27,9 +27,6 @@ public class ApplicationContext {
     @Getter
     private Map<String, String> queryByClassAndMethodName;
 
-    @Getter
-    private AtomicInteger idCounter = new AtomicInteger();
-
     public ApplicationContext init(ApplicationContextConfig contextConfig, PersistenceConfig persistenceConfig) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         beanByName = new ConcurrentHashMap<>();
         Map<Class<?>, Class<?>> classByBeanName = contextConfig.getImplClassByBeanName();

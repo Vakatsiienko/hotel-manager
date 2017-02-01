@@ -75,6 +75,7 @@
     </c:if>
 
     <c:if test="${loggedUser.role.name() == 'MANAGER'}">
+        <a href="/room-classes"><fmt:message key="RoomClasses" bundle="${bundle}"/></a> <br>
         <a href="/reservations/confirmed"><fmt:message key="ConfirmedReservations"
                                                        bundle="${bundle}"/></a> <br>
         <a href="/reservations/requested"><fmt:message key="RequestedReservations"

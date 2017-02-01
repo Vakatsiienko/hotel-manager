@@ -16,7 +16,6 @@ import java.util.TimeZone;
  * Created by Iaroslav on 12/3/2016.
  */
 public class PersistenceConfig {
-    private static final Logger LOG = LoggerFactory.getLogger(PersistenceConfig.class);
 
     private String[] sqlPaths;
     private String connectionPropertiesPath;
@@ -43,7 +42,7 @@ public class PersistenceConfig {
         return new SqlParser(sqlPaths).createAndGetQueryByClassAndMethodName();
     }
 
-    public PoolProperties poolProperties() throws IOException {
+    private PoolProperties poolProperties() throws IOException {
         Properties props = new Properties();
         props.load(new FileInputStream(connectionPropertiesPath));
         PoolProperties p = new PoolProperties();
