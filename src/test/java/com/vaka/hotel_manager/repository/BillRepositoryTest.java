@@ -1,11 +1,15 @@
 package com.vaka.hotel_manager.repository;
 
+import com.vaka.hotel_manager.DBTestUtil;
 import com.vaka.hotel_manager.EntityProviderUtil;
 import com.vaka.hotel_manager.domain.*;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Optional;
 
 /**
@@ -18,6 +22,10 @@ public class BillRepositoryTest extends CrudRepositoryTest<Bill> {
     private RoomClassRepository roomClassRepository = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
     private UserRepository userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
 
+    @Before
+    public void setUp() throws SQLException, ClassNotFoundException, IOException {
+        DBTestUtil.reset();
+    }
     @Test
     public void testGetByReservationId() throws Exception {
         Bill expected = createEntity();

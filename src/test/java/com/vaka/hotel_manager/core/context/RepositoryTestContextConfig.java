@@ -1,10 +1,8 @@
-package com.vaka.hotel_manager.context;
+package com.vaka.hotel_manager.core.context;
 
+import com.vaka.hotel_manager.core.TestConnectionManagerImpl;
 import com.vaka.hotel_manager.core.context.config.ApplicationContextConfig;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;
-import com.vaka.hotel_manager.core.tx.JdbcTransactionManagerImpl;
-import com.vaka.hotel_manager.core.tx.TransactionHelper;
-import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.repository.*;
 import com.vaka.hotel_manager.repository.jdbcImpl.*;
 import com.vaka.hotel_manager.repository.util.JdbcCrudHelper;

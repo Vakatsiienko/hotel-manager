@@ -1,4 +1,4 @@
-package com.vaka.hotel_manager.context;
+package com.vaka.hotel_manager.core;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;

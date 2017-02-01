@@ -1,6 +1,8 @@
 package com.vaka.hotel_manager.service;
 
-import com.vaka.hotel_manager.context.TestContextInitializer;
+import com.vaka.hotel_manager.core.context.TestContextInitializer;
+import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.domain.BaseEntity;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
@@ -21,6 +23,8 @@ import static org.mockito.Mockito.when;
  */
 public abstract class CrudServiceTest<Entity extends BaseEntity> {
 
+    protected TransactionHelper transactionHelper = ApplicationContext.getInstance().getBean(TransactionHelper.class);
+
     @BeforeClass
     public static void init() {
         TestContextInitializer.initForServices();
@@ -28,9 +32,9 @@ public abstract class CrudServiceTest<Entity extends BaseEntity> {
 
     @Test
     public void testCreate() {
-        beforeGeneratingEntity();
         Entity e = createEntity();
         CrudRepository<Entity> repository = getMockedRepository();
+        beforeCreate();
         getService().create(getManager(), e);
 
         verify(repository).create(e);
@@ -41,6 +45,7 @@ public abstract class CrudServiceTest<Entity extends BaseEntity> {
         Entity e = createEntity();
         e.setCreatedDatetime(LocalDateTime.MIN);
         LocalDateTime oldDateTime = e.getCreatedDatetime();
+        beforeCreate();
         getService().create(getManager(), e);
 
         Assert.assertNotEquals(e.getCreatedDatetime(), oldDateTime);
@@ -66,7 +71,7 @@ public abstract class CrudServiceTest<Entity extends BaseEntity> {
         User loggedUser = getManager();
         when(repository.update(oldEntity.getId(), newEntity)).thenReturn(true);
         when(repository.getById(oldEntity.getId())).thenReturn(Optional.of(oldEntity));
-
+        beforeUpdate();
         boolean b = getService().update(loggedUser, oldEntity.getId(), newEntity);
         Assert.assertTrue(b);
     }
@@ -78,7 +83,7 @@ public abstract class CrudServiceTest<Entity extends BaseEntity> {
         User loggedUser = getManager();
         when(repository.update(oldEntity.getId(), newEntity)).thenReturn(false);
         when(repository.getById(oldEntity.getId())).thenReturn(Optional.of(oldEntity));
-
+        beforeUpdate();
         boolean b = getService().update(loggedUser, oldEntity.getId(), newEntity);
         Assert.assertFalse(b);
 
@@ -112,6 +117,10 @@ public abstract class CrudServiceTest<Entity extends BaseEntity> {
     }
 
     protected void beforeGeneratingEntity() {
+    }
+    protected void beforeCreate() {
+    }
+    protected void beforeUpdate() {
     }
     protected abstract CrudService<Entity> getService();
 

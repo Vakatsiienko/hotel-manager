@@ -1,7 +1,7 @@
 package com.vaka.hotel_manager.repository;
 
 
-import com.vaka.hotel_manager.context.TestContextInitializer;
+import com.vaka.hotel_manager.core.context.TestContextInitializer;
 import com.vaka.hotel_manager.domain.BaseEntity;
 import org.junit.Assert;
 import org.junit.Before;

@@ -1,10 +1,11 @@
-package com.vaka.hotel_manager.context;
+package com.vaka.hotel_manager.core.context;
 
 import com.vaka.hotel_manager.core.context.config.ApplicationContextConfig;
-import com.vaka.hotel_manager.repository.BillRepository;
-import com.vaka.hotel_manager.repository.ReservationRepository;
-import com.vaka.hotel_manager.repository.RoomRepository;
-import com.vaka.hotel_manager.repository.UserRepository;
+import com.vaka.hotel_manager.core.tx.TestTransactionHelper;
+import com.vaka.hotel_manager.core.tx.TestTransactionManager;
+import com.vaka.hotel_manager.core.tx.TransactionHelper;
+import com.vaka.hotel_manager.domain.RoomClass;
+import com.vaka.hotel_manager.repository.*;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -28,6 +29,10 @@ public class ServiceTestContextConfig extends ApplicationContextConfig {
     @Mock
     private RoomRepository roomRepositoryMock;
 
+    @Mock
+    private RoomClassRepository roomClassRepository;
+
+
     private Map<Class<?>, Object> implBeanByName;
     {
         MockitoAnnotations.initMocks(this);
@@ -36,7 +41,8 @@ public class ServiceTestContextConfig extends ApplicationContextConfig {
         implBeanByName.put(UserRepository.class, userRepositoryMock);
         implBeanByName.put(ReservationRepository.class, reservationRepositoryMock);
         implBeanByName.put(RoomRepository.class, roomRepositoryMock);
-
+        implBeanByName.put(RoomClassRepository.class, roomClassRepository);
+        implBeanByName.put(TransactionHelper.class, new TestTransactionHelper(new TestTransactionManager()));
         implBeanByName.keySet().forEach(getImplClassByBeanName()::remove);
     }
 
