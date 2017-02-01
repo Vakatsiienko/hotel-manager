@@ -48,7 +48,7 @@ public class SqlParser {
     private String format(String str) {
         String[] strArray = str.split(" ");
         StringJoiner joiner = new StringJoiner(" ");
-        Arrays.stream(strArray).forEach(joiner::add);
+        Arrays.stream(strArray).filter(s -> !"".equals(s)).forEach(joiner::add);
         return joiner.toString();
     }
 

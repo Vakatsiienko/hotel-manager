@@ -3,13 +3,11 @@ package com.vaka.hotel_manager.repository.jdbcImpl;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;
 import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
+import com.vaka.hotel_manager.domain.Page;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.repository.ReservationRepository;
-import com.vaka.hotel_manager.repository.util.DomainToStatementExtractor;
-import com.vaka.hotel_manager.repository.util.JdbcCrudHelper;
-import com.vaka.hotel_manager.repository.util.NamedPreparedStatement;
-import com.vaka.hotel_manager.repository.util.StatementToDomainExtractor;
+import com.vaka.hotel_manager.repository.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +33,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     @Override
     public boolean existOverlapReservations(Integer roomId, LocalDate arrivalDate, LocalDate departureDate) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.existOverlapReservation");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, roomId, arrivalDate, departureDate);
         return getConnectionManager().withConnection(connection -> {
             try (NamedPreparedStatement statement = getExistOverlapReservationStatement(connection, strQuery, roomId, arrivalDate, departureDate);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -65,7 +63,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     @Override
     public List<ReservationDTO> findByUserIdAndStatus(Integer userId, ReservationStatus status) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.findByUserIdAndStatus");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, userId, status);
         return getConnectionManager().withConnection(connection -> {
             try (NamedPreparedStatement statement = getFindByUserIdAndStatusStatement(connection, strQuery, userId, status);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -82,17 +80,29 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     }
 
     @Override
-    public List<ReservationDTO> findByStatusFromDate(ReservationStatus status, LocalDate fromDate) {
-        String strQuery = getQueryByClassAndMethodName().get("reservation.findByStatusFromDate");
-        LOG.info(String.format("SQL query: %s", strQuery));
+    public Page<ReservationDTO> findPageByStatusFromDate(ReservationStatus status, LocalDate fromDate, Integer page, Integer size) {
+        String strQuery = getQueryByClassAndMethodName().get("reservation.findPageByStatusFromDate");
+        String strCountQuery = getQueryByClassAndMethodName().get("reservation.findPageByStatusFromDateCount");
+        RepositoryUtils.logQuery(LOG, strQuery, status, fromDate);
         return getConnectionManager().withConnection(connection -> {
-            try (NamedPreparedStatement statement = getStatusStatementFromDate(connection, strQuery, status, fromDate);
-                 ResultSet resultSet = statement.executeQuery()) {
-                return fetchDTOList(resultSet);
+            try (NamedPreparedStatement statement = getPageByStatusStatementFromDate(connection, strQuery, status, fromDate, (page - 1) * size, size);
+                 ResultSet resultSet = statement.executeQuery();
+            NamedPreparedStatement countStatement = getCountByStatusStatementFromDate(connection, strCountQuery, status, fromDate);
+            ResultSet resultCount = countStatement.executeQuery()) {
+                resultCount.next();
+                return new Page<>(fetchDTOList(resultSet), resultCount.getInt(1));
             }
         });
     }
-    private NamedPreparedStatement getStatusStatementFromDate(Connection connection, String query, ReservationStatus status, LocalDate fromDate) throws SQLException {
+    private NamedPreparedStatement getPageByStatusStatementFromDate(Connection connection, String query, ReservationStatus status, LocalDate fromDate, Integer offset, Integer size) throws SQLException {
+        NamedPreparedStatement statement = NamedPreparedStatement.create(connection, query);
+        statement.setStatement("status", status.name());
+        statement.setStatement("fromDate", Date.valueOf(fromDate));
+        statement.setStatement("offset", offset);
+        statement.setStatement("size", size);
+        return statement;
+    }
+    private NamedPreparedStatement getCountByStatusStatementFromDate(Connection connection, String query, ReservationStatus status, LocalDate fromDate) throws SQLException {
         NamedPreparedStatement statement = NamedPreparedStatement.create(connection, query);
         statement.setStatement("status", status.name());
         statement.setStatement("fromDate", Date.valueOf(fromDate));
@@ -102,7 +112,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     @Override
     public List<ReservationDTO> findActiveByUserId(Integer userId) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.findActiveByUserId");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, userId);
         return getConnectionManager().withConnection(connection -> {
             try (NamedPreparedStatement statement = getFindActiveByUserIdStatement(connection, strQuery, userId);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -122,7 +132,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     @Override
     public Reservation create(Reservation reservation) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.create");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, reservation);
         return getCrudHelper().create(
                     DomainToStatementExtractor::extract,
                     strQuery, reservation);
@@ -131,7 +141,7 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
     @Override
     public Optional<Reservation> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.getById");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id);
         return getCrudHelper().getById(StatementToDomainExtractor::extractReservation, strQuery, id);
     }
 
@@ -143,14 +153,14 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
             strQuery = getQueryByClassAndMethodName().get("reservation.update_withRoom");
         else
             strQuery = getQueryByClassAndMethodName().get("reservation.update_withoutRoom");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id, entity);
         return getCrudHelper().update(DomainToStatementExtractor::extract, strQuery, entity, id);
     }
 
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("reservation.delete");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id);
         return getCrudHelper().delete(strQuery, id);
     }
 

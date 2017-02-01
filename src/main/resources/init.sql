@@ -4,6 +4,9 @@ ALTER TABLE reservation DROP FOREIGN KEY fk_reservation_room;
 ALTER TABLE reservation DROP FOREIGN KEY fk_reservation_user;
 ALTER TABLE reservation DROP FOREIGN KEY fk_reservation_room_class;
 ALTER TABLE room DROP FOREIGN KEY fk_room_room_class;
+DROP INDEX ind_bill_reservation_id ON bill;
+DROP INDEX ind_reservation_user_id_departure_date_created_datetime ON reservation;
+DROP INDEX ind_user_email ON user;
 
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS bill;
@@ -24,14 +27,14 @@ CREATE TABLE user
   name             VARCHAR(30)                              NOT NULL,
   role             VARCHAR(20)                              NOT NULL,
   phone_number     VARCHAR(20)                              NOT NULL,
-  vk_user_id       VARCHAR(20) DEFAULT NULL UNIQUE
+  vk_id       INTEGER(20) DEFAULT NULL UNIQUE
 );
 CREATE TABLE bill
 (
-  id               BIGINT(20) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-  created_datetime TIMESTAMP                             NOT NULL,
-  reservation_id   BIGINT(20)                            NOT NULL,
-  total_cost       INTEGER                               NOT NULL,
+  id               BIGINT(20) PRIMARY KEY AUTO_INCREMENT  NOT NULL,
+  created_datetime TIMESTAMP                              NOT NULL,
+  reservation_id   BIGINT(20) UNIQUE                      NOT NULL,
+  total_cost       INTEGER                                NOT NULL,
   paid             BIT DEFAULT FALSE                     NOT NULL
 );
 CREATE TABLE room
@@ -66,4 +69,8 @@ ALTER TABLE reservation ADD CONSTRAINT fk_reservation_room FOREIGN KEY (room_id)
 ALTER TABLE reservation ADD CONSTRAINT fk_reservation_user FOREIGN KEY (user_id) REFERENCES user (id);
 ALTER TABLE reservation ADD CONSTRAINT fk_reservation_room_class FOREIGN KEY (requested_room_class_id) REFERENCES room_class (id);
 ALTER TABLE room ADD CONSTRAINT fk_room_room_class FOREIGN KEY (room_class_id) REFERENCES room_class (id);
+CREATE UNIQUE INDEX ind_user_email ON user(email);
+CREATE UNIQUE INDEX ind_user_vk_id ON user(vk_id);
+CREATE UNIQUE INDEX ind_bill_reservation_id ON bill(reservation_id);
+CREATE INDEX ind_reservation_user_id_departure_date_created_datetime ON reservation (user_id, departure_date, created_datetime);
 

@@ -93,6 +93,7 @@ public class StatementToDomainExtractor {
         user.setPhoneNumber(resultSet.getString("user_phone_number"));
         user.setName(resultSet.getString("user_name"));
         user.setEmail(resultSet.getString("user_email"));
+        user.setVkId(resultSet.getInt("user_vk_id"));
         return user;
     }
 

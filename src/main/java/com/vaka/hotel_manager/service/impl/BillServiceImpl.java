@@ -3,6 +3,7 @@ package com.vaka.hotel_manager.service.impl;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.security.SecurityUtils;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
+import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.User;
@@ -30,7 +31,8 @@ public class BillServiceImpl implements BillService {
     public Bill createForReservation(User loggedUser, Reservation reservation) {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Creating bill from reservation: {}", reservation);
-        return getTransactionHelper().doTransactional(() -> getTransactionHelper().doInner(() -> create(loggedUser, DomainFactory.createBillFromReservation(reservation))));
+        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE,
+                () -> getTransactionHelper().doInner(() -> create(loggedUser, DomainFactory.createBillFromReservation(reservation))));
     }
 
     @Override

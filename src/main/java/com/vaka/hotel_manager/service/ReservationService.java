@@ -1,6 +1,7 @@
 package com.vaka.hotel_manager.service;
 
 import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
+import com.vaka.hotel_manager.domain.Page;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.User;
@@ -23,7 +24,7 @@ public interface ReservationService extends CrudService<Reservation> {
     /**
      * @return all ReservationDTO by given status, that have not end by given date
      */
-    List<ReservationDTO> findByStatusFromDate(User loggedUser, ReservationStatus status, LocalDate fromDate);
+    Page<ReservationDTO> findPageByStatusFromDate(User loggedUser, ReservationStatus status, LocalDate fromDate, Integer page, Integer size);
 
     /**
      * @return all ReservationDTO by given status and User ID

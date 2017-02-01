@@ -33,10 +33,10 @@ public class RoomController {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("To rooms page");
         Integer page = ServletExtractor.extractOrDefault(req.getParameter("page"), 1, Integer::parseInt);
-        Integer rows = ServletExtractor.extractOrDefault(req.getParameter("size"), 10, Integer::parseInt);
+        Integer size = ServletExtractor.extractOrDefault(req.getParameter("size"), 10, Integer::parseInt);
 
         req.setAttribute("roomClasses", getRoomClassService().findAll(loggedUser));
-        req.setAttribute("roomPage", getRoomService().findPage(loggedUser, page, rows));
+        req.setAttribute("roomPage", getRoomService().findPage(loggedUser, page, size));
         req.getRequestDispatcher("/jsp/roomsPage.jsp").forward(req, resp);
     }
 

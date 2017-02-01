@@ -5,10 +5,7 @@ import com.vaka.hotel_manager.core.tx.ConnectionManager;
 import com.vaka.hotel_manager.domain.DTO.RoomClassDTO;
 import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.repository.RoomClassRepository;
-import com.vaka.hotel_manager.repository.util.DomainToStatementExtractor;
-import com.vaka.hotel_manager.repository.util.JdbcCrudHelper;
-import com.vaka.hotel_manager.repository.util.NamedPreparedStatement;
-import com.vaka.hotel_manager.repository.util.StatementToDomainExtractor;
+import com.vaka.hotel_manager.repository.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +26,7 @@ public class RoomClassRepositoryJdbcImpl implements RoomClassRepository {
     @Override
     public Optional<RoomClass> getByName(String name) {
         String strQuery = getQueryByClassAndMethodName().get("roomClass.getByName");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, name);
         return getConnectionManager().withConnection(connection -> {
             try (NamedPreparedStatement statement = getGetByNameStatement(connection, strQuery, name);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -49,7 +46,7 @@ public class RoomClassRepositoryJdbcImpl implements RoomClassRepository {
     @Override
     public List<RoomClass> findAll() {
         String strQuery = getQueryByClassAndMethodName().get("roomClass.findAll");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery);
         return getConnectionManager().withConnection(connection -> {
             try (NamedPreparedStatement statement = NamedPreparedStatement.create(connection, strQuery);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -77,7 +74,7 @@ public class RoomClassRepositoryJdbcImpl implements RoomClassRepository {
     @Override
     public RoomClass create(RoomClass entity) {
         String strQuery = getQueryByClassAndMethodName().get("roomClass.create");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, entity);
         return getCrudHelper().create(DomainToStatementExtractor::extract, strQuery, entity);
 
     }
@@ -85,7 +82,7 @@ public class RoomClassRepositoryJdbcImpl implements RoomClassRepository {
     @Override
     public Optional<RoomClass> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("roomClass.getById");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id);
         return getCrudHelper().getById(StatementToDomainExtractor::extractRoomClass, strQuery, id);
 
     }
@@ -93,7 +90,7 @@ public class RoomClassRepositoryJdbcImpl implements RoomClassRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("roomClass.delete");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id);
         return getCrudHelper().delete(strQuery, id);
 
     }
@@ -101,7 +98,7 @@ public class RoomClassRepositoryJdbcImpl implements RoomClassRepository {
     @Override
     public boolean update(Integer id, RoomClass entity) {
         String strQuery = getQueryByClassAndMethodName().get("roomClass.update");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id, entity);
         return getCrudHelper().update(DomainToStatementExtractor::extract, strQuery, entity, id);
 
     }

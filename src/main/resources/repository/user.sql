@@ -1,15 +1,18 @@
 # user.create
-INSERT INTO user (created_datetime, email, password, name, role, phone_number)
-VALUES (:userCreatedDatetime, :userEmail, :userPassword, :userName, :userRole, :userPhoneNumber);
+INSERT INTO user (created_datetime, email, password, name, role, phone_number, vk_id)
+VALUES
+  (:userCreatedDatetime, :userEmail, :userPassword, :userName, :userRole, :userPhoneNumber,
+   :userVkId);
 # user.getById
 SELECT
-  u.id                     AS user_id,
-  u.created_datetime       AS user_created_datetime,
-  u.email                  AS user_email,
-  u.password               AS user_password,
-  u.name                   AS user_name,
-  u.role                   AS user_role,
-  u.phone_number           AS user_phone_number
+  u.id               AS user_id,
+  u.created_datetime AS user_created_datetime,
+  u.email            AS user_email,
+  u.password         AS user_password,
+  u.name             AS user_name,
+  u.role             AS user_role,
+  u.phone_number     AS user_phone_number,
+  u.vk_id       AS user_vk_id
 FROM user u
 WHERE u.id = :id;
 # user.delete
@@ -21,12 +24,25 @@ SET email = :userEmail, name = :userName, password = :userPassword, role = :user
 WHERE u.id = :id;
 # user.getByEmail
 SELECT
-  u.id                     AS user_id,
-  u.created_datetime       AS user_created_datetime,
-  u.email                  AS user_email,
-  u.password               AS user_password,
-  u.name                   AS user_name,
-  u.role                   AS user_role,
-  u.phone_number           AS user_phone_number
+  u.id               AS user_id,
+  u.created_datetime AS user_created_datetime,
+  u.email            AS user_email,
+  u.password         AS user_password,
+  u.name             AS user_name,
+  u.role             AS user_role,
+  u.phone_number     AS user_phone_number,
+  u.vk_id       AS user_vk_id
 FROM user u
 WHERE email = :email;
+# user.getByVkId
+SELECT
+  u.id               AS user_id,
+  u.created_datetime AS user_created_datetime,
+  u.email            AS user_email,
+  u.password         AS user_password,
+  u.name             AS user_name,
+  u.role             AS user_role,
+  u.phone_number     AS user_phone_number,
+  u.vk_id       AS user_vk_id
+FROM user u
+WHERE u.vk_id = :userVkId;

@@ -30,6 +30,7 @@ public class EntityProviderUtil {
 
     private static int roomNumber = 1;
     private static int emailNumber = 1;
+    private static int vkId = 1;
 
     public static RoomClass createRoomClass(String name) {
         RoomClass roomClass = new RoomClass();
@@ -77,13 +78,13 @@ public class EntityProviderUtil {
 
     public static User createUser() {
         User user = new User();
-        Random random = new Random();
         LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         user.setCreatedDatetime(now);
         user.setName("name");
         user.setEmail("goodmanmen@gmail.com" + emailNumber++);
         user.setPhoneNumber("+398641423");
         user.setRole(Role.CUSTOMER);
+        user.setVkId(vkId++);
 
         user.setPassword(BCrypt.hashpw(String.join(":", user.getName(), user.getPhoneNumber()), BCrypt.gensalt()));
         return user;

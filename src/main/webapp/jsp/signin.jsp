@@ -46,7 +46,15 @@
                 </label>
             </th>
             <td>
-                <input id="email" type="email" value="${param.email}" required maxlength="32"
+                <input id="email" type="email"
+                <c:choose>
+                       <c:when test="${!empty email}">
+                       value="${email}"
+                    <c:remove var="email" scope="session"/>
+                </c:when>
+                       <c:otherwise>value="${param.email}"</c:otherwise>
+                </c:choose>
+                       required maxlength="32"
                        min="5" name="email">
             </td>
         </tr>
@@ -62,8 +70,8 @@
         <tr>
             <c:if test="${!empty exception}">
                 <td colspan="2" id = "exception"><fmt:message key="${exception}" bundle="${bundle}"/></td>
+                <c:remove var="exception"/>
             </c:if>
-            <%--TODO make exception param, --%>
         </tr>
         <tr>
             <td><br><input type="submit"

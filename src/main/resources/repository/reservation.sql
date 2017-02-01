@@ -32,7 +32,7 @@ FROM reservation res INNER JOIN user u ON res.user_id = u.id
   LEFT JOIN room r ON res.room_id = r.id
   LEFT JOIN room_class rc ON r.room_class_id = rc.id
 WHERE res.user_id = :userId AND res.status = :status;
-# reservation.findByStatusFromDate
+# reservation.findPageByStatusFromDate
 SELECT
   res.id               AS reservation_id,
   res.created_datetime AS reservation_created_datetime,
@@ -48,7 +48,9 @@ FROM reservation res INNER JOIN user u ON res.user_id = u.id
   INNER JOIN room_class res_rc ON res.requested_room_class_id = res_rc.id
   LEFT JOIN room r ON res.room_id = r.id
   LEFT JOIN room_class rc ON r.room_class_id = rc.id
-WHERE res.status = :status AND res.departure_date >= :fromDate;
+WHERE res.status = :status AND res.departure_date >= :fromDate LIMIT :offset,:size;
+# reservation.findPageByStatusFromDateCount
+SELECT COUNT(1) FROM reservation res WHERE res.status = :status AND res.departure_date >= :fromDate;
 # reservation.findActiveByUserId
 SELECT
   res.id               AS reservation_id,
@@ -86,6 +88,7 @@ SELECT
   u.name                  AS user_name,
   u.role                  AS user_role,
   u.phone_number          AS user_phone_number,
+  u.vk_id            AS user_vk_id,
   r.id                    AS room_id,
   r.created_datetime      AS room_created_datetime,
   r.number                AS room_number,
@@ -119,7 +122,7 @@ SET user_id    = :reservationUserId, guests = :reservationGuests, requested_room
   arrival_date = :reservationArrivalDate, departure_date = :reservationDepartureDate
 WHERE id = :id;
 # reservation.existOverlapReservation
-SELECT COUNT(*)
+SELECT EXISTS(SELECT 1
 FROM reservation res
   INNER JOIN room r ON res.id = r.id
-WHERE r.id = :roomId AND res.status = 'CONFIRMED'  AND res.departure_date > :arrivalDate AND res.arrival_date < :departureDate;
+WHERE r.id = :roomId AND res.status = 'CONFIRMED'  AND res.departure_date > :arrivalDate AND res.arrival_date < :departureDate);

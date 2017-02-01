@@ -39,6 +39,13 @@ public class UserRepositoryTest extends CrudRepositoryTest<User> {
     }
 
     @Override
+    protected User getEntityForUpdate(User entity) {
+        User user = createEntity();
+        user.setVkId(entity.getVkId());
+        return user;
+    }
+
+    @Override
     protected CrudRepository<User> getRepository() {
         return userRepository;
     }

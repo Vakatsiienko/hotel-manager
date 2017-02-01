@@ -13,8 +13,8 @@
     <script type="text/javascript">
         var totalRows = ${roomPage.totalLength};
         function paginationButtonsLoad() {
-            var currentPage = parseInt(getURLParameter("page", 1));
-            var currentSize = parseInt(getURLParameter("size", 10));
+            var currentPage = parseInt(getParam("page", 1));
+            var currentSize = parseInt(getParam("size", 10));
             document.getElementById("paginationFirst").href = $(location).attr('pathname') + '?page=1&size=' + currentSize;
             var previousPage;
             if (currentPage > 1)
@@ -36,7 +36,7 @@
                     $(location).attr('pathname') + '?' + 'page=' + lastPage + '&size=' + currentSize;
 
         }
-        function getURLParameter(sParam, defaultValue) {
+        function getParam(sParam, defaultValue) {
             var sPageURL = window.location.search.substring(1);
             var sURLVariables = sPageURL.split('&');
             for (var i = 0; i < sURLVariables.length; i++) {
@@ -49,7 +49,7 @@
         }
         function changeSize() {
             var selected = $("#tableSize").find("option:selected").text();
-            var redirectUri = $(location).attr('pathname') + '?size=' + selected + '&page=' + getURLParameter("page", 1);
+            var redirectUri = $(location).attr('pathname') + '?size=' + selected + '&page=' + getParam("page", 1);
             window.location.replace(redirectUri);
         }
 
@@ -103,7 +103,7 @@
                         });
             });
             paginationButtonsLoad();
-            var val = getURLParameter('size', 10);
+            var val = getParam('size', 10);
             var sel = document.getElementById('tableSize');
             var opts = sel.options;
             for (var opt, j = 0; opt = opts[j]; j++) {
@@ -156,13 +156,16 @@
             cursor: pointer;
             display: none; /* в oбычнoм сoстoянии её нет) */
         }
+        caption {
+            font-weight: bold;
+        }
     </style>
     <title><fmt:message key="RoomsPage" bundle="${bundle}"/></title>
 </head>
 <body>
 <br>
 
-<h3 id="tableTitle"><fmt:message key="RoomList" bundle="${bundle}"/></h3>
+<h3 id="tableTitle"></h3>
 <c:if test="${loggedUser.role.name().equals('MANAGER')}">
     <button id="addButton"><fmt:message key="Create" bundle="${bundle}"/></button>
 </c:if>
@@ -173,6 +176,7 @@
         <option value="20">20</option>
     </select>
 <table id="myTable" class="display" cellspacing="0" width="100%" >
+    <caption><fmt:message key="RoomList" bundle="${bundle}"/></caption>
     <thead>
     <tr>
         <th><fmt:message key="Number" bundle="${bundle}"/></th>
@@ -210,7 +214,7 @@
 
     </tbody>
 </table>
-    <span id="totalRows"></span>
+    <span id="totalRows"><fmt:message key="TotalRows" bundle="${bundle}"/>: ${roomPage.totalLength}</span>
     <span id="paginationButtons">
         <a id="paginationFirst">First</a>
         <a id="paginationPrevious">Previous</a>
@@ -273,7 +277,6 @@
         </div>
         <br>
         <div>
-            <%--TODO add function that multiply cost per day on submit --%>
             <button id="addFormSubmit" onclick="roomFormSubmit()">
                 <fmt:message
                         key="Create"

@@ -1,6 +1,7 @@
 package com.vaka.hotel_manager.repository;
 
 import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
+import com.vaka.hotel_manager.domain.Page;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 
@@ -12,15 +13,10 @@ import java.util.List;
  */
 public interface ReservationRepository extends CrudRepository<Reservation> {
 
-//    /**
-//     * @return all reservations by given room with given status
-//     */
-//    List<ReservationDTO> findByRoomIdAndStatus(Integer roomId, ReservationStatus status);
-
     /**
      * @return all reservations by status
      */
-    List<ReservationDTO> findByStatusFromDate(ReservationStatus status, LocalDate fromDate);
+    Page<ReservationDTO> findPageByStatusFromDate(ReservationStatus status, LocalDate fromDate, Integer page, Integer size);
 
     /**
      * @return all reservations created by user with given status

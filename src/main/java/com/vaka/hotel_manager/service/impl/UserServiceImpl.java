@@ -4,6 +4,7 @@ import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.security.SecurityUtils;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
+import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.service.UserService;
@@ -31,12 +32,12 @@ public class UserServiceImpl implements UserService {
     public User create(User loggedUser, User user) {
         LOG.debug("Creating user: {}", user);
 
-        return getTransactionHelper().doTransactional(() -> {
+        user.setPassword(generatePassword(user));
+        user.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE, () -> {
             if (getUserRepository().getByEmail(user.getEmail()).isPresent()) {
-                throw new CreatingException("User with such email already exist.");
+                throw new CreatingException("EmailExistException");
             }
-            user.setPassword(generatePassword(user));
-            user.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
             return getUserRepository().create(user);
         });
     }

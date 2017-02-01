@@ -104,6 +104,8 @@ public class DispatcherServlet extends HttpServlet {
                 getUserController().signIn(req, resp);
             } else if ("/signup".equals(strUri)) {
                 getUserController().signUp(req, resp);
+            } else if ("/signup-vk".equals(strUri)) {
+                getUserController().signUpVk(req, resp);
             } else if ("/reservations".equals(strUri)) {
                 getReservationController().create(req, resp);
             } else if (strUri.matches("/reservations/[0-9]+/reject")) {

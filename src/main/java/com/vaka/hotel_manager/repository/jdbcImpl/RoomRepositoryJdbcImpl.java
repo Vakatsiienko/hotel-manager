@@ -6,10 +6,7 @@ import com.vaka.hotel_manager.domain.Page;
 import com.vaka.hotel_manager.domain.Room;
 import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.repository.RoomRepository;
-import com.vaka.hotel_manager.repository.util.DomainToStatementExtractor;
-import com.vaka.hotel_manager.repository.util.JdbcCrudHelper;
-import com.vaka.hotel_manager.repository.util.NamedPreparedStatement;
-import com.vaka.hotel_manager.repository.util.StatementToDomainExtractor;
+import com.vaka.hotel_manager.repository.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,32 +30,33 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     private JdbcCrudHelper crudHelper;
 
     @Override
-    public Page<Room> findPage(Integer page, Integer rows) {
+    public Page<Room> findPage(Integer page, Integer size) {
         String strQuery = getQueryByClassAndMethodName().get("room.findPage");
         String strCountQuery = getQueryByClassAndMethodName().get("room.totalCount");
-        LOG.info(String.format("Two SQL queries: %nSQL query: %s %n Count query: %s", strQuery, strCountQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, page, size);
+        RepositoryUtils.logQuery(LOG, strQuery);
         return getConnectionManager().withConnection(connection -> {
-            try (NamedPreparedStatement statement = getFindPageStatement(connection, strQuery, (page - 1) * rows, rows);
+            try (NamedPreparedStatement statement = getFindPageStatement(connection, strQuery, (page - 1) * size, size);
                  ResultSet rs = statement.executeQuery();
                  ResultSet rsLength = NamedPreparedStatement.create(connection, strCountQuery).executeQuery()) {
                 rsLength.next();
                 Integer length = rsLength.getInt(1);
-                return new Page<Room>(fetchToList(rs), length);
+                return new Page<>(fetchToList(rs), length);
             }
         });
     }
 
-    private NamedPreparedStatement getFindPageStatement(Connection connection, String strQuery, Integer page, Integer rows) throws SQLException {
+    private NamedPreparedStatement getFindPageStatement(Connection connection, String strQuery, Integer page, Integer size) throws SQLException {
         NamedPreparedStatement statement = NamedPreparedStatement.create(connection, strQuery);
         statement.setStatement("offset", page);
-        statement.setStatement("size", rows);
+        statement.setStatement("size", size);
         return statement;
     }
 
     @Override
     public List<Room> findAll() {
         String strQuery = getQueryByClassAndMethodName().get("room.findAll");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery);
         return getConnectionManager().withConnection(connection -> {
             try (NamedPreparedStatement statement = NamedPreparedStatement.create(connection, strQuery);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -70,7 +68,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     @Override
     public Optional<Room> getByNumber(Integer number) {
         String strQuery = getQueryByClassAndMethodName().get("room.getByNumber");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, number);
         return getConnectionManager().withConnection(connection -> {
             try (NamedPreparedStatement statement = getGetByNumberStatement(connection, strQuery, number);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -90,7 +88,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     @Override
     public boolean existsRoomByRoomClass(Integer roomClassId) {
         String strQuery = getQueryByClassAndMethodName().get("room.existsRoomByRoomClass");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, roomClassId);
         return getConnectionManager().withConnection(connection -> {
             try (NamedPreparedStatement statement = getExistsRoomByRoomClassStatement(connection, strQuery, roomClassId);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -117,7 +115,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     @Override
     public List<Room> findAvailableForReservation(RoomClass roomClass, LocalDate arrivalDate, LocalDate departureDate) {
         String strQuery = getQueryByClassAndMethodName().get("room.findAvailableForReservation");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, roomClass, arrivalDate, departureDate);
         return getConnectionManager().withConnection(connection -> {
             try (NamedPreparedStatement statement = getFindAvailableForReservationStatement(connection, strQuery, roomClass, arrivalDate, departureDate);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -137,7 +135,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     @Override
     public Room create(Room entity) {
         String strQuery = getQueryByClassAndMethodName().get("room.create");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, entity);
         return getCrudHelper().create(
                     DomainToStatementExtractor::extract,
                     strQuery, entity);
@@ -147,7 +145,7 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     @Override
     public Optional<Room> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("room.getById");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id);
         return getCrudHelper().getById(StatementToDomainExtractor::extractRoom, strQuery, id);
 
     }
@@ -156,14 +154,14 @@ public class RoomRepositoryJdbcImpl implements RoomRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("room.delete");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id);
         return getCrudHelper().delete(strQuery, id);
     }
 
     @Override
     public boolean update(Integer id, Room entity) {
         String strQuery = getQueryByClassAndMethodName().get("room.update");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id, entity);
         return getCrudHelper().update(DomainToStatementExtractor::extract, strQuery, entity, id);
 
     }

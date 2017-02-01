@@ -25,7 +25,7 @@
 <div id="hrefs">
     <%@include file="header.jspf" %>
 
-<form action="${pageContext.request.contextPath}" method="post" id="createForm">
+<form action="/signup" method="post" id="createForm">
     <table id="signup">
         <tr>
             <th class="ftitle" colspan="2"><fmt:message key="SignUp" bundle="${bundle}"/></th>
@@ -80,6 +80,7 @@
             <td colspan="2">
                 <c:if test="${!empty exception}">
                     <p id ="exception"><fmt:message key="${exception}" bundle="${bundle}"/></p>
+                    <c:remove var="exception"/>
                 </c:if>
             </td>
         </tr>

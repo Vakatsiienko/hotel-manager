@@ -207,19 +207,19 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
             reservation.setStatus(ReservationStatus.REJECTED);
             reservationRepository.create(reservation);
         }
-        List<ReservationDTO> confirmedList = reservationRepository.findByStatusFromDate(ReservationStatus.CONFIRMED, LocalDate.MIN);
+        List<ReservationDTO> confirmedList = reservationRepository.findPageByStatusFromDate(ReservationStatus.CONFIRMED, LocalDate.MIN, 1, 10).getContent();
         assertTrue(confirmedList.size() == 4);
         confirmedList.forEach(r -> assertTrue(r.getStatus() == ReservationStatus.CONFIRMED));
 
-        List<ReservationDTO> requestedList = reservationRepository.findByStatusFromDate(ReservationStatus.REQUESTED, LocalDate.now());
+        List<ReservationDTO> requestedList = reservationRepository.findPageByStatusFromDate(ReservationStatus.REQUESTED, LocalDate.now(),  1, 10).getContent();
         assertTrue(requestedList.size() == 4);
         requestedList.forEach(r -> assertTrue(r.getStatus() == ReservationStatus.REQUESTED));
 
-        List<ReservationDTO> rejectedList = reservationRepository.findByStatusFromDate(ReservationStatus.REJECTED, LocalDate.MIN);
+        List<ReservationDTO> rejectedList = reservationRepository.findPageByStatusFromDate(ReservationStatus.REJECTED, LocalDate.MIN,  1, 10).getContent();
         assertTrue(rejectedList.size() == 4);
         rejectedList.forEach(r -> assertTrue(r.getStatus() == ReservationStatus.REJECTED));
 
-        List<ReservationDTO> fromFutureList = reservationRepository.findByStatusFromDate(ReservationStatus.REJECTED, LocalDate.now().plusDays(1));
+        List<ReservationDTO> fromFutureList = reservationRepository.findPageByStatusFromDate(ReservationStatus.REJECTED, LocalDate.now().plusDays(1), 1, 10).getContent();
         assertTrue(fromFutureList.size() == 0);
 
     }

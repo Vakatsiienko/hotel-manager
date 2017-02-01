@@ -4,10 +4,7 @@ import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;
 import com.vaka.hotel_manager.domain.Bill;
 import com.vaka.hotel_manager.repository.BillRepository;
-import com.vaka.hotel_manager.repository.util.DomainToStatementExtractor;
-import com.vaka.hotel_manager.repository.util.JdbcCrudHelper;
-import com.vaka.hotel_manager.repository.util.NamedPreparedStatement;
-import com.vaka.hotel_manager.repository.util.StatementToDomainExtractor;
+import com.vaka.hotel_manager.repository.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +26,7 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     @Override
     public Optional<Bill> getByReservationId(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("bill.getByReservationId");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id);
         return getConnectionManager().withConnection(connection -> {
             try (NamedPreparedStatement statement = getGetByReservationIdStatement(connection, strQuery, id);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -49,7 +46,7 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     @Override
     public Bill create(Bill entity) {
         String strQuery = getQueryByClassAndMethodName().get("bill.create");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, entity);
         return getCrudHelper().create(
                 DomainToStatementExtractor::extract,
                 strQuery, entity);
@@ -58,14 +55,14 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     @Override
     public Optional<Bill> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("bill.getById");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id);
         return getCrudHelper().getById(StatementToDomainExtractor::extractBill, strQuery, id);
     }
 
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("bill.delete");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id);
         return getCrudHelper().delete(strQuery, id);
 
     }
@@ -73,7 +70,7 @@ public class BillRepositoryJdbcImpl implements BillRepository {
     @Override
     public boolean update(Integer id, Bill entity) {
         String strQuery = getQueryByClassAndMethodName().get("bill.update");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id, entity);
         return getCrudHelper().update(DomainToStatementExtractor::extract, strQuery, entity, id);
 
     }

@@ -3,7 +3,6 @@ package com.vaka.hotel_manager.web.controller;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
-import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomClassService;
@@ -24,7 +23,6 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.StringJoiner;
 
 /**
  * Created by Iaroslav on 11/24/2016.
@@ -40,9 +38,6 @@ public class UserController {
     public void signUpVk(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Sign up vk");
-        if (loggedUser.getRole() != Role.ANONYMOUS) {
-            throw new UnsupportedOperationException();
-        }
         User vkUser = (User) req.getSession().getAttribute("vkUser");
         if (vkUser == null) {
             throw new IllegalStateException("");
@@ -52,17 +47,21 @@ public class UserController {
         vkUser.setPhoneNumber(phone);
         vkUser.setName(name);
         vkUser.setPassword(RandomStringUtils.random(8));
-        getUserService().create(loggedUser, vkUser);
+        try {
+            loggedUser = getUserService().create(loggedUser, vkUser);
+        } catch (CreatingException e) {
+            LOG.debug(e.getMessage(), e);
+            req.setAttribute("exception", e.getMessage());
+            req.getRequestDispatcher("/jsp/signin.jsp").forward(req, resp);
+            return;
+        }
+        req.getSession().setAttribute("loggedUser", loggedUser);
         resp.sendRedirect("/");
     }
 
     public void signInVk(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
-        User loggedUser = getSecurityService().authenticate(session);
         LOG.debug("Sign in vk");
-        if (loggedUser.getRole() != Role.ANONYMOUS) {
-            throw new UnsupportedOperationException();
-        }
         String code = req.getParameter("code");
         if (code == null) {
             String error = req.getParameter("error");
@@ -70,9 +69,16 @@ public class UserController {
             resp.sendError(400, String.format("Error: %s, error description: %s", error, errorDescription));
             return;
         }
-        if (getSecurityService().signInVk(session, code)) {
-            resp.sendRedirect(String.format("/users/%s", loggedUser.getId()));
-        } else req.getRequestDispatcher("/jsp/vkSignUp.jsp").forward(req, resp);
+        try {
+            if (getSecurityService().signInVk(session, code)) {
+                User loggedUser = (User) session.getAttribute("loggedUser");
+                resp.sendRedirect(String.format("/users/%s", loggedUser.getId()));
+            } else req.getRequestDispatcher("/jsp/vkSignUp.jsp").forward(req, resp);
+        } catch (CreatingException ex) {
+            LOG.debug(ex.getMessage(), ex);
+            req.setAttribute("exception", ex.getMessage());
+            req.getRequestDispatcher("/jsp/signin.jsp").forward(req, resp);
+        }
     }
 
     public void signinPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -122,8 +128,8 @@ public class UserController {
     public void signUp(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Sign up request");
+        User user = ServletExtractor.extractCustomer(req);
         try {
-            User user = ServletExtractor.extractCustomer(req);
             if (!user.getPassword().equals(req.getParameter("passwordCheck")))
                 throw new CreatingException("PasswordCheckException");
             ValidationUtil.validate(user);
@@ -132,8 +138,9 @@ public class UserController {
             resp.sendRedirect("/");
         } catch (CreatingException ex) {
             LOG.debug(ex.getMessage(), ex);
-            req.setAttribute("exception", ex.getMessage());
-            req.getRequestDispatcher("/jsp/signup.jsp").forward(req, resp);
+            req.getSession().setAttribute("email", user.getEmail());
+            req.getSession().setAttribute("exception", ex.getMessage());
+            resp.sendRedirect("/signin");
         }
     }
 

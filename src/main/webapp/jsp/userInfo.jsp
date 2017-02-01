@@ -23,7 +23,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $("#reservationTable").dataTable({
-                "dom": "<t>",
+                "dom": "<tp>",
                 "ordering": false,
                 "language": {
                     "lengthMenu": '<fmt:message key="dataTable.lengthMenu" bundle="${bundle}"/>' ,

@@ -4,10 +4,7 @@ import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.UserRepository;
-import com.vaka.hotel_manager.repository.util.DomainToStatementExtractor;
-import com.vaka.hotel_manager.repository.util.JdbcCrudHelper;
-import com.vaka.hotel_manager.repository.util.NamedPreparedStatement;
-import com.vaka.hotel_manager.repository.util.StatementToDomainExtractor;
+import com.vaka.hotel_manager.repository.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,14 +24,29 @@ public class UserRepositoryJdbcImpl implements UserRepository {
     private JdbcCrudHelper crudHelper;
 
     @Override
-    public Optional<User> getByVkId(String vkId) {
-        throw new UnsupportedOperationException();
+    public Optional<User> getByVkId(Integer vkId) {
+        String strQuery = getQueryByClassAndMethodName().get("user.getByVkId");
+        RepositoryUtils.logQuery(LOG, strQuery, vkId);
+        return getConnectionManager().withConnection(connection -> {
+            try (NamedPreparedStatement statement = createGetByVkIdStatement(connection, strQuery, vkId);
+                 ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next())
+                    return Optional.of(StatementToDomainExtractor.extractUser(resultSet));
+                else return Optional.empty();
+            }
+        });
+    }
+
+    private NamedPreparedStatement createGetByVkIdStatement(Connection connection, String strQuery, Integer vkId) throws SQLException {
+        NamedPreparedStatement statement = NamedPreparedStatement.create(connection, strQuery);
+        statement.setStatement("userVkId", vkId);
+        return statement;
     }
 
     @Override
     public Optional<User> getByEmail(String email) {
         String strQuery = getQueryByClassAndMethodName().get("user.getByEmail");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, email);
         return getConnectionManager().withConnection(connection -> {
             try (NamedPreparedStatement statement = createGetByEmailStatement(connection, strQuery, email);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -54,7 +66,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
     @Override
     public User create(User entity) {
         String strQuery = getQueryByClassAndMethodName().get("user.create");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, entity);
         return getCrudHelper().create(
                 DomainToStatementExtractor::extract,
                 strQuery, entity);
@@ -63,7 +75,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
     @Override
     public Optional<User> getById(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("user.getById");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id);
         return getCrudHelper().getById(StatementToDomainExtractor::extractUser, strQuery, id);
     }
 
@@ -71,7 +83,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
     @Override
     public boolean delete(Integer id) {
         String strQuery = getQueryByClassAndMethodName().get("user.delete");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id);
         return getCrudHelper().delete(strQuery, id);
     }
 
@@ -79,7 +91,7 @@ public class UserRepositoryJdbcImpl implements UserRepository {
     @Override
     public boolean update(Integer id, User entity) {
         String strQuery = getQueryByClassAndMethodName().get("user.update");
-        LOG.info(String.format("SQL query: %s", strQuery));
+        RepositoryUtils.logQuery(LOG, strQuery, id, entity);
         return getCrudHelper().update(DomainToStatementExtractor::extract, strQuery, entity, id);
     }
 

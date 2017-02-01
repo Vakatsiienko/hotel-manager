@@ -15,6 +15,48 @@
             src="//cdn.datatables.net/1.10.8/js/jquery.dataTables.min.js"></script>
 
     <script type="text/javascript">
+        function changeSize() {
+            var selected = $("#tableSize").find("option:selected").text();
+            var redirectUri = $(location).attr('pathname') + '?size=' + selected + '&page=' + getURLParameter("page", 1);
+            window.location.replace(redirectUri);
+        }
+
+        var totalRows = ${reservationPage.totalLength};
+        function paginationButtonsLoad() {
+            var currentPage = parseInt(getURLParameter("page", 1));
+            var currentSize = parseInt(getURLParameter("size", 10));
+            document.getElementById("paginationFirst").href = $(location).attr('pathname') + '?page=1&size=' + currentSize;
+            var previousPage;
+            if (currentPage > 1)
+                previousPage = currentPage - 1;
+            else previousPage = 1;
+            document.getElementById("paginationPrevious").href =
+                    $(location).attr('pathname') + '?' + 'page=' + previousPage + '&size=' + currentSize;
+            document.getElementById("paginationCurrent").href =
+                    $(location).attr('pathname') + '?' + 'page=' + currentPage + '&size=' + currentSize;
+            document.getElementById("paginationCurrent").textContent = currentPage.toString();
+            var nextPage = currentPage;
+            if (totalRows > (currentSize * currentPage)) {
+                nextPage += 1;
+            }
+            document.getElementById("paginationNext").href =
+                    $(location).attr('pathname') + '?' + 'page=' + nextPage + '&size=' + currentSize;
+            var lastPage = Math.ceil(totalRows / currentSize);
+            document.getElementById("paginationLast").href =
+                    $(location).attr('pathname') + '?' + 'page=' + lastPage + '&size=' + currentSize;
+        }
+
+        function getURLParameter(sParam, defaultValue) {
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) {
+                var sParameterName = sURLVariables[i].split('=');
+                if (sParameterName[0] == sParam) {
+                    return sParameterName[1];
+                }
+            }
+            return defaultValue;
+        }
         var table;
         $(document).ready(function () {
             table = $("#myTable").dataTable({
@@ -35,10 +77,29 @@
                     }
                 }
             });
+
+            paginationButtonsLoad();
+            var val = getURLParameter('size', 10);
+            var sel = document.getElementById('tableSize');
+            var opts = sel.options;
+            for (var opt, j = 0; opt = opts[j]; j++) {
+                if (opt.value == val) {
+                    sel.selectedIndex = j;
+                    break;
+                }
+            }
         })
     </script>
 
     <style type="text/css">
+        caption {
+            font-weight: bold;
+        }
+
+        #paginationButtons {
+            position: relative;
+            left: 80%;
+        }
         #requestTableTitle{
             position: relative;
             left: 40%;
@@ -46,8 +107,16 @@
     </style>
 </head>
 <body>
-<h3 id="requestTableTitle"><fmt:message key="RequestedReservations" bundle="${bundle}"/></h3>
-<table id="myTable" class="display" cellspacing="0" width="100%">
+<div id="tableWrapper">
+
+    <select id="tableSize" onchange="changeSize()">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+    </select>
+
+    <table id="myTable" class="display" cellspacing="0" width="100%">
+        <caption><fmt:message key="RequestedReservations" bundle="${bundle}"/></caption>
     <thead>
     <tr>
         <th><fmt:message key="ReservationId" bundle="${bundle}"/></th>
@@ -59,7 +128,9 @@
     </tr>
     </thead>
     <tbody>
-    <c:forEach items="${reservationList}" var="reservation">
+    <jsp:useBean id="reservationPage" type="com.vaka.hotel_manager.domain.Page" scope="request"/>
+
+    <c:forEach items="${reservationPage.content}" var="reservation">
         <jsp:useBean id="reservation" scope="page"
                      type="com.vaka.hotel_manager.domain.DTO.ReservationDTO"/>
         <tr>
@@ -76,5 +147,17 @@
 
     </tbody>
 </table>
+        <span id="totalRows"><fmt:message key="TotalRows"
+                                          bundle="${bundle}"/>: ${reservationPage.totalLength}</span>
+    <span id="paginationButtons">
+        <a id="paginationFirst">First</a>
+        <a id="paginationPrevious">Previous</a>
+        <%--TODO add ?sort=abc&direction=asc--%>
+        <%--TODO replace current with currentNumber--%>
+        <a id="paginationCurrent"></a>
+        <a id="paginationNext">Next</a>
+        <a id="paginationLast">Last</a>
+    </span>
+</div>
 </body>
 </html>

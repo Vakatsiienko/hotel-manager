@@ -48,7 +48,7 @@ public abstract class CrudRepositoryTest<Entity extends BaseEntity> {
     @Test
     public void testUpdate() {
         Entity oldEntity = getRepository().create(createEntity());
-        Entity newEntity = createEntity();
+        Entity newEntity = getEntityForUpdate(oldEntity);
         boolean updated = getRepository().update(oldEntity.getId(), newEntity);
         Optional<Entity> updatedEntity = getRepository().getById(newEntity.getId());
         newEntity.setCreatedDatetime(updatedEntity.get().getCreatedDatetime());
@@ -68,6 +68,9 @@ public abstract class CrudRepositoryTest<Entity extends BaseEntity> {
         Assert.assertFalse(entity.isPresent());
     }
 
+    protected Entity getEntityForUpdate(Entity entity){
+        return createEntity();
+    }
     protected abstract CrudRepository<Entity> getRepository();
 
     protected abstract Entity createEntity();

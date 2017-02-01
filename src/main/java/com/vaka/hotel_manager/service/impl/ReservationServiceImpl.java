@@ -72,10 +72,10 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<ReservationDTO> findByStatusFromDate(User loggedUser, ReservationStatus status, LocalDate fromDate) {
+    public Page<ReservationDTO> findPageByStatusFromDate(User loggedUser, ReservationStatus status, LocalDate fromDate, Integer page, Integer size) {
         LOG.debug("Searching reservations by status: {}, from date: {}", status, fromDate);
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-        return getTransactionHelper().doTransactional(() -> getReservationRepository().findByStatusFromDate(status, fromDate));
+        return getTransactionHelper().doTransactional(() -> getReservationRepository().findPageByStatusFromDate(status, fromDate, page, size));
 
     }
 

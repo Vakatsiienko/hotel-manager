@@ -13,6 +13,8 @@ import com.vaka.hotel_manager.repository.util.JdbcCrudHelper;
 import com.vaka.hotel_manager.service.*;
 import com.vaka.hotel_manager.service.impl.*;
 import com.vaka.hotel_manager.web.controller.*;
+import com.vaka.hotel_manager.webservice.VkService;
+import com.vaka.hotel_manager.webservice.impl.VkServiceImpl;
 import lombok.Getter;
 
 import java.util.HashMap;

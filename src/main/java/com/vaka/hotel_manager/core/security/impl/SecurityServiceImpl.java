@@ -1,20 +1,22 @@
 package com.vaka.hotel_manager.core.security.impl;
 
-import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.security.SecurityService;
+import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.repository.UserRepository;
-import com.vaka.hotel_manager.core.security.SecurityService;
-import com.vaka.hotel_manager.service.VkService;
 import com.vaka.hotel_manager.util.exception.AuthenticationException;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
+import com.vaka.hotel_manager.util.exception.CreatingException;
+import com.vaka.hotel_manager.webservice.VkService;
+import com.vaka.hotel_manager.webservice.jsonobjects.VkAuthRequest;
+import com.vaka.hotel_manager.webservice.jsonobjects.VkUserInfo;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpSession;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -36,31 +38,32 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public boolean signInVk(HttpSession session, String code) {
-        User loggedUser = authenticate(session);
-        if (loggedUser.getRole() != Role.ANONYMOUS)
-            throw new AuthenticationException();//TODO move anonymous authorization to filter
-        Map<String, String> parsedJsonTokenRequest = getVkService().signIn(code);
-        String vkId = parsedJsonTokenRequest.get("user_id");
-        String accessToken = parsedJsonTokenRequest.get("access_token");
-        String email = parsedJsonTokenRequest.get("email");
-        if (vkId == null || accessToken == null || email == null)
-            throw new AuthorizationException("Vk authorization failed");
+        VkAuthRequest authRequest = getVkService().signIn(code);
         Optional<User> existed = getTransactionHelper().doTransactional(
-                () -> getUserRepository().getByVkId(vkId));
-//        session.setAttribute("token_request", parsedJsonTokenRequest);
+                () -> {
+                    Optional<User> byVkId = getUserRepository().getByVkId(authRequest.getUserId());
+                    if (!byVkId.isPresent()) {
+                        Optional<User> byEmail = getUserRepository().getByEmail(authRequest.getEmail());
+                        if (byEmail.isPresent()) {
+                            session.setAttribute("email", byEmail.get().getEmail());
+                            //if email exist - fail-fast
+                            throw new CreatingException("EmailExistException");
+                        }
+                    }
+                    return byVkId;
+                });
         if (existed.isPresent()){
             session.setAttribute("loggedUser", existed.get());
             return true;
         } else {
-            //TODO add case when user with such email exist
-            Map<String, String> userInfo = getVkService().getSignUpInfo(accessToken);
+            VkUserInfo userInfo = getVkService().getSignUpInfo(authRequest.getAccessToken());
             User user = new User();
             user.setRole(Role.CUSTOMER);
-            user.setVkId(vkId);
+            user.setVkId(authRequest.getUserId());
             user.setName(new StringJoiner(" ")
-                    .add(userInfo.getOrDefault("first_name",""))
-                    .add(userInfo.getOrDefault("last_name", "")).toString());
-            user.setEmail(email);
+                    .add(userInfo.getFirstName())
+                    .add(userInfo.getLastName()).toString());
+            user.setEmail(authRequest.getEmail());
             session.setAttribute("vkUser", user);
             return false;
         }

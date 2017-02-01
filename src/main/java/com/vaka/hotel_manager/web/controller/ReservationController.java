@@ -1,13 +1,13 @@
 package com.vaka.hotel_manager.web.controller;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.domain.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.User;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomService;
-import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.service.UserService;
 import com.vaka.hotel_manager.util.ServletExtractor;
 import com.vaka.hotel_manager.util.ValidationUtil;
@@ -51,8 +51,10 @@ public class ReservationController {
                 created = getUserService().create(loggedUser, created);
             } catch (CreatingException e){
                 LOG.debug(e.getMessage(), e);
+                req.getSession().setAttribute("exception", e.getMessage());
+                req.getSession().setAttribute("email", created.getEmail());
                 req.getSession().setAttribute("reservation", reservation);
-                resp.sendRedirect("/signin?redirectUrl=/");
+                resp.sendRedirect("/signin?redirectUri=/");
                 return;
             }
             reservation.setUser(created);
@@ -105,7 +107,7 @@ public class ReservationController {
             exceptionMessage = ex.getMessage();
         }
         if (!success) {
-            req.setAttribute("reservation", getReservationService().getById(loggedUser, reservationId));
+            req.setAttribute("reservation", getReservationService().getById(loggedUser, reservationId).get());
             req.setAttribute("rooms", getRoomService().findAvailableForReservation(loggedUser, reservationId));
             req.setAttribute("exception", exceptionMessage);
             req.getRequestDispatcher("/jsp/reservationInfo.jsp").forward(req, resp);
@@ -117,14 +119,18 @@ public class ReservationController {
     public void confirmedPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("To confirmed reservations page");
-        req.setAttribute("reservationList", getReservationService().findByStatusFromDate(loggedUser, ReservationStatus.CONFIRMED, LocalDate.now()));
+        Integer page = ServletExtractor.extractOrDefault(req.getParameter("page"), 1, Integer::parseInt);
+        Integer size = ServletExtractor.extractOrDefault(req.getParameter("size"), 10, Integer::parseInt);
+        req.setAttribute("reservationPage", getReservationService().findPageByStatusFromDate(loggedUser, ReservationStatus.CONFIRMED, LocalDate.now(), page, size));
         req.getRequestDispatcher("/jsp/confirmedReservations.jsp").forward(req, resp);
     }
 
     public void requestsList(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("To requested reservations page");
-        req.setAttribute("reservationList", getReservationService().findByStatusFromDate(loggedUser, ReservationStatus.REQUESTED, LocalDate.MIN));
+        Integer page = ServletExtractor.extractOrDefault(req.getParameter("page"), 1, Integer::parseInt);
+        Integer size = ServletExtractor.extractOrDefault(req.getParameter("size"), 10, Integer::parseInt);
+        req.setAttribute("reservationPage", getReservationService().findPageByStatusFromDate(loggedUser, ReservationStatus.REQUESTED, LocalDate.MIN, page, size));
         req.getRequestDispatcher("/jsp/reservationRequests.jsp").forward(req, resp);
     }
 

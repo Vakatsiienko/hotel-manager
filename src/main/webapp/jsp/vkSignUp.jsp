@@ -24,7 +24,7 @@
 <%@include file="header.jspf" %>
 
 
-<form action="${pageContext.request.contextPath}" method="post" id="createForm">
+<form action="/signup-vk" method="post" id="createForm">
     <table id="signup">
         <tr>
             <th class="ftitle" colspan="2"><fmt:message key="SignUp" bundle="${bundle}"/></th>
