@@ -3,7 +3,6 @@ package com.vaka.hotel_manager.core.tx;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.repository.exception.ConstraintViolationException;
 import com.vaka.hotel_manager.repository.util.SQLFunction;
-import com.vaka.hotel_manager.repository.util.SQLNullaryFunction;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.exception.TransactionException;
 import org.slf4j.Logger;
@@ -63,10 +62,11 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
             throw new TransactionException(String.format("Transaction is in illegal state: %s", STATUS.get()));
         try (Connection connection = CONNECTION.get()) {
             connection.commit();
-            STATUS.set(TransactionStatus.NOT_ACTIVE);
-            CONNECTION.remove();
         } catch (SQLException e) {
             throw new TransactionException(e);
+        } finally {
+            STATUS.set(TransactionStatus.NOT_ACTIVE);
+            CONNECTION.remove();
         }
     }
 
@@ -77,10 +77,11 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
         if (STATUS.get() == TransactionStatus.ACTIVE || STATUS.get() == TransactionStatus.ACTIVE_ROLLBACK_ONLY) {
             try (Connection connection = CONNECTION.get()) {
                 connection.rollback();
-                STATUS.set(TransactionStatus.NOT_ACTIVE);
-                CONNECTION.remove();
             } catch (SQLException e) {
                 throw new TransactionException(e);
+            } finally {
+                STATUS.set(TransactionStatus.NOT_ACTIVE);
+                CONNECTION.remove();
             }
         } else
             throw new TransactionException(String.format("Transaction is in illegal state: %s", STATUS.get()));
@@ -121,7 +122,7 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
     @Override
     public <T> T withConnection(SQLFunction<Connection, T> withCon) {
         try {
-            if (CONNECTION.get() == null){
+            if (STATUS.get() == TransactionStatus.NOT_ACTIVE){
                 return withOutTransaction(withCon);
             } else return withCon.apply(CONNECTION.get());
         } catch (SQLException e) {
