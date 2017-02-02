@@ -165,7 +165,7 @@
                             <input id="name" name="name"
                                    value="${loggedUser.name}"
                                    min="5" max="30"
-                                   required>
+                                   required pattern="[\s\w\.]*.*['’][\s\w\.]*">
                         </td>
                     </tr>
                     <tr class="fitem">
@@ -174,7 +174,7 @@
                         </th>
                         <td>
                             <input id="email" name="email" type="email"
-                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$" max="32"
+                                   pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" max="50"
                                    required title="<fmt:message key="emailTitle" bundle="${bundle}"/>">
                         </td>
                     </tr>
@@ -206,7 +206,7 @@
                     <label for="guests"><fmt:message key="Guests" bundle="${bundle}"/>:</label>
                 </th>
                 <td>
-                    <input id="guests" name="guests" type="number" min="1" step="1" pattern="\d*"
+                    <input id="guests" name="guests" type="number" min="1" max="50" step="1" pattern="\d*"
                            value="${reservation.guests}" required>
                 </td>
             </tr>
@@ -220,7 +220,7 @@
                             <jsp:useBean id="clazz" scope="page"
                                          type="com.vaka.hotel_manager.domain.entities.RoomClass"/>
                             <option value="${clazz.name}"
-                                    <c:if test="${reservation.requestedRoomClass == clazz.name}">
+                                    <c:if test="${reservation.requestedRoomClass.name == clazz.name}">
                                         selected
                                     </c:if>
                             >${clazz.name}</option>

@@ -1,7 +1,9 @@
 package com.vaka.hotel_manager.core.tx;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.repository.exception.ConstraintViolationException;
 import com.vaka.hotel_manager.repository.util.SQLFunction;
+import com.vaka.hotel_manager.repository.util.SQLNullaryFunction;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.exception.TransactionException;
 import org.slf4j.Logger;
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 
 /**
  * Created by Iaroslav on 12/30/2016.
@@ -118,10 +121,21 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
     @Override
     public <T> T withConnection(SQLFunction<Connection, T> withCon) {
         try {
-            return withCon.apply(CONNECTION.get());
+            if (CONNECTION.get() == null){
+                return withOutTransaction(withCon);
+            } else return withCon.apply(CONNECTION.get());
         } catch (SQLException e) {
             LOG.info(e.getMessage(), e);
+            if (e instanceof SQLIntegrityConstraintViolationException){
+                throw new ConstraintViolationException(e);
+            }
             throw new RepositoryException("Internal server error");
+        }
+    }
+
+    private <T> T withOutTransaction(SQLFunction<Connection, T> withCon) throws SQLException {
+        try (Connection connection = getDataSource().getConnection()){
+            return withCon.apply(connection);
         }
     }
 

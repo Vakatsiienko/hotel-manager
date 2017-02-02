@@ -90,7 +90,7 @@ public class DispatcherServlet extends HttpServlet {
         } catch (AuthorizationException e3) {
             LOG.debug(e3.getMessage(), e3);
             resp.sendError(403, e3.getMessage());
-        } catch (Exception e){
+        } catch (Throwable e){
             LOG.error(e.getMessage(), e);
             resp.sendError(500, "Internal server error");
         }
@@ -147,7 +147,7 @@ public class DispatcherServlet extends HttpServlet {
         } catch (AuthorizationException e3) {
             LOG.debug(e3.getMessage(), e3);
             resp.sendError(403, e3.getMessage());
-        } catch (Exception e){
+        } catch (Throwable e){
             LOG.error(e.getMessage(), e);
             resp.sendError(500, "Internal server error");
         }

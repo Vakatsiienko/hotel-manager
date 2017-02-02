@@ -8,9 +8,12 @@ import com.vaka.hotel_manager.domain.entities.Bill;
 import com.vaka.hotel_manager.domain.entities.Reservation;
 import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.repository.BillRepository;
+import com.vaka.hotel_manager.repository.exception.ConstraintViolationException;
 import com.vaka.hotel_manager.service.BillService;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.util.DomainFactory;
+import com.vaka.hotel_manager.util.exception.ApplicationException;
+import com.vaka.hotel_manager.util.exception.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,14 +34,26 @@ public class BillServiceImpl implements BillService {
     public Bill createForReservation(User loggedUser, Reservation reservation) {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Creating bill from reservation: {}", reservation);
-        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE,
-                () -> {
-                    if (getBillRepository().getByReservationId(reservation.getId()).isPresent())
-                        throw new IllegalArgumentException("Bill for this reservation already created");
-                    Bill bill = DomainFactory.createBillFromReservation(reservation);
-                    bill.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-                    return getTransactionHelper().doInner(() -> getBillRepository().create(bill));
-                });
+        Bill bill = new Bill();
+        bill.setReservation(reservation);
+        bill.setTotalCost(caltucateTotalCost(reservation));
+        bill.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        try {
+            return getBillRepository().create(bill);
+        } catch (RepositoryException e) {
+            if (e instanceof ConstraintViolationException) {
+                throw new IllegalArgumentException("Bill for this reservation already created");
+            } else {
+                LOG.error(e.getMessage(), e);
+                throw new ApplicationException(e);
+            }
+        }
+    }
+
+
+    private int caltucateTotalCost(Reservation reservation) {
+        return (int) (reservation.getRoom().getCostPerDay() *
+                (reservation.getDepartureDate().toEpochDay() - reservation.getArrivalDate().toEpochDay()));
     }
 
     @Override
@@ -47,10 +62,10 @@ public class BillServiceImpl implements BillService {
         Optional<Bill> bill = getTransactionHelper().doTransactional(() -> getBillRepository().getByReservationId(reservationId));
         //if loggedUser is not owner of this bill and he don't have
         //appropriate role produce AuthorizationException
-        if (bill.isPresent()) {
-            if (!bill.get().getReservation().getUser().getId().equals(loggedUser.getId()))
+        bill.ifPresent((bill1) -> {
+            if (!bill1.getReservation().getUser().getId().equals(loggedUser.getId()))
                 getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-        }
+        });
         return bill;
     }
 
@@ -97,9 +112,10 @@ public class BillServiceImpl implements BillService {
         }
         return billRepository;
     }
+
     public SecurityService getSecurityService() {
-        if (securityService == null){
-            synchronized (this){
+        if (securityService == null) {
+            synchronized (this) {
                 if (securityService == null) {
                     securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
                 }

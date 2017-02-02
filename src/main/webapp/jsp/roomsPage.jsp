@@ -123,8 +123,8 @@
         }
 
         #paginationButtons {
-            position: relative;
-            left: 80%;
+            position: absolute;
+            right: 0px;
         }
 
         #addWindow {

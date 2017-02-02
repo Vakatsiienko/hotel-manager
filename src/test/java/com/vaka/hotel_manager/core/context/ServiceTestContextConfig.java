@@ -33,6 +33,7 @@ public class ServiceTestContextConfig extends ApplicationContextConfig {
 
 
     private Map<Class<?>, Object> implBeanByName;
+
     {
         MockitoAnnotations.initMocks(this);
         implBeanByName = new HashMap<>();
@@ -43,11 +44,6 @@ public class ServiceTestContextConfig extends ApplicationContextConfig {
         implBeanByName.put(RoomClassRepository.class, roomClassRepository);
         implBeanByName.put(TransactionHelper.class, new TestTransactionHelper(new TestTransactionManager()));
         implBeanByName.keySet().forEach(getImplClassByBeanName()::remove);
-    }
-
-    @Override
-    public Map<Class<?>, Class<?>> getImplClassByBeanName() {
-        return super.getImplClassByBeanName();
     }
 
     @Override

@@ -7,11 +7,13 @@ ALTER TABLE room DROP FOREIGN KEY fk_room_room_class;
 DROP INDEX ind_bill_reservation_id ON bill;
 DROP INDEX ind_reservation_user_id_departure_date_created_datetime ON reservation;
 DROP INDEX ind_user_email ON user;
+DROP INDEX ind_user_vk_id ON user;
 
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS bill;
 DROP TABLE IF EXISTS room;
 DROP TABLE IF EXISTS reservation;
+DROP TABLE IF EXISTS room_class;
 
 DROP DATABASE hotel_manager;
 CREATE DATABASE hotel_manager DEFAULT CHARACTER SET utf8
@@ -22,7 +24,7 @@ CREATE TABLE user
 (
   id               BIGINT(20) PRIMARY KEY AUTO_INCREMENT    NOT NULL,
   created_datetime TIMESTAMP                                NOT NULL,
-  email            VARCHAR(32) UNIQUE                       NOT NULL,
+  email            VARCHAR(50) UNIQUE                       NOT NULL,
   password         VARCHAR(64)                              NOT NULL,
   name             VARCHAR(30)                              NOT NULL,
   role             VARCHAR(20)                              NOT NULL,

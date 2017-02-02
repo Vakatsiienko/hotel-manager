@@ -15,13 +15,13 @@
 
         #userTable {
             position: absolute;
-            left: 15%;
+            left: 20%;
             top: 1%;
         }
 
     </style>
     <script type="text/javascript">
-        $(document).ready(function () {
+        $(function () {
             $("#reservationTable").dataTable({
                 "dom": "<tp>",
                 "ordering": false,
@@ -53,12 +53,12 @@
     </tr>
     <tr>
         <th><fmt:message key="Name" bundle="${bundle}"/></th>
-        <td>${user.name}</td>
+        <td><c:out value="${user.name}"/></td>
     </tr>
 
     <tr>
         <th><fmt:message key="Email" bundle="${bundle}"/></th>
-        <td>${user.email}</td>
+        <td><c:out value="${user.email}"/> </td>
     </tr>
 
     <tr>
@@ -85,8 +85,6 @@
     </thead>
     <tbody>
     <c:forEach items="${reservationList}" var="reservation">
-        <jsp:useBean id="reservation" scope="page"
-                     type="com.vaka.hotel_manager.domain.dto.ReservationDTO"/>
         <tr>
             <th>${reservation.id}</th>
             <th>${reservation.guests}</th>
