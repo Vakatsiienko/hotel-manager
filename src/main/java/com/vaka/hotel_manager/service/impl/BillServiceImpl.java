@@ -57,10 +57,10 @@ public class BillServiceImpl implements BillService {
     @Override
     public Optional<Bill> getBillByReservationId(User loggedUser, Integer reservationId) {
         LOG.debug("reservationId: {}", reservationId);
-        Optional<Bill> bill = getTransactionHelper().doTransactional(() -> getBillRepository().getByReservationId(reservationId));
+        Optional<Bill> bill = getBillRepository().getByReservationId(reservationId);
         //if loggedUser is not owner of this bill and he don't have
         //appropriate role produce AuthorizationException
-        bill.ifPresent((bill1) -> {
+        bill.ifPresent(bill1 -> {
             if (!bill1.getReservation().getUser().getId().equals(loggedUser.getId()))
                 getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         });
@@ -72,13 +72,13 @@ public class BillServiceImpl implements BillService {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         bill.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         LOG.debug("Creating bill: {}", bill);
-        return getTransactionHelper().doTransactional(() -> getBillRepository().create(bill));
+        return getBillRepository().create(bill);
     }
 
     @Override
     public Optional<Bill> getById(User loggedUser, Integer id) {
         LOG.debug("Searching bill with id: {}", id);
-        Optional<Bill> bill = getTransactionHelper().doTransactional(() -> getBillRepository().getById(id));
+        Optional<Bill> bill = getBillRepository().getById(id);
         if (bill.isPresent()) {
             if (bill.get().getReservation().getUser().getId().equals(loggedUser.getId()))
                 getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
@@ -90,14 +90,14 @@ public class BillServiceImpl implements BillService {
     public boolean delete(User loggedUser, Integer id) {
         LOG.debug("Deleting bill with id: {}", id);
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-        return getTransactionHelper().doTransactional(() -> getBillRepository().delete(id));
+        return getBillRepository().delete(id);
     }
 
     @Override
     public boolean update(User loggedUser, Integer id, Bill bill) {
         LOG.debug("Updating bill with id: {} , bill: {}", id, bill);
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-        return getTransactionHelper().doTransactional(() -> getBillRepository().update(id, bill));
+        return getBillRepository().update(id, bill);
     }
 
     public BillRepository getBillRepository() {

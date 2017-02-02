@@ -1,8 +1,8 @@
 package com.vaka.hotel_manager.service.impl;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
-import com.vaka.hotel_manager.core.security.SecurityUtils;
 import com.vaka.hotel_manager.core.security.SecurityService;
+import com.vaka.hotel_manager.core.security.SecurityUtils;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.domain.entity.User;
@@ -49,15 +49,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getById(User loggedUser, Integer id) {
         LOG.debug("Getting user by id: {}", id);
-        return getTransactionHelper().doTransactional(() -> {
-            Optional<User> requested = getUserRepository().getById(id);
-            if (requested.isPresent()) {
-                if (!id.equals(loggedUser.getId()))
-                    getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-            }
-            eraseSensitivityCredentials(requested.get());
-            return requested;
-        });
+        Optional<User> requested = getUserRepository().getById(id);
+        if (requested.isPresent()) {
+            if (!id.equals(loggedUser.getId()))
+                getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
+        }
+        eraseSensitivityCredentials(requested.get());
+        return requested;
     }
 
     private User eraseSensitivityCredentials(User user) {
@@ -69,7 +67,7 @@ public class UserServiceImpl implements UserService {
     public boolean delete(User loggedUser, Integer id) {
         LOG.debug("Deleting user by id: {}", id);
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-        return getTransactionHelper().doTransactional(() -> getUserRepository().delete(id));
+        return getUserRepository().delete(id);
     }
 
     @Override
@@ -77,7 +75,7 @@ public class UserServiceImpl implements UserService {
         LOG.debug("Updating user with id: %s, state: {}", id, user);
         if (!loggedUser.getId().equals(id))
             getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-        return getTransactionHelper().doTransactional(() -> getUserRepository().update(id, user));
+        return getUserRepository().update(id, user);
     }
 
     public UserRepository getUserRepository() {

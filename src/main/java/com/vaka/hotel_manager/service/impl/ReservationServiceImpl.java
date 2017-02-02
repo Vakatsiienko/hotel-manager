@@ -5,8 +5,9 @@ import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.security.SecurityUtils;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.core.tx.TransactionManager;
+import com.vaka.hotel_manager.domain.Page;
+import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.dto.ReservationDTO;
-import com.vaka.hotel_manager.domain.*;
 import com.vaka.hotel_manager.domain.entity.Reservation;
 import com.vaka.hotel_manager.domain.entity.Room;
 import com.vaka.hotel_manager.domain.entity.RoomClass;
@@ -72,21 +73,21 @@ public class ReservationServiceImpl implements ReservationService {
         LOG.debug("Searching active reservations by userId: {}", userId);
         if (!userId.equals(loggedUser.getId()))
             getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-        return getTransactionHelper().doTransactional(() -> getReservationRepository().findActiveByUserId(userId));
+        return getReservationRepository().findActiveByUserId(userId);
     }
 
     @Override
     public Page<ReservationDTO> findPageByStatusFromDate(User loggedUser, ReservationStatus status, LocalDate fromDate, Integer page, Integer size) {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Searching reservations by status: {}, from date: {}", status, fromDate);
-        return getTransactionHelper().doTransactional(() -> getReservationRepository().findPageByStatusFromDate(status, fromDate, page, size));
+        return getReservationRepository().findPageByStatusFromDate(status, fromDate, page, size);
     }
 
     @Override
     public Page<ReservationDTO> findPageActiveByRoomClassNameAndArrivalDate(User loggedUser, String roomClassName, LocalDate arrivalDate, Integer page, Integer size) {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Searching reservations by roomClass: {}, arrivalDate: {}", roomClassName, arrivalDate);
-        return getTransactionHelper().doTransactional(() -> getReservationRepository().findActiveByRoomClassNameAndArrivalDate(roomClassName, arrivalDate, page, size));
+        return getReservationRepository().findActiveByRoomClassNameAndArrivalDate(roomClassName, arrivalDate, page, size);
     }
 
     @Override
@@ -94,7 +95,7 @@ public class ReservationServiceImpl implements ReservationService {
         LOG.debug("Searching reservations by status: {}, and userId: {}", status, userId);
         if (!userId.equals(loggedUser.getId()))
             getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-        return getTransactionHelper().doTransactional(() -> getReservationRepository().findByUserIdAndStatus(userId, status));
+        return getReservationRepository().findByUserIdAndStatus(userId, status);
     }
 
     @Override
@@ -134,7 +135,7 @@ public class ReservationServiceImpl implements ReservationService {
     public Optional<Reservation> getById(User loggedUser, Integer id) {
         LOG.debug("Searching reservation with id: {}", id);
 
-        Optional<Reservation> reservation = getTransactionHelper().doTransactional(() -> getReservationRepository().getById(id));
+        Optional<Reservation> reservation = getReservationRepository().getById(id);
         if (reservation.isPresent()) {
             if (!reservation.get().getUser().getId().equals(loggedUser.getId())) {
                 getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
@@ -146,14 +147,12 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public boolean update(User loggedUser, Integer id, Reservation reservation) {
         LOG.debug("Updating reservation with id: {}, updating state: {}", id, reservation);
-        return getTransactionHelper().doTransactional(() -> {
-            Optional<Reservation> reservationOptional = getById(loggedUser, id);
-            if (reservationOptional.isPresent()) {
-                if (!reservation.getUser().getId().equals(loggedUser.getId()))
-                    getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-                return getReservationRepository().update(id, reservation);
-            } else return false;
-        });
+        Optional<Reservation> reservationOptional = getById(loggedUser, id);
+        if (reservationOptional.isPresent()) {
+            if (!reservation.getUser().getId().equals(loggedUser.getId()))
+                getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
+            return getReservationRepository().update(id, reservation);
+        } else return false;
 
     }
 
@@ -161,7 +160,7 @@ public class ReservationServiceImpl implements ReservationService {
     public boolean delete(User loggedUser, Integer id) {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Deleting reservation with id: {}", id);
-        return getTransactionHelper().doTransactional(() -> getReservationRepository().delete(id));
+        return getReservationRepository().delete(id);
     }
 
     private ReservationRepository getReservationRepository() {

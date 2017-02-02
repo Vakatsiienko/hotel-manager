@@ -28,7 +28,7 @@ public class RoomClassServiceImpl implements RoomClassService {
 
     @Override
     public List<RoomClass> findAll(User loggedUser) {
-        return getTransactionHelper().doTransactional(getRoomClassRepository()::findAll);
+        return getRoomClassRepository().findAll();
     }
 
     @Override
@@ -37,7 +37,7 @@ public class RoomClassServiceImpl implements RoomClassService {
         entity.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE, () -> {
             Optional<RoomClass> roomClass = getRoomClassRepository().getByName(entity.getName());
-            if (roomClass.isPresent())
+            if (roomClass.isPresent())//TODO add constraint exception handle
                 throw new CreatingException("Room Class with such name already exist");
             return getRoomClassRepository().create(entity);
         });
@@ -45,20 +45,20 @@ public class RoomClassServiceImpl implements RoomClassService {
 
     @Override
     public Optional<RoomClass> getById(User loggedUser, Integer id) {
-        return getTransactionHelper().doTransactional(() -> getRoomClassRepository().getById(id));
+        return getRoomClassRepository().getById(id);
     }
 
     @Override
     public boolean delete(User loggedUser, Integer id) {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE, () ->
+        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE, () ->//TODO add constraint exception handle
                 !getRoomRepository().existsRoomByRoomClass(id) && getRoomClassRepository().delete(id));
     }
 
     @Override
     public boolean update(User loggedUser, Integer id, RoomClass entity) {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-        return getTransactionHelper().doTransactional(() -> getRoomClassRepository().update(id, entity));
+        return getRoomClassRepository().update(id, entity);
     }
 
     public RoomClassRepository getRoomClassRepository() {
