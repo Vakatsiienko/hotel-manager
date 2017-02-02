@@ -44,6 +44,8 @@ public class UserController {
         }
         String phone = req.getParameter("phoneNumber");
         String name = req.getParameter("name");
+        if (vkUser.getEmail() == null)
+            vkUser.setEmail(req.getParameter("email"));
         vkUser.setPhoneNumber(phone);
         vkUser.setName(name);
         String password = RandomStringUtils.random(8);

@@ -24,7 +24,8 @@ public class DomainToStatementExtractor {
         statement.setStatement("userName", user.getName());
         statement.setStatement("userRole", user.getRole().name());
         statement.setStatement("userPhoneNumber", user.getPhoneNumber());
-        statement.setStatement("userVkId", user.getVkId());
+        if (user.getVkId() != null)
+            statement.setStatement("userVkId", user.getVkId());
         return statement;
     }
 

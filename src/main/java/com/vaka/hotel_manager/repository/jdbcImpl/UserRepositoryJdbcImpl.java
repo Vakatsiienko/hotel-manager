@@ -65,7 +65,10 @@ public class UserRepositoryJdbcImpl implements UserRepository {
 
     @Override
     public User create(User entity) {
-        String strQuery = getQueryByClassAndMethodName().get("user.create");
+        String strQuery;
+        if (entity.getVkId() == null) {
+            strQuery = getQueryByClassAndMethodName().get("user.createWithoutVk");
+        } else strQuery = getQueryByClassAndMethodName().get("user.create");
         RepositoryUtils.logQuery(LOG, strQuery, entity);
         return getCrudHelper().create(
                 DomainToStatementExtractor::extract,

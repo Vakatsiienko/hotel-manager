@@ -56,7 +56,15 @@
                 <label for="email"><fmt:message key="Email" bundle="${bundle}"/>:</label>
             </th>
             <td>
-                <span id="email">${vkUser.email}</span>
+                <c:choose>
+                    <c:when test="${empty vkUser.email}">
+                        <input id="email" name="email" type="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$"
+                               required>
+                    </c:when>
+                    <c:otherwise>
+                        <span id="email">${vkUser.email}</span>
+                    </c:otherwise>
+                </c:choose>
             </td>
         </tr>
         <tr>

@@ -3,6 +3,10 @@ INSERT INTO user (created_datetime, email, password, name, role, phone_number, v
 VALUES
   (:userCreatedDatetime, :userEmail, :userPassword, :userName, :userRole, :userPhoneNumber,
    :userVkId);
+# user.createWithoutVk
+INSERT INTO user (created_datetime, email, password, name, role, phone_number)
+VALUES
+  (:userCreatedDatetime, :userEmail, :userPassword, :userName, :userRole, :userPhoneNumber);
 # user.getById
 SELECT
   u.id               AS user_id,
