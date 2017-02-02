@@ -5,7 +5,7 @@ import com.vaka.hotel_manager.core.security.SecurityUtils;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.core.tx.TransactionManager;
-import com.vaka.hotel_manager.domain.entities.User;
+import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.service.UserService;
 import com.vaka.hotel_manager.util.exception.CreatingException;

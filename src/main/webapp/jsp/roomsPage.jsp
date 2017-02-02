@@ -192,7 +192,7 @@
     <jsp:useBean id="roomPage" type="com.vaka.hotel_manager.domain.Page" scope="request"/>
     <c:forEach items="${roomPage.content}" var="room">
         <jsp:useBean id="room" scope="page"
-                     type="com.vaka.hotel_manager.domain.entities.Room"/>
+                     type="com.vaka.hotel_manager.domain.entity.Room"/>
         <tr>
             <th>${room.number}</th>
             <th>${room.capacity}</th>
@@ -229,7 +229,7 @@
     <div class="ftitle">Room Information</div>
     <form id="addForm" action="/rooms" method="POST">
         <c:if test="${!empty sessionRoom}">
-            <jsp:useBean id="sessionRoom" class="com.vaka.hotel_manager.domain.entities.Room"
+            <jsp:useBean id="sessionRoom" class="com.vaka.hotel_manager.domain.entity.Room"
                          scope="session"/>
         </c:if>
         <div class="fitem">
@@ -264,7 +264,7 @@
             <select id="roomClass" name="roomClassName" required>
                 <c:forEach items="${roomClasses}" var="clazz">
                     <jsp:useBean id="clazz" scope="page"
-                                 type="com.vaka.hotel_manager.domain.entities.RoomClass"/>
+                                 type="com.vaka.hotel_manager.domain.entity.RoomClass"/>
                     <option value="${clazz.name}"
                             <c:if test="${!empty sessionRoom}">
                                 <c:if test="${sessionRoom.roomClass.name == clazz.name}">

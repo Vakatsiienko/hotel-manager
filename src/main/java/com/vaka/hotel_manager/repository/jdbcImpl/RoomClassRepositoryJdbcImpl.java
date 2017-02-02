@@ -3,7 +3,7 @@ package com.vaka.hotel_manager.repository.jdbcImpl;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;
 import com.vaka.hotel_manager.domain.dto.RoomClassDTO;
-import com.vaka.hotel_manager.domain.entities.RoomClass;
+import com.vaka.hotel_manager.domain.entity.RoomClass;
 import com.vaka.hotel_manager.repository.RoomClassRepository;
 import com.vaka.hotel_manager.repository.util.*;
 import org.slf4j.Logger;

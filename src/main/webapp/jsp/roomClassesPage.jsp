@@ -120,7 +120,7 @@
     <tbody>
     <c:forEach items="${roomClassList}" var="roomClass">
         <jsp:useBean id="roomClass" scope="page"
-                     type="com.vaka.hotel_manager.domain.entities.RoomClass"/>
+                     type="com.vaka.hotel_manager.domain.entity.RoomClass"/>
         <tr>
             <td>${roomClass.name}</td>
             <td>

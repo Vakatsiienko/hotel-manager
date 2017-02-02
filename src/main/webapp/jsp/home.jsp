@@ -195,7 +195,7 @@
             </c:choose>
             <c:if test="${!empty reservation}">
                 <jsp:useBean id="reservation" scope="session"
-                             type="com.vaka.hotel_manager.domain.entities.Reservation"
+                             type="com.vaka.hotel_manager.domain.entity.Reservation"
                              beanName="reservation"/>
             </c:if>
             <tr>
@@ -218,7 +218,7 @@
                     <select id="roomClassName" name="roomClassName">
                         <c:forEach items="${roomClasses}" var="clazz">
                             <jsp:useBean id="clazz" scope="page"
-                                         type="com.vaka.hotel_manager.domain.entities.RoomClass"/>
+                                         type="com.vaka.hotel_manager.domain.entity.RoomClass"/>
                             <option value="${clazz.name}"
                                     <c:if test="${reservation.requestedRoomClass.name == clazz.name}">
                                         selected

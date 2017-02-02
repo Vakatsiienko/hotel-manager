@@ -2,7 +2,7 @@ package com.vaka.hotel_manager.service;
 
 import com.vaka.hotel_manager.EntityProviderUtil;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.entities.User;
+import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.CrudRepository;
 import com.vaka.hotel_manager.repository.UserRepository;
 

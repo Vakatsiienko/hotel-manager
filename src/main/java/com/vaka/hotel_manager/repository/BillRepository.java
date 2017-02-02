@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.repository;
 
-import com.vaka.hotel_manager.domain.entities.Bill;
+import com.vaka.hotel_manager.domain.entity.Bill;
 
 import java.util.Optional;
 

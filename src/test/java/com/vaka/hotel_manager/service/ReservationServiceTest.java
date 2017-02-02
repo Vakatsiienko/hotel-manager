@@ -2,8 +2,8 @@ package com.vaka.hotel_manager.service;
 
 import com.vaka.hotel_manager.EntityProviderUtil;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.entities.Reservation;
-import com.vaka.hotel_manager.domain.entities.User;
+import com.vaka.hotel_manager.domain.entity.Reservation;
+import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.*;
 
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package com.vaka.hotel_manager.webservice;
 
-import com.vaka.hotel_manager.webservice.jsonobjects.VkAuthRequest;
-import com.vaka.hotel_manager.webservice.jsonobjects.VkUserInfo;
+import com.vaka.hotel_manager.webservice.jsonobject.VkAuthRequest;
+import com.vaka.hotel_manager.webservice.jsonobject.VkUserInfo;
 
 /**
  * Created by Iaroslav on 1/31/2017.

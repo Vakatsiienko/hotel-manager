@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.repository;
 
-import com.vaka.hotel_manager.domain.entities.User;
+import com.vaka.hotel_manager.domain.entity.User;
 
 import java.util.Optional;
 

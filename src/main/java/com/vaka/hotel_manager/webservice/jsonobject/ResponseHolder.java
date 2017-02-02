@@ -1,4 +1,4 @@
-package com.vaka.hotel_manager.webservice.jsonobjects;
+package com.vaka.hotel_manager.webservice.jsonobject;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

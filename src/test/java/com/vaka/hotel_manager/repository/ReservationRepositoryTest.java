@@ -4,9 +4,9 @@ import com.vaka.hotel_manager.DBTestUtil;
 import com.vaka.hotel_manager.EntityProviderUtil;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.dto.ReservationDTO;
-import com.vaka.hotel_manager.domain.entities.Reservation;
+import com.vaka.hotel_manager.domain.entity.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
-import com.vaka.hotel_manager.domain.entities.User;
+import com.vaka.hotel_manager.domain.entity.User;
 import org.junit.Before;
 import org.junit.Test;
 

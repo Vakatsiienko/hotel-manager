@@ -46,7 +46,7 @@
 <body>
 
 <jsp:useBean id="user" scope="request"
-             type="com.vaka.hotel_manager.domain.entities.User"/>
+             type="com.vaka.hotel_manager.domain.entity.User"/>
 <table id="userTable" class="display" cellpadding="0">
     <tr>
         <th colspan="2"><h2><fmt:message key="ContactInfo" bundle="${bundle}"/></h2></th>

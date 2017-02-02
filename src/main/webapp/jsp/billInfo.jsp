@@ -17,7 +17,7 @@
 <%@include file="header.jspf" %>
 
 <jsp:useBean id="bill" scope="request"
-             type="com.vaka.hotel_manager.domain.entities.Bill"/>
+             type="com.vaka.hotel_manager.domain.entity.Bill"/>
 
 
 <table id="billTable" class="display" cellpadding="0">

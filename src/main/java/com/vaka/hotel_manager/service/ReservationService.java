@@ -2,9 +2,9 @@ package com.vaka.hotel_manager.service;
 
 import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.Page;
-import com.vaka.hotel_manager.domain.entities.Reservation;
+import com.vaka.hotel_manager.domain.entity.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
-import com.vaka.hotel_manager.domain.entities.User;
+import com.vaka.hotel_manager.domain.entity.User;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -26,7 +26,7 @@
 <body>
 
 <jsp:useBean id="room" scope="request"
-             type="com.vaka.hotel_manager.domain.entities.Room" beanName="room"/>
+             type="com.vaka.hotel_manager.domain.entity.Room" beanName="room"/>
 <form name="editRoomForm" action="/rooms/${room.id}" method="post">
 
     <table id="roomTable" class="display" cellpadding="0">
@@ -68,7 +68,7 @@
                 <select name="roomClassName">
                     <c:forEach items="${roomClasses}" var="roomClass">
                         <jsp:useBean id="roomClass" scope="page"
-                                     type="com.vaka.hotel_manager.domain.entities.RoomClass"/>
+                                     type="com.vaka.hotel_manager.domain.entity.RoomClass"/>
                         <c:choose>
                             <c:when test="${roomClass.name == room.roomClass.name}">
                                 <option value="${roomClass.name}"

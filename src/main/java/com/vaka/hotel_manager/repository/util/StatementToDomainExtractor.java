@@ -3,7 +3,7 @@ package com.vaka.hotel_manager.repository.util;
 import com.vaka.hotel_manager.domain.*;
 import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.dto.RoomClassDTO;
-import com.vaka.hotel_manager.domain.entities.*;
+import com.vaka.hotel_manager.domain.entity.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

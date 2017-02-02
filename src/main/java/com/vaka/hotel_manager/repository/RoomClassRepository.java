@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.repository;
 
-import com.vaka.hotel_manager.domain.entities.RoomClass;
+import com.vaka.hotel_manager.domain.entity.RoomClass;
 
 import java.util.List;
 import java.util.Optional;

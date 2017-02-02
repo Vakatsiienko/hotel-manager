@@ -2,7 +2,7 @@ package com.vaka.hotel_manager.web.servlet;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Role;
-import com.vaka.hotel_manager.domain.entities.User;
+import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
