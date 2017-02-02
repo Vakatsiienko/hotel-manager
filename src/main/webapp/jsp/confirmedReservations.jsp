@@ -77,6 +77,27 @@
                     }
                 }
             });
+            $(function () {
+                var today = new Date();
+                var d = today.getDate();
+                var m = today.getMonth() + 1;
+                var y = today.getFullYear();
+                if (d < 10) {
+                    d = '0' + d
+                }
+                if (m < 10) {
+                    m = '0' + m
+                }
+
+                var todayStr = y + '-' + m + '-' + d;
+                document.getElementById("arrivalDate").min = todayStr;
+                var arrivalDateValue = document.getElementById("arrivalDate").value;
+                if (arrivalDateValue != null)
+                    if (new Date(arrivalDateValue) >= today) {
+                        todayStr = arrivalDateValue;
+                    }
+                document.getElementById("arrivalDate").value = todayStr;
+            });
             paginationButtonsLoad();
             var val = getURLParameter('size', 10);
             var sel = document.getElementById('tableSize');
@@ -102,8 +123,23 @@
     </style>
 </head>
 <body>
-<div id="tableWrapper">
 
+<div id="searchFormWrapper">
+    <form id="searchForm" action="/reservations/confirmed/show-arrival" method="GET"><%--TODO change action--%>
+        <label for="roomClassesSelect"></label>
+        <select id="roomClassesSelect" name="roomClass">
+            <option value="All" selected><fmt:message key="All" bundle="${bundle}"/></option>
+            <c:forEach var="roomClass" items="${roomClasses}">
+                <option value="${roomClass.name}">${roomClass.name}</option>
+            </c:forEach>
+        </select>
+        <label for="arrivalDate"></label>
+        <input id="arrivalDate" type="date" name="arrivalDate" required>
+        <input type="submit">
+    </form>
+</div>
+
+<div id="tableWrapper">
 <select id="tableSize" onchange="changeSize()">
     <option value="5">5</option>
     <option value="10">10</option>
@@ -127,7 +163,7 @@
         <jsp:useBean id="reservationPage" type="com.vaka.hotel_manager.domain.Page" scope="request"/>
         <c:forEach items="${reservationPage.content}" var="reservation">
             <jsp:useBean id="reservation" scope="page"
-                         type="com.vaka.hotel_manager.domain.DTO.ReservationDTO"/>
+                         type="com.vaka.hotel_manager.domain.dto.ReservationDTO"/>
             <tr>
                 <th><a href="/reservations/${reservation.id}">${reservation.id}</a></th>
                 <th><a href="/users/${reservation.userId}">${reservation.userId}</a></th>

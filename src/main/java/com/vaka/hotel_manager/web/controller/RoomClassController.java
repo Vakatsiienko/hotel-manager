@@ -1,8 +1,8 @@
 package com.vaka.hotel_manager.web.controller;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.RoomClass;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.RoomClass;
+import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.service.RoomClassService;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.util.ServletExtractor;

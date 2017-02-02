@@ -164,6 +164,7 @@
                         <td>
                             <input id="name" name="name"
                                    value="${loggedUser.name}"
+                                   min="5" max="30"
                                    required>
                         </td>
                     </tr>
@@ -173,7 +174,7 @@
                         </th>
                         <td>
                             <input id="email" name="email" type="email"
-                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$"
+                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$" max="32"
                                    required title="<fmt:message key="emailTitle" bundle="${bundle}"/>">
                         </td>
                     </tr>
@@ -194,7 +195,7 @@
             </c:choose>
             <c:if test="${!empty reservation}">
                 <jsp:useBean id="reservation" scope="session"
-                             type="com.vaka.hotel_manager.domain.Reservation"
+                             type="com.vaka.hotel_manager.domain.entities.Reservation"
                              beanName="reservation"/>
             </c:if>
             <tr>
@@ -217,7 +218,7 @@
                     <select id="roomClassName" name="roomClassName">
                         <c:forEach items="${roomClasses}" var="clazz">
                             <jsp:useBean id="clazz" scope="page"
-                                         type="com.vaka.hotel_manager.domain.RoomClass"/>
+                                         type="com.vaka.hotel_manager.domain.entities.RoomClass"/>
                             <option value="${clazz.name}"
                                     <c:if test="${reservation.requestedRoomClass == clazz.name}">
                                         selected

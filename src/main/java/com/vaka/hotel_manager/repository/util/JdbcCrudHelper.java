@@ -2,10 +2,8 @@ package com.vaka.hotel_manager.repository.util;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;
-import com.vaka.hotel_manager.domain.BaseEntity;
+import com.vaka.hotel_manager.domain.entities.BaseEntity;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

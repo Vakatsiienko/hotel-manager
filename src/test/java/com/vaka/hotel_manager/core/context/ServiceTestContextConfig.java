@@ -4,7 +4,6 @@ import com.vaka.hotel_manager.core.context.config.ApplicationContextConfig;
 import com.vaka.hotel_manager.core.tx.TestTransactionHelper;
 import com.vaka.hotel_manager.core.tx.TestTransactionManager;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
-import com.vaka.hotel_manager.domain.RoomClass;
 import com.vaka.hotel_manager.repository.*;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;

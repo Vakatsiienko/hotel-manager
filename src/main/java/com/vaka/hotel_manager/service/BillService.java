@@ -1,8 +1,8 @@
 package com.vaka.hotel_manager.service;
 
-import com.vaka.hotel_manager.domain.Bill;
-import com.vaka.hotel_manager.domain.Reservation;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.Bill;
+import com.vaka.hotel_manager.domain.entities.Reservation;
+import com.vaka.hotel_manager.domain.entities.User;
 
 import java.util.Optional;
 

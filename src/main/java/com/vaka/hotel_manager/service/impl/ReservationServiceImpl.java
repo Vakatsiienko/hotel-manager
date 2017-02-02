@@ -5,8 +5,12 @@ import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.security.SecurityUtils;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.core.tx.TransactionManager;
-import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
+import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.*;
+import com.vaka.hotel_manager.domain.entities.Reservation;
+import com.vaka.hotel_manager.domain.entities.Room;
+import com.vaka.hotel_manager.domain.entities.RoomClass;
+import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.repository.ReservationRepository;
 import com.vaka.hotel_manager.repository.RoomClassRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
@@ -73,10 +77,16 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Page<ReservationDTO> findPageByStatusFromDate(User loggedUser, ReservationStatus status, LocalDate fromDate, Integer page, Integer size) {
-        LOG.debug("Searching reservations by status: {}, from date: {}", status, fromDate);
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
+        LOG.debug("Searching reservations by status: {}, from date: {}", status, fromDate);
         return getTransactionHelper().doTransactional(() -> getReservationRepository().findPageByStatusFromDate(status, fromDate, page, size));
+    }
 
+    @Override
+    public Page<ReservationDTO> findPageActiveByRoomClassNameAndArrivalDate(User loggedUser, String roomClassName, LocalDate arrivalDate, Integer page, Integer size) {
+        getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
+        LOG.debug("Searching reservations by roomClass: {}, arrivalDate: {}", roomClassName, arrivalDate);
+        return getTransactionHelper().doTransactional(() -> getReservationRepository().findActiveByRoomClassNameAndArrivalDate(roomClassName, arrivalDate, page, size));
     }
 
     @Override

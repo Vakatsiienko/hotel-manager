@@ -1,7 +1,6 @@
 package com.vaka.hotel_manager.web.servlet;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
-import com.vaka.hotel_manager.util.exception.ApplicationException;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
 import com.vaka.hotel_manager.web.controller.*;
@@ -58,6 +57,8 @@ public class DispatcherServlet extends HttpServlet {
                     getReservationController().processingPage(req, resp);
                 } else if (uri.matches("/reservations/[0-9]+")) {
                     getReservationController().getById(req, resp);
+                } else if (uri.equals("/reservations/confirmed/show-arrival")){
+                    getReservationController().showArrival(req, resp);
                 } else {
                     resp.sendError(404, "Not Found");
                 }
@@ -89,9 +90,9 @@ public class DispatcherServlet extends HttpServlet {
         } catch (AuthorizationException e3) {
             LOG.debug(e3.getMessage(), e3);
             resp.sendError(403, e3.getMessage());
-        } catch (ApplicationException e4) {
-            LOG.error(e4.getMessage(), e4);//TODO set internal server error msg
-            resp.sendError(500, e4.getMessage());
+        } catch (Exception e){
+            LOG.error(e.getMessage(), e);
+            resp.sendError(500, "Internal server error");
         }
     }
 
@@ -146,9 +147,9 @@ public class DispatcherServlet extends HttpServlet {
         } catch (AuthorizationException e3) {
             LOG.debug(e3.getMessage(), e3);
             resp.sendError(403, e3.getMessage());
-        } catch (ApplicationException e4) {
-            LOG.error(e4.getMessage(), e4);
-            resp.sendError(500, e4.getMessage());
+        } catch (Exception e){
+            LOG.error(e.getMessage(), e);
+            resp.sendError(500, "Internal server error");
         }
     }
 

@@ -2,7 +2,7 @@ package com.vaka.hotel_manager.repository;
 
 import com.vaka.hotel_manager.DBTestUtil;
 import com.vaka.hotel_manager.EntityProviderUtil;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import org.junit.Assert;
 import org.junit.Before;

@@ -29,7 +29,7 @@
         <tr>
             <th class="ftitle" colspan="2"><fmt:message key="SignUp" bundle="${bundle}"/></th>
         </tr>
-        <jsp:useBean id="vkUser" class="com.vaka.hotel_manager.domain.User" scope="session"/>
+        <jsp:useBean id="vkUser" class="com.vaka.hotel_manager.domain.entities.User" scope="session"/>
         <tr class="fitem">
             <th>
                 <label for="name"><fmt:message key="Name" bundle="${bundle}"/>:</label>

@@ -2,11 +2,12 @@ package com.vaka.hotel_manager.web.controller;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.security.SecurityService;
-import com.vaka.hotel_manager.domain.Reservation;
+import com.vaka.hotel_manager.domain.entities.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.Role;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.service.ReservationService;
+import com.vaka.hotel_manager.service.RoomClassService;
 import com.vaka.hotel_manager.service.RoomService;
 import com.vaka.hotel_manager.service.UserService;
 import com.vaka.hotel_manager.util.ServletExtractor;
@@ -31,6 +32,7 @@ public class ReservationController {
     private ReservationService reservationService;
     private UserService userService;
     private RoomService roomService;
+    private RoomClassService roomClassService;
 
     private SecurityService securityService;
 
@@ -122,6 +124,19 @@ public class ReservationController {
         Integer page = ServletExtractor.extractOrDefault(req.getParameter("page"), 1, Integer::parseInt);
         Integer size = ServletExtractor.extractOrDefault(req.getParameter("size"), 10, Integer::parseInt);
         req.setAttribute("reservationPage", getReservationService().findPageByStatusFromDate(loggedUser, ReservationStatus.CONFIRMED, LocalDate.now(), page, size));
+        req.setAttribute("roomClasses", getRoomClassService().findAll(loggedUser));
+        req.getRequestDispatcher("/jsp/confirmedReservations.jsp").forward(req, resp);
+    }
+
+    public void showArrival(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        User loggedUser = getSecurityService().authenticate(req.getSession());
+        LOG.debug("Show arrival reservations");
+        Integer page = ServletExtractor.extractOrDefault(req.getParameter("page"), 1, Integer::parseInt);
+        Integer size = ServletExtractor.extractOrDefault(req.getParameter("size"), 10, Integer::parseInt);
+        String roomClassName = ServletExtractor.getOrDefault(req.getParameter("roomClass"), "Any");
+        LocalDate arrivalDate = ServletExtractor.extractOrDefault(req.getParameter("arrivalDate"), LocalDate.now(), LocalDate::parse);
+        req.setAttribute("reservationPage", getReservationService().findPageActiveByRoomClassNameAndArrivalDate(loggedUser, roomClassName, arrivalDate, page, size));
+        req.setAttribute("roomClasses", getRoomClassService().findAll(loggedUser));
         req.getRequestDispatcher("/jsp/confirmedReservations.jsp").forward(req, resp);
     }
 
@@ -202,5 +217,16 @@ public class ReservationController {
             }
         }
         return roomService;
+    }
+
+    public RoomClassService getRoomClassService() {
+        if (roomClassService == null) {
+            synchronized (this) {
+                if (roomClassService == null) {
+                    roomClassService = ApplicationContext.getInstance().getBean(RoomClassService.class);
+                }
+            }
+        }
+        return roomClassService;
     }
 }

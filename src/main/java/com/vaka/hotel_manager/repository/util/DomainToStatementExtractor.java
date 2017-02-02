@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.repository.util;
 
-import com.vaka.hotel_manager.domain.*;
+import com.vaka.hotel_manager.domain.entities.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

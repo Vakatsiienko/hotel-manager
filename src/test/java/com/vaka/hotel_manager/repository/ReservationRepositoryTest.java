@@ -3,10 +3,10 @@ package com.vaka.hotel_manager.repository;
 import com.vaka.hotel_manager.DBTestUtil;
 import com.vaka.hotel_manager.EntityProviderUtil;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
-import com.vaka.hotel_manager.domain.Reservation;
+import com.vaka.hotel_manager.domain.dto.ReservationDTO;
+import com.vaka.hotel_manager.domain.entities.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.User;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +29,6 @@ public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
     private RoomRepository roomRepository = ApplicationContext.getInstance().getBean(RoomRepository.class);
     private UserRepository userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
     private RoomClassRepository roomClassRepository = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
-//TODO write own connectionManageer
 
     @Before
     public void setUp() throws SQLException, ClassNotFoundException, IOException {

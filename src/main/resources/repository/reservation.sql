@@ -126,3 +126,50 @@ SELECT EXISTS(SELECT 1
 FROM reservation res
   INNER JOIN room r ON res.id = r.id
 WHERE r.id = :roomId AND res.status = 'CONFIRMED'  AND res.departure_date > :arrivalDate AND res.arrival_date < :departureDate);
+# reservation.findActiveByRoomClassNameAndArrivalDate
+SELECT
+  res.id               AS reservation_id,
+  res.created_datetime AS reservation_created_datetime,
+  u.id                 AS user_id,
+  r.id                 AS room_id,
+  res.guests           AS reservation_guests,
+  res.status           AS reservation_status,
+  res.arrival_date     AS reservation_arrival_date,
+  res.departure_date   AS reservation_departure_date,
+  res_rc.name          AS requested_room_class_name,
+  rc.name              AS room_class_name
+FROM reservation res INNER JOIN user u ON res.user_id = u.id
+  INNER JOIN room_class res_rc ON res.requested_room_class_id = res_rc.id
+  LEFT JOIN room r ON res.room_id = r.id
+  LEFT JOIN room_class rc ON r.room_class_id = rc.id
+WHERE res.status = 'CONFIRMED' AND rc.name = :roomClassName AND res.arrival_date = :arrivalDate
+LIMIT :offset, :size;
+# reservation.findActiveByRoomClassNameAndArrivalDateCount
+SELECT COUNT(1)
+FROM reservation res
+  INNER JOIN room_class res_rc ON res.requested_room_class_id = res_rc.id
+WHERE
+  res.status = 'CONFIRMED' AND res_rc.name = :roomClassName AND res.arrival_date = :arrivalDate;
+# reservation.findActiveByAnyRoomClassNameAndArrivalDate
+SELECT
+  res.id               AS reservation_id,
+  res.created_datetime AS reservation_created_datetime,
+  u.id                 AS user_id,
+  r.id                 AS room_id,
+  res.guests           AS reservation_guests,
+  res.status           AS reservation_status,
+  res.arrival_date     AS reservation_arrival_date,
+  res.departure_date   AS reservation_departure_date,
+  res_rc.name          AS requested_room_class_name,
+  rc.name              AS room_class_name
+FROM reservation res INNER JOIN user u ON res.user_id = u.id
+  INNER JOIN room_class res_rc ON res.requested_room_class_id = res_rc.id
+  LEFT JOIN room r ON res.room_id = r.id
+  LEFT JOIN room_class rc ON r.room_class_id = rc.id
+WHERE res.status = 'CONFIRMED' AND res.arrival_date = :arrivalDate
+LIMIT :offset, :size;
+# reservation.findActiveByAnyRoomClassNameAndArrivalDateCount
+SELECT COUNT(1)
+FROM reservation res
+WHERE
+  res.status = 'CONFIRMED' AND res.arrival_date = :arrivalDate;

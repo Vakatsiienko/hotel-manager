@@ -1,8 +1,8 @@
 package com.vaka.hotel_manager.repository;
 
 import com.vaka.hotel_manager.domain.Page;
-import com.vaka.hotel_manager.domain.Room;
-import com.vaka.hotel_manager.domain.RoomClass;
+import com.vaka.hotel_manager.domain.entities.Room;
+import com.vaka.hotel_manager.domain.entities.RoomClass;
 
 import java.time.LocalDate;
 import java.util.List;

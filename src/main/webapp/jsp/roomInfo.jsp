@@ -6,20 +6,27 @@
     <%@include file="header.jspf" %>
     <title><fmt:message key="RoomInfo" bundle="${bundle}"/></title>
     <script type="text/javascript">
-        function submitRoomForm() {
-            if ($("#editRoomForm").checkValidity()) {
+        //        function submitRoomForm() {
+        //            if ($("#editRoomForm").checkValidity()) {
+        //                var costPerDayInput = document.getElementById("costPerDay");
+        //                costPerDayInput.value *= 100;
+        //                document.getElementById("editRoomForm").submit();
+        //            }
+        //        }
+        $(document).ready(function () {
+            $('#editButton').click(function () {
                 var costPerDayInput = document.getElementById("costPerDay");
                 costPerDayInput.value *= 100;
                 document.getElementById("editRoomForm").submit();
-            }
-        }
+            })
+        });
     </script>
 
 </head>
 <body>
 
 <jsp:useBean id="room" scope="request"
-             type="com.vaka.hotel_manager.domain.Room" beanName="room"/>
+             type="com.vaka.hotel_manager.domain.entities.Room" beanName="room"/>
 <form name="editRoomForm" action="/rooms/${room.id}" method="post">
 
     <table id="roomTable" class="display" cellpadding="0">
@@ -48,10 +55,10 @@
         </tr>
 
         <tr>
-            <th><fmt:message key="CostPerDay" bundle="${bundle}"/></th>
+            <th><fmt:message key="CostPerDay" bundle="${bundle}"/> $</th>
             <td><fmt:formatNumber value="${room.costPerDay / 100}"/></td>
             <td><input id="costPerDay" type="number" name="costPerDay"
-                       value="<fmt:formatNumber value="${room.costPerDay / 100}"/>" min="0" step="1"></td>
+                       value="${room.costPerDay / 100}" min="0" step="1"></td>
         </tr>
 
         <tr>
@@ -61,7 +68,7 @@
                 <select name="roomClassName">
                     <c:forEach items="${roomClasses}" var="roomClass">
                         <jsp:useBean id="roomClass" scope="page"
-                                     type="com.vaka.hotel_manager.domain.RoomClass"/>
+                                     type="com.vaka.hotel_manager.domain.entities.RoomClass"/>
                         <c:choose>
                             <c:when test="${roomClass.name == room.roomClass.name}">
                                 <option value="${roomClass.name}"
@@ -80,14 +87,15 @@
             <td></td>
             <td><input hidden name="method" value="PUT"></td>
             <td>
-                <button onclick="submitRoomForm()"><fmt:message key="Submit"
-                                                                bundle="${bundle}"/></button>
+                <button id="editButton"><fmt:message key="Submit"
+                                                     bundle="${bundle}"/></button>
                 <a href="/rooms/${room.id}">
                     <fmt:message key="Cancel" bundle="${bundle}"/></a>
             </td>
         </tr>
     </table>
 </form>
+
 
 
 </body>

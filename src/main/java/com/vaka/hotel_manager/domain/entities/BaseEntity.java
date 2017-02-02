@@ -1,4 +1,4 @@
-package com.vaka.hotel_manager.domain;
+package com.vaka.hotel_manager.domain.entities;
 
 
 import lombok.*;

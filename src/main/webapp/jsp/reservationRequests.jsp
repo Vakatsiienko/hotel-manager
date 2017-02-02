@@ -100,10 +100,6 @@
             position: relative;
             left: 80%;
         }
-        #requestTableTitle{
-            position: relative;
-            left: 40%;
-        }
     </style>
 </head>
 <body>
@@ -132,7 +128,7 @@
 
     <c:forEach items="${reservationPage.content}" var="reservation">
         <jsp:useBean id="reservation" scope="page"
-                     type="com.vaka.hotel_manager.domain.DTO.ReservationDTO"/>
+                     type="com.vaka.hotel_manager.domain.dto.ReservationDTO"/>
         <tr>
             <th>${reservation.id}</th>
             <th>${reservation.userId}</th>

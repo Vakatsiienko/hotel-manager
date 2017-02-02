@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.service;
 
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.User;
 
 /**
  * Created by Iaroslav on 12/1/2016.

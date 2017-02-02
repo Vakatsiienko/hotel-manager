@@ -1,5 +1,6 @@
-package com.vaka.hotel_manager.domain;
+package com.vaka.hotel_manager.domain.entities;
 
+import com.vaka.hotel_manager.domain.ReservationStatus;
 import lombok.*;
 
 import java.time.LocalDate;

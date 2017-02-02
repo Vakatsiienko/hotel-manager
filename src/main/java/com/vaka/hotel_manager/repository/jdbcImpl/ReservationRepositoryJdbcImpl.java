@@ -2,9 +2,9 @@ package com.vaka.hotel_manager.repository.jdbcImpl;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;
-import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
+import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.Page;
-import com.vaka.hotel_manager.domain.Reservation;
+import com.vaka.hotel_manager.domain.entities.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.repository.ReservationRepository;
 import com.vaka.hotel_manager.repository.util.*;
@@ -106,6 +106,46 @@ public class ReservationRepositoryJdbcImpl implements ReservationRepository {
         NamedPreparedStatement statement = NamedPreparedStatement.create(connection, query);
         statement.setStatement("status", status.name());
         statement.setStatement("fromDate", Date.valueOf(fromDate));
+        return statement;
+    }
+
+    @Override
+    public Page<ReservationDTO> findActiveByRoomClassNameAndArrivalDate(String roomClassName, LocalDate arrivalDate, Integer page, Integer size) {
+        String strQuery;
+        String strCountQuery;
+        if (!roomClassName.equals("All")) {
+            strQuery = getQueryByClassAndMethodName().get("reservation.findActiveByRoomClassNameAndArrivalDate");
+            strCountQuery = getQueryByClassAndMethodName().get("reservation.findActiveByRoomClassNameAndArrivalDateCount");
+        } else{
+            strQuery = getQueryByClassAndMethodName().get("reservation.findActiveByAnyRoomClassNameAndArrivalDate");
+            strCountQuery = getQueryByClassAndMethodName().get("reservation.findActiveByAnyRoomClassNameAndArrivalDateCount");
+        }
+            RepositoryUtils.logQuery(LOG, strQuery, roomClassName, arrivalDate, page, size);
+        RepositoryUtils.logQuery(LOG, strCountQuery, roomClassName, arrivalDate);
+        return getConnectionManager().withConnection(connection -> {
+            try (NamedPreparedStatement statement = getPageActiveByRoomClassAndArrivalDateStatement(connection, strQuery, roomClassName, arrivalDate, (page - 1) * size, size);
+                 ResultSet resultSet = statement.executeQuery();
+                 NamedPreparedStatement countStatement = getCountActiveByRoomClassAndArrivalDateStatement(connection, strCountQuery, roomClassName, arrivalDate);
+                 ResultSet resultCount = countStatement.executeQuery()) {
+                resultCount.next();
+                return new Page<>(fetchDTOList(resultSet), resultCount.getInt(1));
+            }
+        });
+    }
+
+    private NamedPreparedStatement getCountActiveByRoomClassAndArrivalDateStatement(Connection connection, String strCountQuery, String roomClassName, LocalDate arrivalDate) throws SQLException {
+        NamedPreparedStatement statement = NamedPreparedStatement.create(connection, strCountQuery);
+        statement.setStatement("roomClassName", roomClassName);
+        statement.setStatement("arrivalDate", Date.valueOf(arrivalDate));
+        return statement;
+    }
+
+    private NamedPreparedStatement getPageActiveByRoomClassAndArrivalDateStatement(Connection connection, String strQuery, String roomClassName, LocalDate arrivalDate, int offset, Integer size) throws SQLException {
+        NamedPreparedStatement statement = NamedPreparedStatement.create(connection, strQuery);
+        statement.setStatement("roomClassName", roomClassName);
+        statement.setStatement("arrivalDate", Date.valueOf(arrivalDate));
+        statement.setStatement("offset", offset);
+        statement.setStatement("size", size);
         return statement;
     }
 

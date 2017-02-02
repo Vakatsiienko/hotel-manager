@@ -3,16 +3,15 @@ package com.vaka.hotel_manager.service;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.context.TestContextInitializer;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
-import com.vaka.hotel_manager.domain.BaseEntity;
+import com.vaka.hotel_manager.domain.entities.BaseEntity;
 import com.vaka.hotel_manager.domain.Role;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.repository.CrudRepository;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.Mockito.verify;

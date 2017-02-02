@@ -4,7 +4,7 @@ import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.domain.Role;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.util.exception.AuthenticationException;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
@@ -53,6 +53,7 @@ public class SecurityServiceImpl implements SecurityService {
                     return byVkId;
                 });
         if (existed.isPresent()){
+            eraseSensivityCredentials(existed.get());
             session.setAttribute("loggedUser", existed.get());
             return true;
         } else {
@@ -67,6 +68,10 @@ public class SecurityServiceImpl implements SecurityService {
             session.setAttribute("vkUser", user);
             return false;
         }
+    }
+
+    private void eraseSensivityCredentials(User user) {
+        user.setPassword("");
     }
 
     @Override
@@ -88,7 +93,8 @@ public class SecurityServiceImpl implements SecurityService {
         LOG.debug("Searching and checking user password with email: {}", email);
         Optional<User> user = getTransactionHelper().doTransactional(() -> getUserRepository().getByEmail(email));
 
-        if (!user.isPresent() || (!BCrypt.checkpw(password, user.get().getPassword()))) {
+        if (!user.isPresent() ||
+                (!BCrypt.checkpw(password, user.get().getPassword()))) {
             throw new AuthenticationException("SignInException");
         }
         return user.get();

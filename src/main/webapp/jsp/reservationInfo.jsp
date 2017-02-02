@@ -39,7 +39,7 @@
 </head>
 <body>
 <jsp:useBean id="reservation" scope="request"
-             type="com.vaka.hotel_manager.domain.Reservation"/>
+             type="com.vaka.hotel_manager.domain.entities.Reservation"/>
 <c:choose>
     <c:when test="${reservation.status.name() == 'REQUESTED'}"><h3><fmt:message
             key="ReservationRequestedMessage"
@@ -119,7 +119,7 @@
     <tbody>
     <c:forEach items="${availableRooms}" var="room">
         <jsp:useBean id="room" scope="page"
-                     type="com.vaka.hotel_manager.domain.Room"/>
+                     type="com.vaka.hotel_manager.domain.entities.Room"/>
         <tr>
             <th>${room.number}</th>
             <th>${room.capacity}</th>

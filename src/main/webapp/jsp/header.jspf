@@ -65,7 +65,7 @@
 <div id="hrefs">
     <c:if test="${!empty loggedUser}">
         <jsp:useBean id="loggedUser" scope="session"
-                     type="com.vaka.hotel_manager.domain.User" beanName="loggedUser"/>
+                     type="com.vaka.hotel_manager.domain.entities.User" beanName="loggedUser"/>
     </c:if>
     <a href="/"><fmt:message key="MakeReservation" bundle="${bundle}"/></a> <br>
     <a href="/rooms"><fmt:message key="RoomList" bundle="${bundle}"/></a> <br>

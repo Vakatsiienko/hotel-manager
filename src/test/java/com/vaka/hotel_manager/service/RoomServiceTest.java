@@ -2,7 +2,7 @@ package com.vaka.hotel_manager.service;
 
 import com.vaka.hotel_manager.EntityProviderUtil;
 import com.vaka.hotel_manager.core.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.Room;
+import com.vaka.hotel_manager.domain.entities.Room;
 import com.vaka.hotel_manager.repository.CrudRepository;
 import com.vaka.hotel_manager.repository.RoomClassRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
@@ -17,7 +17,7 @@ public class RoomServiceTest extends CrudServiceTest<Room> {
 
     private RoomRepository roomRepositoryMock = ApplicationContext.getInstance().getBean(RoomRepository.class);
     private RoomService roomService = ApplicationContext.getInstance().getBean(RoomService.class);
-    private RoomClassRepository roomClassRepositoryMock = ApplicationContext.getInstance().getBean(RoomClassRepository.class); //TODO change to mock
+    private RoomClassRepository roomClassRepositoryMock = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
 
     @Override
     protected CrudService<Room> getService() {

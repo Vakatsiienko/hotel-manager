@@ -1,7 +1,7 @@
 package com.vaka.hotel_manager.core.security;
 
 import com.vaka.hotel_manager.domain.Role;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.util.exception.AuthenticationException;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
 

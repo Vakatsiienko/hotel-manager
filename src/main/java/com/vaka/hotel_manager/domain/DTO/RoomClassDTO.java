@@ -1,4 +1,4 @@
-package com.vaka.hotel_manager.domain.DTO;
+package com.vaka.hotel_manager.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

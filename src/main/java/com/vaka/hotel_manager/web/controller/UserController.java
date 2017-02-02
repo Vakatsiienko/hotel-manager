@@ -2,8 +2,8 @@ package com.vaka.hotel_manager.web.controller;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.security.SecurityService;
-import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.dto.ReservationDTO;
+import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomClassService;
 import com.vaka.hotel_manager.service.UserService;
@@ -46,7 +46,8 @@ public class UserController {
         String name = req.getParameter("name");
         vkUser.setPhoneNumber(phone);
         vkUser.setName(name);
-        vkUser.setPassword(RandomStringUtils.random(8));
+        String password = RandomStringUtils.random(8);
+        vkUser.setPassword(password);
         try {
             loggedUser = getUserService().create(loggedUser, vkUser);
         } catch (CreatingException e) {
@@ -55,7 +56,8 @@ public class UserController {
             req.getRequestDispatcher("/jsp/signin.jsp").forward(req, resp);
             return;
         }
-        req.getSession().setAttribute("loggedUser", loggedUser);
+        getSecurityService().signIn(req.getSession(), loggedUser.getEmail(), password);
+//        req.getSession().setAttribute("loggedUser", loggedUser);//TODO move signin to securityService
         resp.sendRedirect("/");
     }
 

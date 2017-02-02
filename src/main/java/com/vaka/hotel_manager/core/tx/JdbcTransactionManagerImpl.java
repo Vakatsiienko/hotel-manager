@@ -120,7 +120,7 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
         try {
             return withCon.apply(CONNECTION.get());
         } catch (SQLException e) {
-            LOG.info(e.getMessage(), e);//TODO consider to add exception handler
+            LOG.info(e.getMessage(), e);
             throw new RepositoryException("Internal server error");
         }
     }

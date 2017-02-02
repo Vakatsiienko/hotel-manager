@@ -36,7 +36,7 @@
             </th>
             <td>
                 <input id="name" name="name"
-                       required min="3" max="32">
+                       required min="5" max="30">
             </td>
         </tr>
         <tr class="fitem">

@@ -1,7 +1,7 @@
 package com.vaka.hotel_manager.util;
 
-import com.vaka.hotel_manager.domain.Bill;
-import com.vaka.hotel_manager.domain.Reservation;
+import com.vaka.hotel_manager.domain.entities.Bill;
+import com.vaka.hotel_manager.domain.entities.Reservation;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

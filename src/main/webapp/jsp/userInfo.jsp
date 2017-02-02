@@ -46,7 +46,7 @@
 <body>
 
 <jsp:useBean id="user" scope="request"
-             type="com.vaka.hotel_manager.domain.User"/>
+             type="com.vaka.hotel_manager.domain.entities.User"/>
 <table id="userTable" class="display" cellpadding="0">
     <tr>
         <th colspan="2"><h2><fmt:message key="ContactInfo" bundle="${bundle}"/></h2></th>
@@ -86,7 +86,7 @@
     <tbody>
     <c:forEach items="${reservationList}" var="reservation">
         <jsp:useBean id="reservation" scope="page"
-                     type="com.vaka.hotel_manager.domain.DTO.ReservationDTO"/>
+                     type="com.vaka.hotel_manager.domain.dto.ReservationDTO"/>
         <tr>
             <th>${reservation.id}</th>
             <th>${reservation.guests}</th>

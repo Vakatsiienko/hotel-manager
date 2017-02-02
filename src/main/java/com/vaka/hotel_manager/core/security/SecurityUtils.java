@@ -1,14 +1,8 @@
 package com.vaka.hotel_manager.core.security;
 
 import com.vaka.hotel_manager.domain.Role;
-import com.vaka.hotel_manager.domain.User;
-import com.vaka.hotel_manager.util.exception.AuthorizationException;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.mindrot.jbcrypt.BCrypt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashSet;

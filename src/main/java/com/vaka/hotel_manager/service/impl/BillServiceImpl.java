@@ -4,9 +4,9 @@ import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.security.SecurityUtils;
 import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.core.tx.TransactionManager;
-import com.vaka.hotel_manager.domain.Bill;
-import com.vaka.hotel_manager.domain.Reservation;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.Bill;
+import com.vaka.hotel_manager.domain.entities.Reservation;
+import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.repository.BillRepository;
 import com.vaka.hotel_manager.service.BillService;
 import com.vaka.hotel_manager.core.security.SecurityService;
@@ -32,7 +32,13 @@ public class BillServiceImpl implements BillService {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Creating bill from reservation: {}", reservation);
         return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE,
-                () -> getTransactionHelper().doInner(() -> create(loggedUser, DomainFactory.createBillFromReservation(reservation))));
+                () -> {
+                    if (getBillRepository().getByReservationId(reservation.getId()).isPresent())
+                        throw new IllegalArgumentException("Bill for this reservation already created");
+                    Bill bill = DomainFactory.createBillFromReservation(reservation);
+                    bill.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+                    return getTransactionHelper().doInner(() -> getBillRepository().create(bill));
+                });
     }
 
     @Override

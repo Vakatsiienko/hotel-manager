@@ -1,8 +1,8 @@
 package com.vaka.hotel_manager.repository;
 
-import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
+import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.Page;
-import com.vaka.hotel_manager.domain.Reservation;
+import com.vaka.hotel_manager.domain.entities.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
 
 import java.time.LocalDate;
@@ -32,4 +32,6 @@ public interface ReservationRepository extends CrudRepository<Reservation> {
      * @return true if given room cannot be reserve in given date period
      */
     boolean existOverlapReservations(Integer roomId, LocalDate arrivalDate, LocalDate departureDate);
+
+    Page<ReservationDTO> findActiveByRoomClassNameAndArrivalDate(String roomClassName, LocalDate arrivalDate, Integer page, Integer size);
 }

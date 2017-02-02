@@ -1,9 +1,9 @@
 package com.vaka.hotel_manager.util;
 
-import com.vaka.hotel_manager.domain.Reservation;
-import com.vaka.hotel_manager.domain.Room;
-import com.vaka.hotel_manager.domain.RoomClass;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.Reservation;
+import com.vaka.hotel_manager.domain.entities.Room;
+import com.vaka.hotel_manager.domain.entities.RoomClass;
+import com.vaka.hotel_manager.domain.entities.User;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -37,8 +37,11 @@ public class ValidationUtil {
      */
     public static void validate(User user) {
         String message = null;
-        if (hasNull(user))//TODO add fields validation
+        if (hasNull(user)) {
             message = "Some user parameters are missing";
+        } else if (user.getName().length() > 30 || user.getName().length() < 5) {
+            message = "User name must be greater then 5 or lower than 30 characters";
+        }
         if (message != null)
             throw new IllegalArgumentException(message);
     }
@@ -48,10 +51,16 @@ public class ValidationUtil {
      */
     public static void validate(Room room) {
         String message = null;
-        if (hasNull(room))
+        if (hasNull(room)) {
             message = "Some room parameters are missing";
+        } else if (room.getCapacity() < 1) {
+            message = "Capacity cant be lower than 1";
+        } else if (room.getCostPerDay() < 100) {
+            message = "Cost per day cant be lower than 1 dollar";
+        }
         if (message != null)
             throw new IllegalArgumentException(message);
+
     }
 
     private static boolean hasNull(RoomClass roomClass) {

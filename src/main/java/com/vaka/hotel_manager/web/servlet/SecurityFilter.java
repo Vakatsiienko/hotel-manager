@@ -2,7 +2,7 @@ package com.vaka.hotel_manager.web.servlet;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.domain.Role;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class SecurityFilter implements Filter {
                     return;
                 }
             } else if (loggedUser.getRole() != Role.ANONYMOUS){
-                if ("/signin".equals(uri) || "/signup".equals(uri)){
+                if ("/signin".equals(uri) || "/signup".equals(uri) || "/signup-vk".equals(uri)){
                     LOG.debug("Logged user trying to get {}, but was redirected to his user page");
                     ((HttpServletResponse) response).sendRedirect("/users/" + loggedUser.getId());
                     return;

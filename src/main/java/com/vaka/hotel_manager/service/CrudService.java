@@ -1,7 +1,7 @@
 package com.vaka.hotel_manager.service;
 
-import com.vaka.hotel_manager.domain.BaseEntity;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.BaseEntity;
+import com.vaka.hotel_manager.domain.entities.User;
 
 import java.util.Optional;
 

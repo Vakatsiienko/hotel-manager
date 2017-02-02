@@ -2,7 +2,7 @@ package com.vaka.hotel_manager.repository.jdbcImpl;
 
 import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.User;
 import com.vaka.hotel_manager.repository.UserRepository;
 import com.vaka.hotel_manager.repository.util.*;
 import org.slf4j.Logger;

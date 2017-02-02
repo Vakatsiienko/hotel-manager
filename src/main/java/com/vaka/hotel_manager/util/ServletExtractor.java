@@ -1,6 +1,10 @@
 package com.vaka.hotel_manager.util;
 
 import com.vaka.hotel_manager.domain.*;
+import com.vaka.hotel_manager.domain.entities.Reservation;
+import com.vaka.hotel_manager.domain.entities.Room;
+import com.vaka.hotel_manager.domain.entities.RoomClass;
+import com.vaka.hotel_manager.domain.entities.User;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
@@ -20,9 +24,19 @@ public class ServletExtractor {
     private static final Logger LOG = LoggerFactory.getLogger(ServletExtractor.class);
 
     public static <T> T extractOrDefault(String paramValue, T defaultValue, Function<String, T> parser) {
+        try {
+            Optional<String> defaultOpt = Optional.ofNullable(paramValue);
+            if (defaultOpt.isPresent())
+                return parser.apply(defaultOpt.get());
+            else return defaultValue;
+        } catch (NumberFormatException | DateTimeParseException e){
+            throw new IllegalArgumentException(String.format("Illegal argument: %s", paramValue));
+        }
+    }
+    public static String getOrDefault(String paramValue, String defaultValue){
         Optional<String> defaultOpt = Optional.ofNullable(paramValue);
         if (defaultOpt.isPresent())
-            return parser.apply(defaultOpt.get());
+            return defaultOpt.get();
         else return defaultValue;
     }
 

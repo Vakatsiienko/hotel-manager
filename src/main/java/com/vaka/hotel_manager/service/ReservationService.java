@@ -1,10 +1,10 @@
 package com.vaka.hotel_manager.service;
 
-import com.vaka.hotel_manager.domain.DTO.ReservationDTO;
+import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.Page;
-import com.vaka.hotel_manager.domain.Reservation;
+import com.vaka.hotel_manager.domain.entities.Reservation;
 import com.vaka.hotel_manager.domain.ReservationStatus;
-import com.vaka.hotel_manager.domain.User;
+import com.vaka.hotel_manager.domain.entities.User;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,6 +25,8 @@ public interface ReservationService extends CrudService<Reservation> {
      * @return all ReservationDTO by given status, that have not end by given date
      */
     Page<ReservationDTO> findPageByStatusFromDate(User loggedUser, ReservationStatus status, LocalDate fromDate, Integer page, Integer size);
+
+    Page<ReservationDTO> findPageActiveByRoomClassNameAndArrivalDate(User loggedUser, String roomClassName, LocalDate arrivalDate, Integer page, Integer size);
 
     /**
      * @return all ReservationDTO by given status and User ID

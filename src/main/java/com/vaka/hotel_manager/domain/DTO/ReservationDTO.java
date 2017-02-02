@@ -1,7 +1,6 @@
-package com.vaka.hotel_manager.domain.DTO;
+package com.vaka.hotel_manager.domain.dto;
 
 import com.vaka.hotel_manager.domain.ReservationStatus;
-import com.vaka.hotel_manager.domain.RoomClass;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
