@@ -42,7 +42,7 @@
     </filter-mapping>
     <filter>
         <filter-name>SecurityFilter</filter-name>
-        <filter-class>com.vaka.hotel_manager.web.servlet.SecurityFilter</filter-class>
+        <filter-class>com.vaka.hotel_manager.web.servlet.AuthorizationFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SecurityFilter</filter-name>

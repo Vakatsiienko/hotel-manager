@@ -56,11 +56,11 @@ public class PersistenceConfig implements BeanConfig {
         }
     }
 
-    public Map<String, String> queryByClassAndMethodName() {
+    private Map<String, String> queryByClassAndMethodName() {
         return new SqlParser(sqlPaths).createAndGetQueryByClassAndMethodName();
     }
 
-    public javax.sql.DataSource dataSource() {
+    private javax.sql.DataSource dataSource() {
         try {
             setSystemProperties();
             DataSource datasource = new DataSource();
