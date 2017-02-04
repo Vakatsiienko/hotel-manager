@@ -13,6 +13,7 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 public class Room extends BaseEntity {
     private Integer number;
+    //TODO add number of rooms and number of beds
     private Integer capacity;
     private Integer costPerDay;
     private RoomClass roomClass;

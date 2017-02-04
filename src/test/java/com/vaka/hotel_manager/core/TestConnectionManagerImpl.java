@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.core;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;
 import com.vaka.hotel_manager.repository.util.SQLFunction;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
@@ -27,11 +27,7 @@ public class TestConnectionManagerImpl implements ConnectionManager {
 
     public DataSource getDataSource() {
         if (dataSource == null) {
-            synchronized (this) {
-                if (dataSource == null) {
-                    dataSource = ApplicationContext.getInstance().getBean(DataSource.class);
-                }
-            }
+                    dataSource = ApplicationContextHolder.getContext().getBean(DataSource.class);
         }
         return dataSource;
     }

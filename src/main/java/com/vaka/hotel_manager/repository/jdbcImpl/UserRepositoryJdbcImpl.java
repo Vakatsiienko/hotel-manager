@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.repository.jdbcImpl;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.UserRepository;
@@ -101,33 +101,21 @@ public class UserRepositoryJdbcImpl implements UserRepository {
 
     public ConnectionManager getConnectionManager() {
         if (connectionManager == null) {
-            synchronized (this) {
-                if (connectionManager == null) {
-                    connectionManager = ApplicationContext.getInstance().getBean(ConnectionManager.class);
-                }
-            }
+            connectionManager = ApplicationContextHolder.getContext().getBean(ConnectionManager.class);
         }
         return connectionManager;
     }
 
     public JdbcCrudHelper getCrudHelper() {
         if (crudHelper == null) {
-            synchronized (this) {
-                if (crudHelper == null) {
-                    crudHelper = ApplicationContext.getInstance().getBean(JdbcCrudHelper.class);
-                }
-            }
+            crudHelper = ApplicationContextHolder.getContext().getBean(JdbcCrudHelper.class);
         }
         return crudHelper;
     }
 
     public Map<String, String> getQueryByClassAndMethodName() {
         if (queryByClassAndMethodName == null) {
-            synchronized (this) {
-                if (queryByClassAndMethodName == null) {
-                    queryByClassAndMethodName = ApplicationContext.getInstance().getQueryByClassAndMethodName();
-                }
-            }
+            queryByClassAndMethodName = ApplicationContextHolder.getContext().getBean("queryByClassAndMethodName");
         }
         return queryByClassAndMethodName;
     }

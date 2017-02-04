@@ -1,7 +1,5 @@
 package com.vaka.hotel_manager.repository.util;
 
-import lombok.Getter;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +8,6 @@ import java.util.List;
  * Decorator of PreparedStatement that add possibility to set statement by name
  */
 public class NamedPreparedStatement implements AutoCloseable {
-    @Getter
     private PreparedStatement preparedStatement;
     private List<String> fields = new ArrayList<>();
     private String strQuery;

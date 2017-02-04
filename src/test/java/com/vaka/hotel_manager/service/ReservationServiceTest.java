@@ -1,7 +1,7 @@
 package com.vaka.hotel_manager.service;
 
 import com.vaka.hotel_manager.EntityProviderUtil;
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.domain.entity.Reservation;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.*;
@@ -15,11 +15,11 @@ import static org.mockito.Mockito.when;
  */
 public class ReservationServiceTest extends CrudServiceTest<Reservation> {
 
-    private ReservationRepository reservationRepositoryMock = ApplicationContext.getInstance().getBean(ReservationRepository.class);
-    private ReservationService reservationService = ApplicationContext.getInstance().getBean(ReservationService.class);
-    private UserRepository userRepositoryMock = ApplicationContext.getInstance().getBean(UserRepository.class);
-    private RoomRepository roomRepositoryMock = ApplicationContext.getInstance().getBean(RoomRepository.class);
-    private RoomClassRepository roomClassRepositoryMock = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
+    private ReservationRepository reservationRepositoryMock = ApplicationContextHolder.getContext().getBean(ReservationRepository.class);
+    private ReservationService reservationService = ApplicationContextHolder.getContext().getBean(ReservationService.class);
+    private UserRepository userRepositoryMock = ApplicationContextHolder.getContext().getBean(UserRepository.class);
+    private RoomRepository roomRepositoryMock = ApplicationContextHolder.getContext().getBean(RoomRepository.class);
+    private RoomClassRepository roomClassRepositoryMock = ApplicationContextHolder.getContext().getBean(RoomClassRepository.class);
 
     @Override
     protected CrudService<Reservation> getService() {

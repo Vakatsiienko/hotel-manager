@@ -1,7 +1,8 @@
 package com.vaka.hotel_manager;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
-import com.vaka.hotel_manager.domain.*;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
+import com.vaka.hotel_manager.domain.ReservationStatus;
+import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.dto.RoomClassDTO;
 import com.vaka.hotel_manager.domain.entity.*;
@@ -22,11 +23,11 @@ import java.util.Random;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EntityProviderUtil {
-    private static ReservationRepository reservationRepository = ApplicationContext.getInstance().getBean(ReservationRepository.class);
-    private static UserRepository userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
-    private static RoomRepository roomRepository = ApplicationContext.getInstance().getBean(RoomRepository.class);
-    private static BillRepository billRepository = ApplicationContext.getInstance().getBean(BillRepository.class);
-    private static RoomClassRepository roomClassRepository = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
+    private static ReservationRepository reservationRepository = ApplicationContextHolder.getContext().getBean(ReservationRepository.class);
+    private static UserRepository userRepository = ApplicationContextHolder.getContext().getBean(UserRepository.class);
+    private static RoomRepository roomRepository = ApplicationContextHolder.getContext().getBean(RoomRepository.class);
+    private static BillRepository billRepository = ApplicationContextHolder.getContext().getBean(BillRepository.class);
+    private static RoomClassRepository roomClassRepository = ApplicationContextHolder.getContext().getBean(RoomClassRepository.class);
     private static Random random = new Random();
 
     private static int roomNumber = 1;

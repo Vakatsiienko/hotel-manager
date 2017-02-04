@@ -1,8 +1,8 @@
 package com.vaka.hotel_manager.core.security.impl;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.core.security.SecurityService;
-import com.vaka.hotel_manager.core.tx.TransactionHelper;
+import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.UserRepository;
@@ -28,7 +28,7 @@ public class SecurityServiceImpl implements SecurityService {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityServiceImpl.class);
     private static final User anonymous = new User();
     private UserRepository userRepository;
-    private TransactionHelper transactionHelper;
+    private TransactionManager transactionManager;
     private VkService vkService;
 
 
@@ -39,7 +39,7 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public boolean signInVk(HttpSession session, String code) {
         VkAuthRequest authRequest = getVkService().signIn(code);
-        Optional<User> existed = getTransactionHelper().doTransactional(
+        Optional<User> existed = getTransactionManager().doTransactional(
                 () -> {
                     Optional<User> byVkId = getUserRepository().getByVkId(authRequest.getUserId());
                     if (!byVkId.isPresent()) {
@@ -83,15 +83,15 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public void signIn(HttpSession session, String email, String password) throws AuthenticationException {
+    public void signIn(HttpSession session, String email, String password) {
         LOG.debug("Signin user, email: {}", email);
         User user = getUserByCredentials(email, password);
         session.setAttribute("loggedUser", user);
     }
 
-    private User getUserByCredentials(String email, String password) throws AuthenticationException {
+    private User getUserByCredentials(String email, String password) {
         LOG.debug("Searching and checking user password with email: {}", email);
-        Optional<User> user = getTransactionHelper().doTransactional(() -> getUserRepository().getByEmail(email));
+        Optional<User> user = getTransactionManager().doTransactional(() -> getUserRepository().getByEmail(email));
 
         if (!user.isPresent() ||
                 (!BCrypt.checkpw(password, user.get().getPassword()))) {
@@ -123,31 +123,20 @@ public class SecurityServiceImpl implements SecurityService {
 
     public UserRepository getUserRepository() {
         if (userRepository == null) {
-            synchronized (this) {
-                if (userRepository == null) {
-                    userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
-                }
-            }
+            userRepository = ApplicationContextHolder.getContext().getBean(UserRepository.class);
         }
         return userRepository;
     }
-    public TransactionHelper getTransactionHelper() {
-        if (transactionHelper == null) {
-            synchronized (this) {
-                if (transactionHelper == null) {
-                    transactionHelper = ApplicationContext.getInstance().getBean(TransactionHelper.class);
-                }
-            }
+
+    public TransactionManager getTransactionManager() {
+        if (transactionManager == null) {
+            transactionManager = ApplicationContextHolder.getContext().getBean(TransactionManager.class);
         }
-        return transactionHelper;
+        return transactionManager;
     }
     public VkService getVkService() {
         if (vkService == null) {
-            synchronized (this) {
-                if (vkService == null) {
-                    vkService = ApplicationContext.getInstance().getBean(VkService.class);
-                }
-            }
+            vkService = ApplicationContextHolder.getContext().getBean(VkService.class);
         }
         return vkService;
     }

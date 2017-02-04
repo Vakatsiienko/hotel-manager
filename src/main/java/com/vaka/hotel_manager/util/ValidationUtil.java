@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Util that validate object for null values(excluding nullable and generating fields)
@@ -51,30 +49,31 @@ public class ValidationUtil {
      */
     public static void validate(User user) {
         String message = null;
-        if (hasNull(user)) {
-            message = "Some user parameters are missing";
-        } else if(!user.getName().matches("[\\s\\w\\.]*.*['’][\\s\\w\\.]*")){
-            message = "Invalid name, only letters, spaces, dots and underscore allowed";
-        } else if (getSpacesCount(user.getName()) > 3) {
-            message = "Name can't have more then 3 spaces";
-        } else if (user.getName().startsWith(" ")) {
-            message = "Name can't starts with space";
-        } else if (user.getName().length() > 30 || user.getName().length() < 5) {
-            message = "User name must be greater then 5 or lower than 30 characters";
-        } else if (!user.getEmail().matches(EMAIL_PATTERN)) {
-            message = "Invalid email";
-        } else if (user.getEmail().length() > 50) {
-            message = "Email can't have more then 50 character";
+        try {
+            if (hasNull(user)) {
+                message = "Some user parameters are missing";
+                return;
+            }
+            user.setName(user.getName().trim());
+            if (!user.getName().matches("[\\s\\w\\.'’`\\p{L}\\-]*?")) {//TODO check html pattern regexp
+                message = "Invalid name, only letters, spaces, and .'’`- allowed";
+            } else if (getSpacesCount(user.getName()) > 3) {
+                message = "Name can't have more then 3 spaces";
+            } else if (user.getName().startsWith(" ")) {
+                message = "Name can't starts with space";
+            } else if (user.getName().length() > 40 || user.getName().length() < 5) {
+                message = "User name must be greater then 5 or lower than 40 characters";
+            } else if (!user.getEmail().matches(EMAIL_PATTERN)) {
+                message = "Invalid email";
+            } else if (user.getEmail().length() > 50) {
+                message = "Email can't have more then 50 character";
+            }
+        } finally {
+            if (message != null)
+                throw new IllegalArgumentException(message);
         }
-        if (message != null)
-            throw new IllegalArgumentException(message);
-    }
 
-    public static void main(String[] args) {
-        Pattern pattern = Pattern.compile("[\\s\\w\\.]*");
-        Matcher matcher = pattern.matcher(" asdsa_s<adsa ");
 
-        System.out.println(matcher.matches());
     }
 
     private static int getSpacesCount(String str) {
@@ -106,7 +105,7 @@ public class ValidationUtil {
 
     private static boolean hasNull(Room room) {
         return room.getCapacity() == null || room.getCostPerDay() == null ||
-                room.getNumber() == null || room.getRoomClass() == null;
+                room.getNumber() == null || room.getRoomClass() == null || room.getRoomClass().getName() == null;
     }
 
     private static boolean hasNull(User user) {
@@ -117,6 +116,7 @@ public class ValidationUtil {
     private static boolean hasNull(Reservation reservation) {
         return reservation.getArrivalDate() == null ||
                 reservation.getDepartureDate() == null || reservation.getGuests() == null ||
+                reservation.getRequestedRoomClass() == null ||
                 reservation.getRequestedRoomClass().getName() == null;
     }
 }

@@ -1,7 +1,7 @@
 package com.vaka.hotel_manager.service;
 
 import com.vaka.hotel_manager.EntityProviderUtil;
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.domain.entity.Room;
 import com.vaka.hotel_manager.repository.CrudRepository;
 import com.vaka.hotel_manager.repository.RoomClassRepository;
@@ -15,9 +15,9 @@ import static org.mockito.Mockito.when;
  */
 public class RoomServiceTest extends CrudServiceTest<Room> {
 
-    private RoomRepository roomRepositoryMock = ApplicationContext.getInstance().getBean(RoomRepository.class);
-    private RoomService roomService = ApplicationContext.getInstance().getBean(RoomService.class);
-    private RoomClassRepository roomClassRepositoryMock = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
+    private RoomRepository roomRepositoryMock = ApplicationContextHolder.getContext().getBean(RoomRepository.class);
+    private RoomService roomService = ApplicationContextHolder.getContext().getBean(RoomService.class);
+    private RoomClassRepository roomClassRepositoryMock = ApplicationContextHolder.getContext().getBean(RoomClassRepository.class);
 
     @Override
     protected CrudService<Room> getService() {

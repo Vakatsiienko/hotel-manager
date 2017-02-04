@@ -1,8 +1,6 @@
 package com.vaka.hotel_manager.service;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.core.context.TestContextInitializer;
-import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.domain.entity.BaseEntity;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.entity.User;
@@ -23,7 +21,6 @@ import static org.mockito.Mockito.when;
  */
 public abstract class CrudServiceTest<Entity extends BaseEntity> {
 
-    protected TransactionHelper transactionHelper = ApplicationContext.getInstance().getBean(TransactionHelper.class);
 
     @BeforeClass
     public static void init() {

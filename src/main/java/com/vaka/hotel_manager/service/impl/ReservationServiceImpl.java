@@ -1,9 +1,8 @@
 package com.vaka.hotel_manager.service.impl;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.security.SecurityUtils;
-import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.domain.Page;
 import com.vaka.hotel_manager.domain.ReservationStatus;
@@ -38,24 +37,20 @@ public class ReservationServiceImpl implements ReservationService {
     private BillService billService;
     private SecurityService securityService;
     private RoomClassRepository roomClassRepository;
-    private TransactionHelper transactionHelper;
+    private TransactionManager transactionManager;
 
     @Override
     public boolean applyRoom(User loggedUser, Integer roomId, Integer reservationId) {
         LOG.debug("Trying to apply room with id: {} , by reservation with id: {}", roomId, reservationId);
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
-        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE, () -> {
+        return getTransactionManager().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE, () -> {
             Optional<Room> room = getRoomRepository().getById(roomId);
             Optional<Reservation> request = getReservationRepository().getById(reservationId);
 
-            if (!room.isPresent() || !request.isPresent()) {
-                throw new NotFoundException(String.format("Not found room or request by given id, founded room: %s, request: %s", room.get(), request.get()));
-            }
-            if (request.get().getStatus() != ReservationStatus.REQUESTED) {
-                throw new IllegalStateException(String.format("Reservation is in illegal state, expected status Requested, actual %s", request.get().getStatus()));
-            }
-            boolean datesOverlap = getReservationRepository().existOverlapReservations(roomId, request.get().getArrivalDate(), request.get().getDepartureDate());
-            if (datesOverlap) {
+            validateRoomAndReservationForApply(room, request);
+
+            if (getReservationRepository().existOverlapReservations(
+                    room.get().getId(), request.get().getArrivalDate(), request.get().getDepartureDate())) {
                 return false;
             }
             request.get().setRoom(room.get());
@@ -63,9 +58,20 @@ public class ReservationServiceImpl implements ReservationService {
             getReservationRepository().update(reservationId, request.get());
             LOG.debug("Room applied and reservation confirmed");
 
-            getTransactionHelper().doInner(() -> getBillService().createForReservation(loggedUser, request.get()));
+            getBillService().createForReservation(loggedUser, request.get());
             return true;
         });
+    }
+
+    private void validateRoomAndReservationForApply(Optional<Room> room, Optional<Reservation> request) {
+        if (!room.isPresent() || !request.isPresent()) {
+            throw new NotFoundException(String.format(
+                    "Not found room or request by given id, founded room: %s, request: %s", room.get(), request.get()));
+        }
+        if (request.get().getStatus() != ReservationStatus.REQUESTED) {
+            throw new IllegalStateException(String.format(
+                    "Reservation is in illegal state, expected status Requested, actual %s", request.get().getStatus()));
+        }
     }
 
     @Override
@@ -101,7 +107,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public boolean reject(User loggedUser, Integer reservationId) {
         LOG.debug("Rejecting reservationId: {}", reservationId);
-        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
+        return getTransactionManager().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
             Optional<Reservation> reservationOptional = getReservationRepository().getById(reservationId);
             if (reservationOptional.isPresent()) {
                 if (!reservationOptional.get().getUser().getId().equals(loggedUser.getId())) {
@@ -114,14 +120,14 @@ public class ReservationServiceImpl implements ReservationService {
                 return reservationRepository.update(reservationId, reservationOptional.get());
             } else throw new NotFoundException("Reservation not found.");
         });
-
     }
+
 
     @Override
     public Reservation create(User loggedUser, Reservation reservation) {
         reservation.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         LOG.debug("Creating reservation: {}", reservation);
-        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
+        return getTransactionManager().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
             Optional<RoomClass> rc = getRoomClassRepository().getByName(reservation.getRequestedRoomClass().getName());
             if (!rc.isPresent())
                 throw new NotFoundException("Such Room Class doesn't exist");
@@ -153,7 +159,6 @@ public class ReservationServiceImpl implements ReservationService {
                 getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
             return getReservationRepository().update(id, reservation);
         } else return false;
-
     }
 
     @Override
@@ -165,64 +170,42 @@ public class ReservationServiceImpl implements ReservationService {
 
     private ReservationRepository getReservationRepository() {
         if (reservationRepository == null) {
-            synchronized (this) {
-                if (reservationRepository == null)
-                    reservationRepository = ApplicationContext.getInstance().getBean(ReservationRepository.class);
-            }
+            reservationRepository = ApplicationContextHolder.getContext().getBean(ReservationRepository.class);
         }
         return reservationRepository;
     }
 
     public RoomRepository getRoomRepository() {
         if (roomRepository == null) {
-            synchronized (this) {
-                if (roomRepository == null)
-                    roomRepository = ApplicationContext.getInstance().getBean(RoomRepository.class);
-            }
+            roomRepository = ApplicationContextHolder.getContext().getBean(RoomRepository.class);
         }
         return roomRepository;
     }
 
     public BillService getBillService() {
         if (billService == null) {
-            synchronized (this) {
-                if (billService == null) {
-                    billService = ApplicationContext.getInstance().getBean(BillService.class);
-                }
-            }
+            billService = ApplicationContextHolder.getContext().getBean(BillService.class);
         }
         return billService;
     }
 
     public SecurityService getSecurityService() {
         if (securityService == null){
-            synchronized (this){
-                if (securityService == null) {
-                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
-                }
-            }
+            securityService = ApplicationContextHolder.getContext().getBean(SecurityService.class);
         }
         return securityService;
     }
 
-    public TransactionHelper getTransactionHelper() {
-        if (transactionHelper == null) {
-            synchronized (this) {
-                if (transactionHelper == null) {
-                    transactionHelper = ApplicationContext.getInstance().getBean(TransactionHelper.class);
-                }
-            }
+    public TransactionManager getTransactionManager() {
+        if (transactionManager == null) {
+            transactionManager = ApplicationContextHolder.getContext().getBean(TransactionManager.class);
         }
-        return transactionHelper;
+        return transactionManager;
     }
 
     public RoomClassRepository getRoomClassRepository() {
         if (roomClassRepository == null) {
-            synchronized (this) {
-                if (roomClassRepository == null) {
-                    roomClassRepository = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
-                }
-            }
+            roomClassRepository = ApplicationContextHolder.getContext().getBean(RoomClassRepository.class);
         }
         return roomClassRepository;
     }

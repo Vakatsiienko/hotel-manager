@@ -1,5 +1,6 @@
 package com.vaka.hotel_manager.core.tx;
 
+import com.vaka.hotel_manager.util.NullaryFunction;
 import com.vaka.hotel_manager.util.exception.TransactionException;
 
 /**
@@ -40,22 +41,12 @@ public interface TransactionManager {
      *                       {@link #TRANSACTION_SERIALIZABLE}
      * @throws TransactionException
      */
-    void begin(int isolationLevel) throws TransactionException;
+    <T> T doTransactional(int isolationLevel, NullaryFunction<T> function);
 
-    default void begin() throws TransactionException {
-        begin(getIsolationDefault());
+    int getIsolationDefault();
+
+    default <T> T doTransactional(NullaryFunction<T> function) {
+        return doTransactional(getIsolationDefault(), function);
     }
-
-    void commit() throws TransactionException;
-
-    void rollback() throws TransactionException;
-
-    TransactionStatus getStatus();
-
-    void setRollBackOnly(boolean rollbackOnly);
-
-    boolean isRollBackOnly();
-
-    Integer getIsolationDefault();
 
 }

@@ -1,9 +1,9 @@
 package com.vaka.hotel_manager.web.servlet;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
+import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.entity.User;
-import com.vaka.hotel_manager.core.security.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +55,7 @@ public class SecurityFilter implements Filter {
 
     public SecurityService getSecurityService() {
         if (securityService == null) {
-            synchronized (this){
-                securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
-            }
+            securityService = ApplicationContextHolder.getContext().getBean(SecurityService.class);
         }
         return securityService;
     }

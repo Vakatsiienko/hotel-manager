@@ -1,14 +1,12 @@
 package com.vaka.hotel_manager.core.tx;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
 import com.vaka.hotel_manager.repository.exception.ConstraintViolationException;
 import com.vaka.hotel_manager.repository.util.SQLFunction;
+import com.vaka.hotel_manager.repository.util.SQLSupplier;
+import com.vaka.hotel_manager.util.NullaryFunction;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.exception.TransactionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -17,137 +15,85 @@ import java.sql.SQLIntegrityConstraintViolationException;
  * Created by Iaroslav on 12/30/2016.
  */
 public class JdbcTransactionManagerImpl implements TransactionManager, ConnectionManager {
-    private static final Logger LOG = LoggerFactory.getLogger(JdbcTransactionManagerImpl.class);
-    private static final ThreadLocal<Connection> CONNECTION = new ThreadLocal<>();
-    private static final ThreadLocal<TransactionStatus> STATUS = new ThreadLocal<TransactionStatus>() {
-        @Override
-        protected TransactionStatus initialValue() {
-            return TransactionStatus.NOT_ACTIVE;
-        }
-    };
-    private final int isolationDefault;
-    private DataSource dataSource;
+    private static final ThreadLocal<JdbcTransaction> LOCAL_TRANSACTION = new ThreadLocal<>();
 
-    public JdbcTransactionManagerImpl(int isolationDefault) {
+    private final int isolationDefault;
+
+    private SQLSupplier<Connection> connectionSupplier;
+
+    public JdbcTransactionManagerImpl(SQLSupplier<Connection> connectionSupplier, int isolationDefault) {
+        this.connectionSupplier = connectionSupplier;
         this.isolationDefault = isolationDefault;
     }
 
-    @Override
-    public void begin(int isolationLevel) throws TransactionException {
-        if (STATUS.get() != TransactionStatus.NOT_ACTIVE) {
-            if (isRollBackOnly()) {
-                //no-op if transaction is in rollbackOnly state that signs about inner transactions
-                return;
-            } else throw new TransactionException("Transaction already started");
-        }
+
+    private JdbcTransaction createTransaction(int isolationLevel) {
         try {
-            Connection connection = getDataSource().getConnection();
-            connection.setTransactionIsolation(isolationLevel);
-            connection.setAutoCommit(false);
-            CONNECTION.set(connection);
-            STATUS.set(TransactionStatus.ACTIVE);
+            JdbcTransaction tx;
+            if (LOCAL_TRANSACTION.get() == null) {
+                tx = JdbcTransaction.createParent(connectionSupplier.get(), isolationLevel);
+                LOCAL_TRANSACTION.set(tx);
+            } else tx = JdbcTransaction.createChild(LOCAL_TRANSACTION.get());
+            return tx;
         } catch (SQLException e) {
             throw new TransactionException(e);
         }
     }
 
-    @Override
-    public void commit() throws TransactionException {
-        if (CONNECTION.get() == null)
-            throw new TransactionException("There are no transaction to commit");
-        if (isRollBackOnly())
-            //no-op if transaction is in rollbackOnly state
-            return;
-        if (STATUS.get() != TransactionStatus.ACTIVE)
-            throw new TransactionException(String.format("Transaction is in illegal state: %s", STATUS.get()));
-        try (Connection connection = CONNECTION.get()) {
-            connection.commit();
-        } catch (SQLException e) {
-            throw new TransactionException(e);
-        } finally {
-            STATUS.set(TransactionStatus.NOT_ACTIVE);
-            CONNECTION.remove();
-        }
-    }
 
-    @Override
-    public void rollback() throws TransactionException {
-        if (CONNECTION.get() == null)
-            throw new TransactionException("There are no transaction to rollback");
-        if (STATUS.get() == TransactionStatus.ACTIVE || STATUS.get() == TransactionStatus.ACTIVE_ROLLBACK_ONLY) {
-            try (Connection connection = CONNECTION.get()) {
-                connection.rollback();
-            } catch (SQLException e) {
-                throw new TransactionException(e);
-            } finally {
-                STATUS.set(TransactionStatus.NOT_ACTIVE);
-                CONNECTION.remove();
+    public <T> T doTransactional(int isolationLevel, NullaryFunction<T> function) {
+
+        JdbcTransaction tx = createTransaction(isolationLevel);
+        try {
+            T result;
+            try {
+                result = function.apply();
+            } catch (TransactionException e) {//TODO consider to catch higher lvl exception
+                tx.rollback();
+                throw e;
             }
-        } else
-            throw new TransactionException(String.format("Transaction is in illegal state: %s", STATUS.get()));
-    }
-
-    @Override
-    public void setRollBackOnly(boolean rollbackOnly) {
-        if (rollbackOnly == isRollBackOnly())
-            return;
-        if (rollbackOnly) {
-            if (STATUS.get() == TransactionStatus.ACTIVE) {
-                STATUS.set(TransactionStatus.ACTIVE_ROLLBACK_ONLY);
-            } else throw new TransactionException(String.format(
-                    "You can't set status to ACTIVE_ROLLBACK_ONLY if current isn't ACTIVE or ACTIVE_ROLLBACK_ONLY, current - %s", STATUS.get()));
-        } else {
-            if (STATUS.get() == TransactionStatus.ACTIVE_ROLLBACK_ONLY) {
-                STATUS.set(TransactionStatus.ACTIVE);
-            } else throw new TransactionException(String.format(
-                    "You can't set status to ACTIVE if current isn't ACTIVE_ROLLBACK_ONLY or ACTIVE, current - %s", STATUS.get()));
+            tx.commit();
+            return result;
+        } finally {
+            removeTransaction(tx);
         }
     }
 
-    @Override
-    public boolean isRollBackOnly() {
-        return STATUS.get() == TransactionStatus.ACTIVE_ROLLBACK_ONLY;
-    }
-
-    @Override
-    public TransactionStatus getStatus() {
-        return STATUS.get();
-    }
-
-    @Override
-    public Integer getIsolationDefault() {
-        return isolationDefault;
+    private void removeTransaction(JdbcTransaction tx) {
+        if (tx.isParent()) {
+            LOCAL_TRANSACTION.remove();
+        }
     }
 
     @Override
     public <T> T withConnection(SQLFunction<Connection, T> withCon) {
         try {
-            if (STATUS.get() == TransactionStatus.NOT_ACTIVE){
+            if (isPresentLocalTransaction()) {
+                return LOCAL_TRANSACTION.get().doInTransaction(withCon);
+            } else {
                 return withOutTransaction(withCon);
-            } else return withCon.apply(CONNECTION.get());
-        } catch (SQLException e) {
-            LOG.info(e.getMessage(), e);
-            if (e instanceof SQLIntegrityConstraintViolationException){
-                throw new ConstraintViolationException(e);
             }
-            throw new RepositoryException("Internal server error");
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new ConstraintViolationException(e);
+        } catch (SQLException e) {
+            throw new RepositoryException(e);
         }
     }
 
+
     private <T> T withOutTransaction(SQLFunction<Connection, T> withCon) throws SQLException {
-        try (Connection connection = getDataSource().getConnection()){
+        try (Connection connection = connectionSupplier.get()) {
             return withCon.apply(connection);
         }
     }
 
-    public DataSource getDataSource() {
-        if (dataSource == null) {
-            synchronized (this) {
-                if (dataSource == null) {
-                    dataSource = ApplicationContext.getInstance().getBean(DataSource.class);
-                }
-            }
-        }
-        return dataSource;
+    private boolean isPresentLocalTransaction() {
+        return LOCAL_TRANSACTION.get() != null;
+    }
+
+
+    @Override
+    public int getIsolationDefault() {
+        return isolationDefault;
     }
 }

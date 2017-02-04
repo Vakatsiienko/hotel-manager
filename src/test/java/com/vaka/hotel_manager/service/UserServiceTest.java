@@ -1,7 +1,7 @@
 package com.vaka.hotel_manager.service;
 
 import com.vaka.hotel_manager.EntityProviderUtil;
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.CrudRepository;
 import com.vaka.hotel_manager.repository.UserRepository;
@@ -11,9 +11,9 @@ import com.vaka.hotel_manager.repository.UserRepository;
  */
 public class UserServiceTest extends CrudServiceTest<User> {
 
-    private UserRepository userRepositoryMock = ApplicationContext.getInstance().getBean(UserRepository.class);
+    private UserRepository userRepositoryMock = ApplicationContextHolder.getContext().getBean(UserRepository.class);
 
-    private UserService userService = ApplicationContext.getInstance().getBean(UserService.class);
+    private UserService userService = ApplicationContextHolder.getContext().getBean(UserService.class);
 
     @Override
     protected CrudService<User> getService() {

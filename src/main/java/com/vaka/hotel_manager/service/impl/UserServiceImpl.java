@@ -1,9 +1,8 @@
 package com.vaka.hotel_manager.service.impl;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.security.SecurityUtils;
-import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.UserRepository;
@@ -25,8 +24,8 @@ public class UserServiceImpl implements UserService {
     private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
     private UserRepository userRepository;
     private SecurityService securityService;
-    private TransactionHelper transactionHelper;
 
+    private TransactionManager transactionManager;
 
     @Override
     public User create(User loggedUser, User user) {
@@ -34,13 +33,14 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(generatePassword(user));
         user.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE, () -> {
+        return getTransactionManager().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE, () -> {
             if (getUserRepository().getByEmail(user.getEmail()).isPresent()) {
                 throw new CreatingException("EmailExistException");
             }
             return getUserRepository().create(user);
         });
     }
+
 
     private String generatePassword(User user) {
         return BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
@@ -80,35 +80,23 @@ public class UserServiceImpl implements UserService {
 
     public UserRepository getUserRepository() {
         if (userRepository == null) {
-            synchronized (this) {
-                if (userRepository == null) {
-                    userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
-                }
-            }
+            userRepository = ApplicationContextHolder.getContext().getBean(UserRepository.class);
         }
         return userRepository;
     }
 
     public SecurityService getSecurityService() {
         if (securityService == null) {
-            synchronized (this) {
-                if (securityService == null) {
-                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
-                }
-            }
+            securityService = ApplicationContextHolder.getContext().getBean(SecurityService.class);
         }
         return securityService;
     }
 
-    public TransactionHelper getTransactionHelper() {
-        if (transactionHelper == null) {
-            synchronized (this) {
-                if (transactionHelper == null) {
-                    transactionHelper = ApplicationContext.getInstance().getBean(TransactionHelper.class);
-                }
-            }
+    public TransactionManager getTransactionManager() {
+        if (transactionManager == null) {
+            transactionManager = ApplicationContextHolder.getContext().getBean(TransactionManager.class);
         }
-        return transactionHelper;
+        return transactionManager;
     }
 
 

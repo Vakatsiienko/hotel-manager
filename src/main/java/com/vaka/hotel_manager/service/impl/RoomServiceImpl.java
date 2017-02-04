@@ -1,9 +1,8 @@
 package com.vaka.hotel_manager.service.impl;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.security.SecurityUtils;
-import com.vaka.hotel_manager.core.tx.TransactionHelper;
 import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.domain.Page;
 import com.vaka.hotel_manager.domain.entity.Reservation;
@@ -32,7 +31,7 @@ public class RoomServiceImpl implements RoomService {
     private ReservationRepository reservationRepository;
     private SecurityService securityService;
     private RoomClassRepository roomClassRepository;
-    private TransactionHelper transactionHelper;
+    private TransactionManager transactionManager;
     private static final Logger LOG = LoggerFactory.getLogger(RoomServiceImpl.class);
 
     @Override
@@ -65,7 +64,7 @@ public class RoomServiceImpl implements RoomService {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         room.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         LOG.debug("Creating room: {}", room);
-        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> { //TODO add constraint exception handle
+        return getTransactionManager().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> { //TODO add constraint exception handle
             Optional<RoomClass> rc = getRoomClassRepository().getByName(room.getRoomClass().getName());
             if (!rc.isPresent())
                 throw new IllegalArgumentException("Such room class doesn't exist");
@@ -93,21 +92,30 @@ public class RoomServiceImpl implements RoomService {
     public boolean update(User loggedUser, Integer id, Room room) {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Updating room with id: {}, state: {}", id, room);
-        return getTransactionHelper().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
-            Optional<RoomClass> rc = getRoomClassRepository().getByName(room.getRoomClass().getName());
-            if (!rc.isPresent())
-                throw new IllegalArgumentException("Such room class doesn't exist");
-            room.setRoomClass(rc.get());
+        return getTransactionManager().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
             Optional<Room> old = getRoomRepository().getById(id);
-            if (!old.isPresent())
-                throw new IllegalArgumentException("Room with such id doesn't exist");
-            else {
-                if (!old.get().getNumber().equals(room.getNumber()))//TODO add constraint exception handle
-                    if (getRoomRepository().getByNumber(room.getNumber()).isPresent())
-                        throw new IllegalArgumentException("Room with such number already exist");
-            }
+            validateRoomForUpdate(room, old);
             return getRoomRepository().update(id, room);
         });
+    }
+
+    private void validateRoomForUpdate(Room newRoom, Optional<Room> oldRoom) { //TODO replace validation with constraint exception handling
+        if (!oldRoom.isPresent())
+            throw new IllegalArgumentException("Room with such id doesn't exist");
+        else {
+            if (!oldRoom.get().getNumber().equals(newRoom.getNumber())) {
+                if (getRoomRepository().getByNumber(newRoom.getNumber()).isPresent()) {
+                    throw new IllegalArgumentException("Room with such number already exist");
+                }
+            }
+            if (!oldRoom.get().getRoomClass().getName().equals(newRoom.getRoomClass().getName())) {
+                Optional<RoomClass> rc = getRoomClassRepository().getByName(newRoom.getRoomClass().getName());
+                if (!rc.isPresent()) {
+                    throw new IllegalArgumentException("Such room class doesn't exist");
+                }
+                newRoom.setRoomClass(rc.get()); //TODO consider where to move setRoomClass
+            } else newRoom.setRoomClass(oldRoom.get().getRoomClass());
+        }
     }
 
     @Override
@@ -118,55 +126,35 @@ public class RoomServiceImpl implements RoomService {
 
     public RoomRepository getRoomRepository() {
         if (roomRepository == null) {
-            synchronized (this) {
-                if (roomRepository == null) {
-                    roomRepository = ApplicationContext.getInstance().getBean(RoomRepository.class);
-                }
-            }
+            roomRepository = ApplicationContextHolder.getContext().getBean(RoomRepository.class);
         }
         return roomRepository;
     }
 
     public ReservationRepository getReservationRepository() {
         if (reservationRepository == null) {
-            synchronized (this) {
-                if (reservationRepository == null) {
-                    reservationRepository = ApplicationContext.getInstance().getBean(ReservationRepository.class);
-                }
-            }
+            reservationRepository = ApplicationContextHolder.getContext().getBean(ReservationRepository.class);
         }
         return reservationRepository;
     }
 
     public SecurityService getSecurityService() {
         if (securityService == null) {
-            synchronized (this) {
-                if (securityService == null) {
-                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
-                }
-            }
+            securityService = ApplicationContextHolder.getContext().getBean(SecurityService.class);
         }
         return securityService;
     }
 
-    public TransactionHelper getTransactionHelper() {
-        if (transactionHelper == null) {
-            synchronized (this) {
-                if (transactionHelper == null) {
-                    transactionHelper = ApplicationContext.getInstance().getBean(TransactionHelper.class);
-                }
-            }
+    public TransactionManager getTransactionManager() {
+        if (transactionManager == null) {
+            transactionManager = ApplicationContextHolder.getContext().getBean(TransactionManager.class);
         }
-        return transactionHelper;
+        return transactionManager;
     }
 
     public RoomClassRepository getRoomClassRepository() {
         if (roomClassRepository == null) {
-            synchronized (this) {
-                if (roomClassRepository == null) {
-                    roomClassRepository = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
-                }
-            }
+            roomClassRepository = ApplicationContextHolder.getContext().getBean(RoomClassRepository.class);
         }
         return roomClassRepository;
     }

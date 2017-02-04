@@ -2,8 +2,8 @@ package com.vaka.hotel_manager.repository;
 
 import com.vaka.hotel_manager.DBTestUtil;
 import com.vaka.hotel_manager.EntityProviderUtil;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.domain.entity.User;
-import com.vaka.hotel_manager.core.context.ApplicationContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import java.util.Optional;
  * Created by Iaroslav on 12/3/2016.
  */
 public class UserRepositoryTest extends CrudRepositoryTest<User> {
-    private UserRepository userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
+    private UserRepository userRepository = ApplicationContextHolder.getContext().getBean(UserRepository.class);
 
     @Before
     public void setUp() throws SQLException, ClassNotFoundException, IOException {

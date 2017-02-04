@@ -85,7 +85,7 @@
     </c:if>
 
     <c:if test="${!(loggedUser.role.name() == 'ANONYMOUS')}">
-    <span id="loggedUser">${loggedUser.name} <form action="/signout">
+    <span id="loggedUser"><c:out value="${loggedUser.name}"/> <form action="/signout">
         <input type="submit" name="submit"
                value="<fmt:message key="SignOut" bundle="${bundle}"/>" required/>
     </form></span>

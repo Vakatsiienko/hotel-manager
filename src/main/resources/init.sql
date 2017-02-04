@@ -26,7 +26,7 @@ CREATE TABLE user
   created_datetime TIMESTAMP                                NOT NULL,
   email            VARCHAR(50) UNIQUE                       NOT NULL,
   password         VARCHAR(64)                              NOT NULL,
-  name             VARCHAR(30)                              NOT NULL,
+  name             VARCHAR(40)                              NOT NULL,
   role             VARCHAR(20)                              NOT NULL,
   phone_number     VARCHAR(20)                              NOT NULL,
   vk_id       INTEGER(20) DEFAULT NULL UNIQUE

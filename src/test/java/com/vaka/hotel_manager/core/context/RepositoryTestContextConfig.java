@@ -15,20 +15,20 @@ import java.util.Map;
  */
 public class RepositoryTestContextConfig extends ApplicationContextConfig {
 
-    private Map<Class<?>, Class<?>> implClassByBeanName;
+    private Map<Object, Class<?>> beanImplClassByBeanName;
 
-    private Map<Class<?>, Object> implBeanByBeanName;
+    private Map<Object, Object> implBeanByBeanName;
 
     {
-        implClassByBeanName = new HashMap<>();
+        beanImplClassByBeanName = new HashMap<>();
         implBeanByBeanName = new HashMap<>();
 
         //Repository
-        implClassByBeanName.put(RoomRepository.class, RoomRepositoryJdbcImpl.class);
-        implClassByBeanName.put(BillRepository.class, BillRepositoryJdbcImpl.class);
-        implClassByBeanName.put(UserRepository.class, UserRepositoryJdbcImpl.class);
-        implClassByBeanName.put(ReservationRepository.class, ReservationRepositoryJdbcImpl.class);
-        implClassByBeanName.put(RoomClassRepository.class, RoomClassRepositoryJdbcImpl.class);
+        beanImplClassByBeanName.put(RoomRepository.class, RoomRepositoryJdbcImpl.class);
+        beanImplClassByBeanName.put(BillRepository.class, BillRepositoryJdbcImpl.class);
+        beanImplClassByBeanName.put(UserRepository.class, UserRepositoryJdbcImpl.class);
+        beanImplClassByBeanName.put(ReservationRepository.class, ReservationRepositoryJdbcImpl.class);
+        beanImplClassByBeanName.put(RoomClassRepository.class, RoomClassRepositoryJdbcImpl.class);
 
         //Other
         ConnectionManager connectionManager = new TestConnectionManagerImpl();
@@ -40,7 +40,12 @@ public class RepositoryTestContextConfig extends ApplicationContextConfig {
     }
 
     @Override
-    public Map<Class<?>, Object> getImplBeanByBeanName() {
+    public Map<Object, Object> getBeanByBeanName() {
         return implBeanByBeanName;
+    }
+
+    @Override
+    public Map<Object, Class<?>> getBeanImplClassByBeanName() {
+        return beanImplClassByBeanName;
     }
 }

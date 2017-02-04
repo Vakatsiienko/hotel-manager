@@ -1,10 +1,10 @@
 package com.vaka.hotel_manager.web.controller;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
+import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.domain.entity.RoomClass;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.service.RoomClassService;
-import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.util.ServletExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,22 +63,14 @@ public class RoomClassController {
 
     public SecurityService getSecurityService() {
         if (securityService == null) {
-            synchronized (this) {
-                if (securityService == null) {
-                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
-                }
-            }
+            securityService = ApplicationContextHolder.getContext().getBean(SecurityService.class);
         }
         return securityService;
     }
 
     public RoomClassService getRoomClassService() {
         if (roomClassService == null) {
-            synchronized (this) {
-                if (roomClassService == null) {
-                    roomClassService = ApplicationContext.getInstance().getBean(RoomClassService.class);
-                }
-            }
+            roomClassService = ApplicationContextHolder.getContext().getBean(RoomClassService.class);
         }
         return roomClassService;
     }

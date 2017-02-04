@@ -2,10 +2,10 @@ package com.vaka.hotel_manager.repository;
 
 import com.vaka.hotel_manager.DBTestUtil;
 import com.vaka.hotel_manager.EntityProviderUtil;
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
+import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.entity.Reservation;
-import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.entity.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,10 +25,10 @@ import static org.junit.Assert.*;
  * Created by iaroslav on 02.12.16.
  */
 public class ReservationRepositoryTest extends CrudRepositoryTest<Reservation> {
-    private ReservationRepository reservationRepository = ApplicationContext.getInstance().getBean(ReservationRepository.class);
-    private RoomRepository roomRepository = ApplicationContext.getInstance().getBean(RoomRepository.class);
-    private UserRepository userRepository = ApplicationContext.getInstance().getBean(UserRepository.class);
-    private RoomClassRepository roomClassRepository = ApplicationContext.getInstance().getBean(RoomClassRepository.class);
+    private ReservationRepository reservationRepository = ApplicationContextHolder.getContext().getBean(ReservationRepository.class);
+    private RoomRepository roomRepository = ApplicationContextHolder.getContext().getBean(RoomRepository.class);
+    private UserRepository userRepository = ApplicationContextHolder.getContext().getBean(UserRepository.class);
+    private RoomClassRepository roomClassRepository = ApplicationContextHolder.getContext().getBean(RoomClassRepository.class);
 
     @Before
     public void setUp() throws SQLException, ClassNotFoundException, IOException {

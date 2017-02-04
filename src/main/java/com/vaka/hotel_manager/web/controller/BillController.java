@@ -1,10 +1,10 @@
 package com.vaka.hotel_manager.web.controller;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
+import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.domain.entity.Bill;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.service.BillService;
-import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,22 +54,14 @@ public class BillController {
 
     public SecurityService getSecurityService() {
         if (securityService == null) {
-            synchronized (this) {
-                if (securityService == null) {
-                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
-                }
-            }
+            securityService = ApplicationContextHolder.getContext().getBean(SecurityService.class);
         }
         return securityService;
     }
 
     public BillService getBillService() {
         if (billService == null) {
-            synchronized (this) {
-                if (billService == null) {
-                    billService = ApplicationContext.getInstance().getBean(BillService.class);
-                }
-            }
+            billService = ApplicationContextHolder.getContext().getBean(BillService.class);
         }
         return billService;
     }

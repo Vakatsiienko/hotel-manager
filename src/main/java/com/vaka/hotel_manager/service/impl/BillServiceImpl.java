@@ -1,15 +1,15 @@
 package com.vaka.hotel_manager.service.impl;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
+import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.security.SecurityUtils;
-import com.vaka.hotel_manager.core.tx.TransactionHelper;
+import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.domain.entity.Bill;
 import com.vaka.hotel_manager.domain.entity.Reservation;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.BillRepository;
 import com.vaka.hotel_manager.repository.exception.ConstraintViolationException;
 import com.vaka.hotel_manager.service.BillService;
-import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.util.exception.ApplicationException;
 import com.vaka.hotel_manager.util.exception.RepositoryException;
 import org.slf4j.Logger;
@@ -26,13 +26,13 @@ public class BillServiceImpl implements BillService {
     private static final Logger LOG = LoggerFactory.getLogger(BillServiceImpl.class);
     private SecurityService securityService;
     private BillRepository billRepository;
-    private TransactionHelper transactionHelper;
+    private TransactionManager transactionManager;
 
     @Override
     public Bill createForReservation(User loggedUser, Reservation reservation) {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Creating bill from reservation: {}", reservation);
-        Bill bill = new Bill();
+        Bill bill = new Bill();//TODO move creating bill to fabric or builder
         bill.setReservation(reservation);
         bill.setTotalCost(caltucateTotalCost(reservation));
         bill.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
@@ -102,34 +102,22 @@ public class BillServiceImpl implements BillService {
 
     public BillRepository getBillRepository() {
         if (billRepository == null) {
-            synchronized (this) {
-                if (billRepository == null) {
-                    billRepository = ApplicationContext.getInstance().getBean(BillRepository.class);
-                }
-            }
+            billRepository = ApplicationContextHolder.getContext().getBean(BillRepository.class);
         }
         return billRepository;
     }
 
     public SecurityService getSecurityService() {
         if (securityService == null) {
-            synchronized (this) {
-                if (securityService == null) {
-                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
-                }
-            }
+            securityService = ApplicationContextHolder.getContext().getBean(SecurityService.class);
         }
         return securityService;
     }
 
-    public TransactionHelper getTransactionHelper() {
-        if (transactionHelper == null) {
-            synchronized (this) {
-                if (transactionHelper == null) {
-                    transactionHelper = ApplicationContext.getInstance().getBean(TransactionHelper.class);
-                }
-            }
+    public TransactionManager getTransactionManager() {
+        if (transactionManager == null) {
+            transactionManager = ApplicationContextHolder.getContext().getBean(TransactionManager.class);
         }
-        return transactionHelper;
+        return transactionManager;
     }
 }

@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.web.servlet;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.util.exception.AuthorizationException;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
 import com.vaka.hotel_manager.web.controller.*;
@@ -155,55 +155,35 @@ public class DispatcherServlet extends HttpServlet {
 
     public RoomController getRoomController() {
         if (roomController == null) {
-            synchronized (this) {
-                if (roomController == null) {
-                    roomController = ApplicationContext.getInstance().getBean(RoomController.class);
-                }
-            }
+            roomController = ApplicationContextHolder.getContext().getBean(RoomController.class);
         }
         return roomController;
     }
 
     public UserController getUserController() {
         if (userController == null) {
-            synchronized (this) {
-                if (userController == null) {
-                    userController = ApplicationContext.getInstance().getBean(UserController.class);
-                }
-            }
+            userController = ApplicationContextHolder.getContext().getBean(UserController.class);
         }
         return userController;
     }
 
     public ReservationController getReservationController() {
         if (reservationController == null) {
-            synchronized (this) {
-                if (reservationController == null) {
-                    reservationController = ApplicationContext.getInstance().getBean(ReservationController.class);
-                }
-            }
+            reservationController = ApplicationContextHolder.getContext().getBean(ReservationController.class);
         }
         return reservationController;
     }
 
     public BillController getBillController() {
         if (billController == null) {
-            synchronized (this) {
-                if (billController == null) {
-                    billController = ApplicationContext.getInstance().getBean(BillController.class);
-                }
-            }
+            billController = ApplicationContextHolder.getContext().getBean(BillController.class);
         }
         return billController;
     }
 
     public RoomClassController getRoomClassController() {
         if (roomClassController == null) {
-            synchronized (this) {
-                if (roomClassController == null) {
-                    roomClassController = ApplicationContext.getInstance().getBean(RoomClassController.class);
-                }
-            }
+            roomClassController = ApplicationContextHolder.getContext().getBean(RoomClassController.class);
         }
         return roomClassController;
     }

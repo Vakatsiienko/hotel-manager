@@ -1,6 +1,6 @@
 package com.vaka.hotel_manager.web.controller;
 
-import com.vaka.hotel_manager.core.context.ApplicationContext;
+import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.entity.User;
@@ -59,7 +59,6 @@ public class UserController {
             return;
         }
         getSecurityService().signIn(req.getSession(), loggedUser.getEmail(), password);
-//        req.getSession().setAttribute("loggedUser", loggedUser);//TODO move signin to securityService
         resp.sendRedirect("/");
     }
 
@@ -172,44 +171,28 @@ public class UserController {
 
     public ReservationService getReservationService() {
         if (reservationService == null) {
-            synchronized (this) {
-                if (reservationService == null) {
-                    reservationService = ApplicationContext.getInstance().getBean(ReservationService.class);
-                }
-            }
+            reservationService = ApplicationContextHolder.getContext().getBean(ReservationService.class);
         }
         return reservationService;
     }
 
     private UserService getUserService() {
         if (userService == null) {
-            synchronized (this) {
-                if (userService == null) {
-                    userService = ApplicationContext.getInstance().getBean(UserService.class);
-                }
-            }
+            userService = ApplicationContextHolder.getContext().getBean(UserService.class);
         }
         return userService;
     }
 
     public RoomClassService getRoomClassService() {
         if (roomClassService == null) {
-            synchronized (this) {
-                if (roomClassService == null) {
-                    roomClassService = ApplicationContext.getInstance().getBean(RoomClassService.class);
-                }
-            }
+            roomClassService = ApplicationContextHolder.getContext().getBean(RoomClassService.class);
         }
         return roomClassService;
     }
 
     private SecurityService getSecurityService() {
         if (securityService == null) {
-            synchronized (this) {
-                if (securityService == null) {
-                    securityService = ApplicationContext.getInstance().getBean(SecurityService.class);
-                }
-            }
+            securityService = ApplicationContextHolder.getContext().getBean(SecurityService.class);
         }
         return securityService;
     }

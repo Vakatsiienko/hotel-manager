@@ -133,7 +133,7 @@
                             <label for="nameReg"><fmt:message key="Name" bundle="${bundle}"/>:</label>
                         </th>
                         <td>
-                            <p id="nameReg"> ${loggedUser.name}
+                            <p id="nameReg"><c:out value="${loggedUser.name}"/>
                             </p>
                         </td>
                     </tr>
@@ -142,7 +142,7 @@
                             <label for="emailReg"><fmt:message key="Email" bundle="${bundle}"/>:</label>
                         </th>
                         <td>
-                            <p id="emailReg">${loggedUser.email}</p>
+                            <p id="emailReg"><c:out value="${loggedUser.email}"/></p>
                         </td>
                     </tr>
                     <tr class="fitem">
