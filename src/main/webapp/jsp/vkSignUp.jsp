@@ -58,7 +58,7 @@
             <td>
                 <c:choose>
                     <c:when test="${empty vkUser.email}">
-                        <input id="email" name="email" type="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$"
+                        <input id="email" name="email" type="text" pattern="[^@\s]+@[^@\s]+\.[^@\s]+" min="5" max="50"
                                required>
                     </c:when>
                     <c:otherwise>
