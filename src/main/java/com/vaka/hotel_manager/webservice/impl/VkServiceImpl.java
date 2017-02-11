@@ -27,7 +27,7 @@ public class VkServiceImpl implements VkService {
     private static final String VK_CLIENT_ID = "5544247";
     private static final String VK_CLIENT_SECRET = "i1jmjnJjFSWtAly1iY6X";
     private static final String METHOD_USERS_GET = "https://api.vk.com/method/users.get?access_token=%s";
-    private static final String SERVER_ADDRESS = "http://109.86.28.43:8081";
+    private static final String SERVER_ADDRESS = "http://109.86.28.43:44";
     private final ObjectMapper mapper = new ObjectMapper();
     private final ObjectReader reader = mapper.reader();
     private final JsonFactory jsonFactory = mapper.getFactory();

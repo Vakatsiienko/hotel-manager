@@ -72,7 +72,7 @@
     <c:if test="${loggedUser.role.name() == 'ANONYMOUS'}">
         <a href="/signin"><fmt:message key="SignIn" bundle="${bundle}"/></a> <br>
         <a href="/signup"><fmt:message key="SignUp" bundle="${bundle}"/></a> <br>
-        <a href="https://oauth.vk.com/authorize?client_id=5544247&display=page&redirect_uri=http://109.86.28.43:8081/signup-vk&scope=email&response_type=code&v=5.62"
+        <a href="https://oauth.vk.com/authorize?client_id=5544247&display=page&redirect_uri=http://109.86.28.43:44/signup-vk&scope=email&response_type=code&v=5.62"
         ><fmt:message key="SignInWithVk" bundle="${bundle}"/></a> <br>
     </c:if>
 
