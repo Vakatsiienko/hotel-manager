@@ -46,7 +46,7 @@ public class PersistenceConfig implements BeanConfig {
         JdbcCrudHelper crudHelper = new JdbcCrudHelper(connectionManager);
         beanByBeanName.put(JdbcCrudHelper.class, crudHelper);
 
-        beanByBeanName.put("queryByClassAndMethodName", queryByClassAndMethodName());
+        beanByBeanName.put("queryByClassAndMethodName", queryByClassAndMethodName(sqlPaths));
 
         beanByBeanName.put(SQLExceptionParser.class, new MysqlExceptionParser());
         beanByBeanName.put("domainFieldNameByTableFieldName", Collections.unmodifiableMap(domainFieldNameByTableFieldName()));
@@ -62,9 +62,8 @@ public class PersistenceConfig implements BeanConfig {
         }
     }
 
-    private Map<String, String> queryByClassAndMethodName() {
-        SqlParser parser = new SqlParser();
-        parser.parseFiles(sqlPaths);
+    private Map<String, String> queryByClassAndMethodName(String... sqlPaths) {
+        SqlParser parser = SqlParser.getWithParsedFiles(sqlPaths);
         return parser.getQueryByClassAndMethodName();
     }
 
