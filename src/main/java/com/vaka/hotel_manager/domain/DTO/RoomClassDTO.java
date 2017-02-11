@@ -1,9 +1,6 @@
 package com.vaka.hotel_manager.domain.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 /**
  * Created by Iaroslav on 1/22/2017.

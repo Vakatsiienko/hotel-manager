@@ -7,6 +7,7 @@ import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.service.RoomClassService;
 import com.vaka.hotel_manager.service.UserService;
+import com.vaka.hotel_manager.util.DomainUtil;
 import com.vaka.hotel_manager.util.ServletExtractor;
 import com.vaka.hotel_manager.util.ValidationUtil;
 import com.vaka.hotel_manager.util.exception.AuthenticationException;
@@ -40,16 +41,23 @@ public class UserController {
         LOG.debug("Sign up vk");
         User vkUser = (User) req.getSession().getAttribute("vkUser");
         if (vkUser == null) {
-            throw new IllegalStateException("");
+            throw new IllegalStateException("");//TODO handle exception case
         }
         String phone = req.getParameter("phoneNumber");
-        String name = req.getParameter("name");
-        if (vkUser.getEmail() == null)
-            vkUser.setEmail(req.getParameter("email"));
         vkUser.setPhoneNumber(phone);
-        vkUser.setName(name);
+
+        String name = req.getParameter("name");
+        String formattedName = DomainUtil.formatUserName(name);
+        vkUser.setName(formattedName);
+
+        if (vkUser.getEmail() == null) {
+            vkUser.setEmail(req.getParameter("email"));
+        }
+
         String password = RandomStringUtils.random(8);
         vkUser.setPassword(password);
+
+        ValidationUtil.validate(vkUser);
         try {
             loggedUser = getUserService().create(loggedUser, vkUser);
         } catch (CreatingException e) {
@@ -105,7 +113,7 @@ public class UserController {
             return;
         }
         String redirectUri = req.getParameter("redirectUri");
-        if (redirectUri == null){
+        if (redirectUri == null) {
             resp.sendRedirect("/users/" + ((User) req.getSession().getAttribute("loggedUser")).getId());
             return;
         }
@@ -132,19 +140,24 @@ public class UserController {
         User loggedUser = getSecurityService().authenticate(req.getSession());
         LOG.debug("Sign up request");
         User user = ServletExtractor.extractCustomer(req);
+        if (!user.getPassword().equals(req.getParameter("passwordCheck"))) {
+            throw new CreatingException("PasswordCheckException");
+        }
+        String formattedName = DomainUtil.formatUserName(user.getName());
+        user.setName(formattedName);
+
+        ValidationUtil.validate(user);
         try {
-            if (!user.getPassword().equals(req.getParameter("passwordCheck")))
-                throw new CreatingException("PasswordCheckException");
-            ValidationUtil.validate(user);
             getUserService().create(loggedUser, user);
-            getSecurityService().signIn(req.getSession(), user.getEmail(), req.getParameter("password"));
-            resp.sendRedirect("/");
         } catch (CreatingException ex) {
             LOG.debug(ex.getMessage(), ex);
             req.getSession().setAttribute("email", user.getEmail());
             req.getSession().setAttribute("exception", ex.getMessage());
             resp.sendRedirect("/signin");
+            return;
         }
+        getSecurityService().signIn(req.getSession(), user.getEmail(), req.getParameter("password"));
+        resp.sendRedirect("/");
     }
 
     public void signOut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

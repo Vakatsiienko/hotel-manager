@@ -65,17 +65,17 @@
             <th><fmt:message key="RoomClass" bundle="${bundle}"/></th>
             <td>${room.roomClass.name}</td>
             <td>
-                <select name="roomClassName">
+                <select name="roomClassId">
                     <c:forEach items="${roomClasses}" var="roomClass">
                         <jsp:useBean id="roomClass" scope="page"
                                      type="com.vaka.hotel_manager.domain.entity.RoomClass"/>
                         <c:choose>
                             <c:when test="${roomClass.name == room.roomClass.name}">
-                                <option value="${roomClass.name}"
+                                <option value="${roomClass.id}"
                                         selected>${roomClass.name}</option>
                             </c:when>
                             <c:otherwise>
-                                <option value="${roomClass.name}">${roomClass.name}</option>
+                                <option value="${roomClass.id}">${roomClass.name}</option>
                             </c:otherwise>
                         </c:choose>
                     </c:forEach>

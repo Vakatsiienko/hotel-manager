@@ -173,8 +173,8 @@
                             <label for="email"><fmt:message key="Email" bundle="${bundle}"/>:</label>
                         </th>
                         <td>
-                            <input id="email" name="email" type="email"
-                                   pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,63}$" max="50"
+                            <input id="email" name="email" type="text"
+                                   max="50" pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
                                    required title="<fmt:message key="emailTitle" bundle="${bundle}"/>">
                         </td>
                     </tr>
@@ -212,15 +212,15 @@
             </tr>
             <tr class="fitem">
                 <th>
-                    <label for="roomClassName"><fmt:message key="RoomClass" bundle="${bundle}"/></label>
+                    <label for="roomClassId"><fmt:message key="RoomClass" bundle="${bundle}"/></label>
                 </th>
                 <td>
-                    <select id="roomClassName" name="roomClassName">
+                    <select id="roomClassId" name="roomClassId">
                         <c:forEach items="${roomClasses}" var="clazz">
                             <jsp:useBean id="clazz" scope="page"
                                          type="com.vaka.hotel_manager.domain.entity.RoomClass"/>
-                            <option value="${clazz.name}"
-                                    <c:if test="${reservation.requestedRoomClass.name == clazz.name}">
+                            <option value="${clazz.id}"
+                                    <c:if test="${reservation.requestedRoomClass.id == clazz.id}">
                                         selected
                                     </c:if>
                             >${clazz.name}</option>

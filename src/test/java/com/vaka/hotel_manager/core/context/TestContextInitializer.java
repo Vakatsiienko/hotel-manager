@@ -1,7 +1,6 @@
 package com.vaka.hotel_manager.core.context;
 
-import com.vaka.hotel_manager.core.context.config.ApplicationContextConfig;
-import com.vaka.hotel_manager.core.context.config.PersistenceConfig;
+import com.vaka.hotel_manager.core.context.config.BeanConfig;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -11,18 +10,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestContextInitializer {
 
-    private static void init(ApplicationContextConfig config){
+    private static void init(BeanConfig... configs){
 
         new ApplicationContextHolder().setContext(ApplicationContext
-                    .init(config, new PersistenceConfig()));
+                    .init(configs));
         //TODO add persistence properties from test resources
     }
 
     public static void initForRepositories() {
-        init(new RepositoryTestContextConfig());
+        init(new TestRepositoryContextConfig(), new TestPersistenceConfig());
     }
 
     public static void initForServices() {
-        init(new ServiceTestContextConfig());
+        init(new TestServiceContextConfig());
     }
 }

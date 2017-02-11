@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 /**
@@ -43,6 +45,7 @@ public class JdbcCrudHelper {
      */
     public <T extends BaseEntity> T create(SQLBiFunction<T, NamedPreparedStatement, NamedPreparedStatement> function,
                                                   String strQuery, T t) {
+        t.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         return connectionManager.withConnection(connection -> {
             try (NamedPreparedStatement statement = createAndExecuteCreateStatement(connection, strQuery, t, function);
                  ResultSet resultSet = statement.getGenerationKeys()) {

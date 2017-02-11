@@ -1,15 +1,14 @@
 package com.vaka.hotel_manager.service;
 
 import com.vaka.hotel_manager.core.context.TestContextInitializer;
-import com.vaka.hotel_manager.domain.entity.BaseEntity;
 import com.vaka.hotel_manager.domain.Role;
+import com.vaka.hotel_manager.domain.entity.BaseEntity;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.CrudRepository;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.mockito.Mockito.verify;
@@ -37,16 +36,6 @@ public abstract class CrudServiceTest<Entity extends BaseEntity> {
         verify(repository).create(e);
     }
 
-    @Test
-    public void testGeneratingCreatedDatetimeOnCreate() {
-        Entity e = createEntity();
-        e.setCreatedDatetime(LocalDateTime.MIN);
-        LocalDateTime oldDateTime = e.getCreatedDatetime();
-        beforeCreate();
-        getService().create(getManager(), e);
-
-        Assert.assertNotEquals(e.getCreatedDatetime(), oldDateTime);
-    }
 
     @Test
     public void testGetById() {

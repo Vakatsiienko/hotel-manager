@@ -39,38 +39,40 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public boolean signInVk(HttpSession session, String code) {
         VkAuthRequest authRequest = getVkService().signIn(code);
-        Optional<User> existed = getTransactionManager().doTransactional(
-                () -> {
-                    Optional<User> byVkId = getUserRepository().getByVkId(authRequest.getUserId());
-                    if (!byVkId.isPresent()) {
-                        Optional<User> byEmail = getUserRepository().getByEmail(authRequest.getEmail());
-                        if (byEmail.isPresent()) {
-                            session.setAttribute("email", byEmail.get().getEmail());
-                            //if email exist - fail-fast
-                            throw new CreatingException("EmailExistException");
-                        }
-                    }
-                    return byVkId;
-                });
+        Optional<User> existed = getUserRepository().getByVkId(authRequest.getUserId());
         if (existed.isPresent()){
-            eraseSensivityCredentials(existed.get());
+            eraseSensitivityCredentials(existed.get());
             session.setAttribute("loggedUser", existed.get());
             return true;
         } else {
-            VkUserInfo userInfo = getVkService().getSignUpInfo(authRequest.getAccessToken());
-            User user = new User();
-            user.setRole(Role.CUSTOMER);
-            user.setVkId(authRequest.getUserId());
-            user.setName(new StringJoiner(" ")
-                    .add(userInfo.getFirstName())
-                    .add(userInfo.getLastName()).toString());
-            user.setEmail(authRequest.getEmail());
+            if (checkIfUserExistByEmail(authRequest.getEmail())) {
+                session.setAttribute("email", authRequest.getEmail());
+                //if email exist - fail-fast
+                throw new CreatingException("EmailExistException");
+            }
+            User user = getUserInfoForSignUpByVk(authRequest);
             session.setAttribute("vkUser", user);
             return false;
         }
     }
 
-    private void eraseSensivityCredentials(User user) {
+    private User getUserInfoForSignUpByVk(VkAuthRequest authRequest) {
+        VkUserInfo userInfo = getVkService().getSignUpInfo(authRequest.getAccessToken());
+        User user = new User();
+        user.setRole(Role.CUSTOMER);
+        user.setVkId(authRequest.getUserId());
+        user.setName(new StringJoiner(" ")
+                .add(userInfo.getFirstName())
+                .add(userInfo.getLastName()).toString());
+        user.setEmail(authRequest.getEmail());
+        return user;
+    }
+
+    private boolean checkIfUserExistByEmail(String email) {
+        return getUserRepository().getByEmail(email).isPresent();
+    }
+
+    private void eraseSensitivityCredentials(User user) {
         user.setPassword("");
     }
 

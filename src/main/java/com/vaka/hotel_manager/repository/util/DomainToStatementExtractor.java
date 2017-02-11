@@ -43,7 +43,8 @@ public class DomainToStatementExtractor {
     public static NamedPreparedStatement extract(Bill bill, NamedPreparedStatement statement) throws SQLException {
         if (bill.getId() != null)
             statement.setStatement("billId", bill.getId());
-        statement.setStatement("billCreatedDatetime", Timestamp.valueOf(bill.getCreatedDatetime()));
+        if (bill.getCreatedDatetime() != null)
+            statement.setStatement("billCreatedDatetime", Timestamp.valueOf(bill.getCreatedDatetime()));
         statement.setStatement("billTotalCost", bill.getTotalCost());
         statement.setStatement("billReservationId", bill.getReservation().getId());
         statement.setStatement("billPaid", bill.isPaid());

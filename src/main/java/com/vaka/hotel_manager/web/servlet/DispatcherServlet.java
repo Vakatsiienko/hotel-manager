@@ -37,8 +37,6 @@ public class DispatcherServlet extends HttpServlet {
                     getUserController().signinPage(req, resp);
                 } else if ("/signup".equals(uri)) {
                     getUserController().signupPage(req, resp);
-                } else if ("/signout".equals(uri)) {
-                    getUserController().signOut(req, resp);
                 } else if (uri.equals("/signup-vk")) {
                     getUserController().signInVk(req, resp);
                 } else resp.sendError(404, "Not Found");
@@ -57,7 +55,7 @@ public class DispatcherServlet extends HttpServlet {
                     getReservationController().processingPage(req, resp);
                 } else if (uri.matches("/reservations/[0-9]+")) {
                     getReservationController().getById(req, resp);
-                } else if (uri.equals("/reservations/confirmed/show-arrival")){
+                } else if (uri.equals("/reservations/confirmed/show-arrival")) {
                     getReservationController().showArrival(req, resp);
                 } else {
                     resp.sendError(404, "Not Found");
@@ -90,7 +88,7 @@ public class DispatcherServlet extends HttpServlet {
         } catch (AuthorizationException e3) {
             LOG.debug(e3.getMessage(), e3);
             resp.sendError(403, e3.getMessage());
-        } catch (Throwable e){
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             resp.sendError(500, "Internal server error");
         }
@@ -107,6 +105,8 @@ public class DispatcherServlet extends HttpServlet {
                 getUserController().signUp(req, resp);
             } else if ("/signup-vk".equals(strUri)) {
                 getUserController().signUpVk(req, resp);
+            } else if ("/signout".equals(strUri)) {
+                getUserController().signOut(req, resp);
             } else if ("/reservations".equals(strUri)) {
                 getReservationController().create(req, resp);
             } else if (strUri.matches("/reservations/[0-9]+/reject")) {
@@ -147,7 +147,7 @@ public class DispatcherServlet extends HttpServlet {
         } catch (AuthorizationException e3) {
             LOG.debug(e3.getMessage(), e3);
             resp.sendError(403, e3.getMessage());
-        } catch (Throwable e){
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             resp.sendError(500, "Internal server error");
         }

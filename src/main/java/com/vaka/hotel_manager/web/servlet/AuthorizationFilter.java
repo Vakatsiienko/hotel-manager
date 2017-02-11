@@ -25,11 +25,12 @@ public class AuthorizationFilter implements Filter {
 
 
     static {
-        Set<String> anonymousGrantedUri = new HashSet<>();
-        anonymousGrantedUri.add("/signin");
-        anonymousGrantedUri.add("/signup");
-        anonymousGrantedUri.add("/signup-vk");
-        ANONYMOUS_ONLY_URI = Collections.unmodifiableSet(anonymousGrantedUri);
+        Set<String> anonymousOnlyUri = new HashSet<>();
+        anonymousOnlyUri.add("/signin");
+        anonymousOnlyUri.add("/signup");
+        anonymousOnlyUri.add("/signup-vk");
+        ANONYMOUS_ONLY_URI = Collections.unmodifiableSet(anonymousOnlyUri);
+        Set<String> anonymousGrantedUri = new HashSet<>(anonymousOnlyUri);
         anonymousGrantedUri.add("/rooms");
         anonymousGrantedUri.add("/");
         ANONYMOUS_GRANTED_URI = Collections.unmodifiableSet(anonymousGrantedUri);
@@ -53,7 +54,7 @@ public class AuthorizationFilter implements Filter {
                 ((HttpServletResponse) response).sendRedirect(String.format("/signin?redirectUri=%s", uri));
                 return;
             } else if (loggedUser.getRole() != Role.ANONYMOUS && ANONYMOUS_ONLY_URI.contains(uri)) {
-                LOG.debug("Logged user trying to get {}, but was redirected to his user page", loggedUser.getId());
+                LOG.debug("Logged user trying to get {}, but was redirected to his user page", uri);
                 ((HttpServletResponse) response).sendRedirect("/users/" + loggedUser.getId());
                 return;
             }

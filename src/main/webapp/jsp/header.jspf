@@ -11,17 +11,17 @@
         crossorigin="anonymous"></script>
 <script type="text/javascript">
     $(function () {
-    var val = getCookie('language');
-    if (val != undefined) {
-        var sel = document.getElementById('languageSelect');
-        var opts = sel.options;
-        for (var opt, j = 0; opt = opts[j]; j++) {
-            if (opt.value == val) {
-                sel.selectedIndex = j;
-                break;
+        var val = getCookie('language');
+        if (val != undefined) {
+            var sel = document.getElementById('languageSelect');
+            var opts = sel.options;
+            for (var opt, j = 0; opt = opts[j]; j++) {
+                if (opt.value == val) {
+                    sel.selectedIndex = j;
+                    break;
+                }
             }
         }
-    }
     });
     function setCookie(cname, cvalue, exdays) {
         var d = new Date();
@@ -45,7 +45,7 @@
 </script>
 
 <style type="text/css">
-        #loggedUser {
+    #loggedUser {
         position: absolute;
         right: 0px;
         top: 0px;
@@ -72,7 +72,7 @@
     <c:if test="${loggedUser.role.name() == 'ANONYMOUS'}">
         <a href="/signin"><fmt:message key="SignIn" bundle="${bundle}"/></a> <br>
         <a href="/signup"><fmt:message key="SignUp" bundle="${bundle}"/></a> <br>
-        <a href="https://oauth.vk.com/authorize?client_id=5544247&display=page&redirect_uri=http://109.86.28.43:44/signup-vk&scope=email&response_type=code&v=5.62"
+        <a href="https://oauth.vk.com/authorize?client_id=5544247&display=page&redirect_uri=http://109.86.28.43:8081/signup-vk&scope=email&response_type=code&v=5.62"
         ><fmt:message key="SignInWithVk" bundle="${bundle}"/></a> <br>
     </c:if>
 
@@ -85,10 +85,12 @@
     </c:if>
 
     <c:if test="${!(loggedUser.role.name() == 'ANONYMOUS')}">
-    <span id="loggedUser"><c:out value="${loggedUser.name}"/> <form action="/signout">
-        <input type="submit" name="submit"
-               value="<fmt:message key="SignOut" bundle="${bundle}"/>" required/>
-    </form></span>
+    <span id="loggedUser"><c:out value="${loggedUser.name}"/>
+        <form action="/signout" method="POST">
+            <input type="submit" name="submit"
+                   value="<fmt:message key="SignOut" bundle="${bundle}"/>" required/>
+        </form>
+    </span>
         <a href="/users/${loggedUser.id}"><fmt:message key="MyPage" bundle="${bundle}"/></a>
     </c:if>
 </div>

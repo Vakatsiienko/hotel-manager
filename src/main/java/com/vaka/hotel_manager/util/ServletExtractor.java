@@ -23,6 +23,7 @@ import java.util.function.Function;
 public class ServletExtractor {
     private static final Logger LOG = LoggerFactory.getLogger(ServletExtractor.class);
 
+    //TODO change paramValue to paramName.
     public static <T> T extractOrDefault(String paramValue, T defaultValue, Function<String, T> parser) {
         try {
             Optional<String> defaultOpt = Optional.ofNullable(paramValue);
@@ -40,6 +41,7 @@ public class ServletExtractor {
         else return defaultValue;
     }
 
+    //TODO get roomClass id, not name
     public static Reservation extractReservation(HttpServletRequest req) {
         try {
             Reservation reservation = new Reservation();

@@ -1,16 +1,20 @@
 package com.vaka.hotel_manager.core.context.config;
 
 
+import com.vaka.hotel_manager.core.proxy.ProxyFactory;
+import com.vaka.hotel_manager.core.proxy.SQLExceptionParserProxy;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.security.impl.SecurityServiceImpl;
 import com.vaka.hotel_manager.repository.*;
 import com.vaka.hotel_manager.repository.jdbcImpl.*;
 import com.vaka.hotel_manager.service.*;
 import com.vaka.hotel_manager.service.impl.*;
+import com.vaka.hotel_manager.util.exception.ApplicationContextInitException;
 import com.vaka.hotel_manager.web.controller.*;
 import com.vaka.hotel_manager.webservice.VkService;
 import com.vaka.hotel_manager.webservice.impl.VkServiceImpl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +28,32 @@ public class ApplicationContextConfig implements BeanConfig {
 
     private Map<Object, Object> beanByBeanName;
 
-    public ApplicationContextConfig() {
+    {
         beanByBeanName = new HashMap<>();
+        try {
+
+            //Repository
+            beanByBeanName.put(RoomRepository.class, ProxyFactory.getProxiedInstance(
+                    new RoomRepositoryJdbcImpl(), RoomRepository.class, SQLExceptionParserProxy.class
+            ));
+            beanByBeanName.put(BillRepository.class, ProxyFactory.getProxiedInstance(
+                    new BillRepositoryJdbcImpl(), BillRepository.class, SQLExceptionParserProxy.class
+            ));
+            beanByBeanName.put(UserRepository.class, ProxyFactory.getProxiedInstance(
+                    new UserRepositoryJdbcImpl(), UserRepository.class, SQLExceptionParserProxy.class
+            ));
+            beanByBeanName.put(ReservationRepository.class, ProxyFactory.getProxiedInstance(
+                    new ReservationRepositoryJdbcImpl(), ReservationRepository.class, SQLExceptionParserProxy.class
+            ));
+            beanByBeanName.put(RoomClassRepository.class, ProxyFactory.getProxiedInstance(
+                    new RoomClassRepositoryJdbcImpl(), RoomClassRepository.class, SQLExceptionParserProxy.class
+            ));
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
+            throw new ApplicationContextInitException("Proxies init exception", e);
+        }
+    }
+
+    public ApplicationContextConfig() {
         beanImplClassByBeanName = new HashMap<>();
 
         //Controllers
@@ -44,12 +72,6 @@ public class ApplicationContextConfig implements BeanConfig {
         beanImplClassByBeanName.put(RoomClassService.class, RoomClassServiceImpl.class);
         beanImplClassByBeanName.put(VkService.class, VkServiceImpl.class);
 
-        //Repository
-        beanImplClassByBeanName.put(RoomRepository.class, RoomRepositoryJdbcImpl.class);
-        beanImplClassByBeanName.put(BillRepository.class, BillRepositoryJdbcImpl.class);
-        beanImplClassByBeanName.put(UserRepository.class, UserRepositoryJdbcImpl.class);
-        beanImplClassByBeanName.put(ReservationRepository.class, ReservationRepositoryJdbcImpl.class);
-        beanImplClassByBeanName.put(RoomClassRepository.class, RoomClassRepositoryJdbcImpl.class);
 
         //Other
     }

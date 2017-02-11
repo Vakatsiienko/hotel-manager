@@ -9,19 +9,17 @@ import com.vaka.hotel_manager.domain.ReservationStatus;
 import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.entity.Reservation;
 import com.vaka.hotel_manager.domain.entity.Room;
-import com.vaka.hotel_manager.domain.entity.RoomClass;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.ReservationRepository;
-import com.vaka.hotel_manager.repository.RoomClassRepository;
 import com.vaka.hotel_manager.repository.RoomRepository;
+import com.vaka.hotel_manager.repository.exception.ConstraintViolationException;
+import com.vaka.hotel_manager.repository.exception.ConstraintViolationType;
 import com.vaka.hotel_manager.service.BillService;
 import com.vaka.hotel_manager.service.ReservationService;
 import com.vaka.hotel_manager.util.exception.NotFoundException;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +34,6 @@ public class ReservationServiceImpl implements ReservationService {
     private RoomRepository roomRepository;
     private BillService billService;
     private SecurityService securityService;
-    private RoomClassRepository roomClassRepository;
     private TransactionManager transactionManager;
 
     @Override
@@ -105,7 +102,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public boolean reject(User loggedUser, Integer reservationId) {
+    public boolean reject(User loggedUser, Integer reservationId) {//TODO consider to reject with status
         LOG.debug("Rejecting reservationId: {}", reservationId);
         return getTransactionManager().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
             Optional<Reservation> reservationOptional = getReservationRepository().getById(reservationId);
@@ -113,8 +110,7 @@ public class ReservationServiceImpl implements ReservationService {
                 if (!reservationOptional.get().getUser().getId().equals(loggedUser.getId())) {
                     getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
                 }
-                if (reservationOptional.get().getStatus() == ReservationStatus.REJECTED)
-                    throw new IllegalStateException("Reservation already rejected");
+                validateForReject(reservationOptional.get());
                 reservationOptional.get().setStatus(ReservationStatus.REJECTED);
                 LOG.debug("Updating reservation: {}", reservationOptional.get());
                 return reservationRepository.update(reservationId, reservationOptional.get());
@@ -122,25 +118,29 @@ public class ReservationServiceImpl implements ReservationService {
         });
     }
 
+    private void validateForReject(Reservation reservation) {
+        if (reservation.getStatus() == ReservationStatus.REJECTED) {
+            throw new IllegalStateException("Reservation already rejected");
+        }
+    }
+
 
     @Override
     public Reservation create(User loggedUser, Reservation reservation) {
-        reservation.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         LOG.debug("Creating reservation: {}", reservation);
-        return getTransactionManager().doTransactional(TransactionManager.TRANSACTION_REPEATABLE_READ, () -> {
-            Optional<RoomClass> rc = getRoomClassRepository().getByName(reservation.getRequestedRoomClass().getName());
-            if (!rc.isPresent())
-                throw new NotFoundException("Such Room Class doesn't exist");
-            reservation.setRequestedRoomClass(rc.get());
-            reservation.setStatus(ReservationStatus.REQUESTED);
+        reservation.setStatus(ReservationStatus.REQUESTED);
+        try {
             return getReservationRepository().create(reservation);
-        });
+        } catch (ConstraintViolationException e) {
+            if (e.getViolationType() == ConstraintViolationType.FOREIGN_KEY_CREATE && e.getViolatedField().equals("roomClassId")) {
+                throw new NotFoundException("Such Room Class doesn't exist");
+            } else throw e;
+        }
     }
 
     @Override
     public Optional<Reservation> getById(User loggedUser, Integer id) {
         LOG.debug("Searching reservation with id: {}", id);
-
         Optional<Reservation> reservation = getReservationRepository().getById(id);
         if (reservation.isPresent()) {
             if (!reservation.get().getUser().getId().equals(loggedUser.getId())) {
@@ -190,7 +190,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     public SecurityService getSecurityService() {
-        if (securityService == null){
+        if (securityService == null) {
             securityService = ApplicationContextHolder.getContext().getBean(SecurityService.class);
         }
         return securityService;
@@ -201,12 +201,5 @@ public class ReservationServiceImpl implements ReservationService {
             transactionManager = ApplicationContextHolder.getContext().getBean(TransactionManager.class);
         }
         return transactionManager;
-    }
-
-    public RoomClassRepository getRoomClassRepository() {
-        if (roomClassRepository == null) {
-            roomClassRepository = ApplicationContextHolder.getContext().getBean(RoomClassRepository.class);
-        }
-        return roomClassRepository;
     }
 }

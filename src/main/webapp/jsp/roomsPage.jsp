@@ -261,13 +261,13 @@
         </div>
         <div class="fitem">
             <label for="roomClass">Room Class:</label>
-            <select id="roomClass" name="roomClassName" required>
+            <select id="roomClass" name="roomClassId" required>
                 <c:forEach items="${roomClasses}" var="clazz">
                     <jsp:useBean id="clazz" scope="page"
                                  type="com.vaka.hotel_manager.domain.entity.RoomClass"/>
-                    <option value="${clazz.name}"
+                    <option value="${clazz.id}"
                             <c:if test="${!empty sessionRoom}">
-                                <c:if test="${sessionRoom.roomClass.name == clazz.name}">
+                                <c:if test="${sessionRoom.roomClass.id == clazz.id}">
                                     selected
                                 </c:if>
                             </c:if>

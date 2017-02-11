@@ -3,17 +3,16 @@ package com.vaka.hotel_manager.service.impl;
 import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.security.SecurityUtils;
-import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.UserRepository;
+import com.vaka.hotel_manager.repository.exception.ConstraintViolationException;
+import com.vaka.hotel_manager.repository.exception.ConstraintViolationType;
 import com.vaka.hotel_manager.service.UserService;
 import com.vaka.hotel_manager.util.exception.CreatingException;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 
@@ -25,20 +24,18 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private SecurityService securityService;
 
-    private TransactionManager transactionManager;
-
     @Override
     public User create(User loggedUser, User user) {
         LOG.debug("Creating user: {}", user);
 
         user.setPassword(generatePassword(user));
-        user.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        return getTransactionManager().doTransactional(TransactionManager.TRANSACTION_SERIALIZABLE, () -> {
-            if (getUserRepository().getByEmail(user.getEmail()).isPresent()) {
-                throw new CreatingException("EmailExistException");
-            }
+        try {
             return getUserRepository().create(user);
-        });
+        } catch (ConstraintViolationException e) {
+            if (e.getViolationType() == ConstraintViolationType.DUPLICATE_ENTRY && e.getViolatedField().equals("email"))
+                throw new CreatingException("EmailExistException");
+            else throw e;
+        }
     }
 
 
@@ -91,13 +88,4 @@ public class UserServiceImpl implements UserService {
         }
         return securityService;
     }
-
-    public TransactionManager getTransactionManager() {
-        if (transactionManager == null) {
-            transactionManager = ApplicationContextHolder.getContext().getBean(TransactionManager.class);
-        }
-        return transactionManager;
-    }
-
-
 }

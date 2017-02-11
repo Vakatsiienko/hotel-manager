@@ -3,7 +3,9 @@ package com.vaka.hotel_manager.core.context.config;
 import com.vaka.hotel_manager.core.tx.ConnectionManager;
 import com.vaka.hotel_manager.core.tx.JdbcTransactionManagerImpl;
 import com.vaka.hotel_manager.core.tx.TransactionManager;
+import com.vaka.hotel_manager.repository.util.SQLExceptionParser;
 import com.vaka.hotel_manager.repository.util.JdbcCrudHelper;
+import com.vaka.hotel_manager.repository.util.mysql.MysqlExceptionParser;
 import com.vaka.hotel_manager.util.SqlParser;
 import com.vaka.hotel_manager.util.exception.ApplicationContextInitException;
 import org.apache.tomcat.jdbc.pool.DataSource;
@@ -33,6 +35,7 @@ public class PersistenceConfig implements BeanConfig {
 
         javax.sql.DataSource dataSource = dataSource();
 
+        beanByBeanName.put(javax.sql.DataSource.class, dataSource);
 
         TransactionManager transactionManager = new JdbcTransactionManagerImpl(dataSource::getConnection, TransactionManager.TRANSACTION_READ_COMMITTED);
         beanByBeanName.put(TransactionManager.class, transactionManager);
@@ -44,6 +47,9 @@ public class PersistenceConfig implements BeanConfig {
         beanByBeanName.put(JdbcCrudHelper.class, crudHelper);
 
         beanByBeanName.put("queryByClassAndMethodName", queryByClassAndMethodName());
+
+        beanByBeanName.put(SQLExceptionParser.class, new MysqlExceptionParser());
+        beanByBeanName.put("domainFieldNameByTableFieldName", Collections.unmodifiableMap(domainFieldNameByTableFieldName()));
     }
 
     private void setSystemProperties() throws IOException {
@@ -57,7 +63,9 @@ public class PersistenceConfig implements BeanConfig {
     }
 
     private Map<String, String> queryByClassAndMethodName() {
-        return new SqlParser(sqlPaths).createAndGetQueryByClassAndMethodName();
+        SqlParser parser = new SqlParser();
+        parser.parseFiles(sqlPaths);
+        return parser.getQueryByClassAndMethodName();
     }
 
     private javax.sql.DataSource dataSource() {
@@ -102,6 +110,34 @@ public class PersistenceConfig implements BeanConfig {
             throw new ApplicationContextInitException(e);
         }
     }
+
+    private Map<String, String> domainFieldNameByTableFieldName(){
+        Map<String, String> domainFieldNameByTableFieldName = new HashMap<>();
+        //TODO make field "column" annotation and collector
+        domainFieldNameByTableFieldName.put("id", "id");
+        domainFieldNameByTableFieldName.put("created_datetime", "createdDatetime");
+        domainFieldNameByTableFieldName.put("email", "email");
+        domainFieldNameByTableFieldName.put("password", "password");
+        domainFieldNameByTableFieldName.put("name", "name");
+        domainFieldNameByTableFieldName.put("role", "role");
+        domainFieldNameByTableFieldName.put("phone_number", "phoneNumber");
+        domainFieldNameByTableFieldName.put("vk_id", "vkId");
+        domainFieldNameByTableFieldName.put("reservation_id", "reservationId");
+        domainFieldNameByTableFieldName.put("total_cost", "totalCost");
+        domainFieldNameByTableFieldName.put("paid", "paid");
+        domainFieldNameByTableFieldName.put("number", "number");
+        domainFieldNameByTableFieldName.put("cost_per_day", "costPerDay");
+        domainFieldNameByTableFieldName.put("room_class_id", "roomClassId");
+        domainFieldNameByTableFieldName.put("user_id", "userId");
+        domainFieldNameByTableFieldName.put("room_id", "roomId");
+        domainFieldNameByTableFieldName.put("guests", "guests");
+        domainFieldNameByTableFieldName.put("requested_room_class_id", "roomClassId");//TODO change to proper value
+        domainFieldNameByTableFieldName.put("status", "status");
+        domainFieldNameByTableFieldName.put("arrival_date", "arrivalDate");
+        domainFieldNameByTableFieldName.put("departure_date", "departureDate");
+        return domainFieldNameByTableFieldName;
+    }
+
 
     @Override
     public Map<Object, Class<?>> getBeanImplClassByBeanName() {

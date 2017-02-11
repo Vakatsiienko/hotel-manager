@@ -11,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@Builder
 public class Bill extends BaseEntity {
     private Reservation reservation;
     private Integer totalCost;

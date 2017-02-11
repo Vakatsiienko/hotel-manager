@@ -36,5 +36,4 @@ public class SecurityUtils {
         anonymousRoleSet.add(Role.MANAGER);
         ANONYMOUS_ACCESS_ROLES = Collections.unmodifiableSet(anonymousRoleSet);
     }
-
 }

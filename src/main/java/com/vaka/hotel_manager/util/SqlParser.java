@@ -1,33 +1,35 @@
 package com.vaka.hotel_manager.util;
 
 import com.vaka.hotel_manager.util.exception.CreatingException;
+import com.vaka.hotel_manager.util.exception.ParserException;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringJoiner;
 
 /**
- * Parser that read sql files and collect sql methods to unmodifiable map<class.method name, query>
+ * Parser that read sql files and collect sql methods to map<class.methodName, query>
  *     files should be in format
- *     # class.method
+ *     # class.methodName
  *     SELECT ...
  *     ...
  *     ...;
- *     # class.method
+ *     # class.methodName
  *     ...;
  */
 public class SqlParser {
-    private String[] paths;
     private Map<String, String> queryByClassAndMethodName = new HashMap<>();
     private String classAndMethodName;
     private StringJoiner query = new StringJoiner(" ");
     private boolean readyToNextQuery = true;
     private int count = 0;
 
-    public SqlParser(String... paths) {
-        this.paths = paths;
-    }
-
-    public void parseLine(String line) {
+    private void parseLine(String line) {
         count++;
         if (readyToNextQuery) {
             if (line.startsWith("#")) {
@@ -52,17 +54,20 @@ public class SqlParser {
         return joiner.toString();
     }
 
-    public Map<String, String> createAndGetQueryByClassAndMethodName() {
+    public void parseFiles(String... paths) {
         Arrays.stream(paths).forEach(fileName -> {
             try(BufferedReader reader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(fileName)))) {
                 reader.lines().forEach(this::parseLine);
             } catch (IOException ex) {
-                throw new CreatingException(ex);
+                throw new ParserException(ex);
             }
         });
+    }
+
+    public Map<String, String> getQueryByClassAndMethodName() {
         if (readyToNextQuery)
-            return Collections.unmodifiableMap(queryByClassAndMethodName);
-        else throw new CreatingException("File isn't in appropriate format");
+            return new HashMap<>(queryByClassAndMethodName);
+        else throw new ParserException("File isn't in appropriate format");
     }
 }

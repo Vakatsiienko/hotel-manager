@@ -32,8 +32,22 @@ public abstract class CrudRepositoryTest<Entity extends BaseEntity> {
 
         Entity created = getRepository().create(e);
         Assert.assertNotNull(created.getId());
+        e.setCreatedDatetime(created.getCreatedDatetime());
         e.setId(created.getId());
         Assert.assertEquals(e, created);
+    }
+
+    @Test
+    public void testGeneratingCreatedDatetimeOnCreate() throws Exception {
+        Entity e = createEntity();
+        Assert.assertNull(e.getCreatedDatetime());
+
+        Entity created = getRepository().create(e);
+        Assert.assertNotNull(created.getCreatedDatetime());
+        e.setCreatedDatetime(created.getCreatedDatetime());
+        e.setId(created.getId());
+        Assert.assertEquals(e, created);
+
     }
 
     @Test

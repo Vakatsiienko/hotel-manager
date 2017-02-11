@@ -1,15 +1,12 @@
 package com.vaka.hotel_manager.core.tx;
 
-import com.vaka.hotel_manager.repository.exception.ConstraintViolationException;
 import com.vaka.hotel_manager.repository.util.SQLFunction;
 import com.vaka.hotel_manager.repository.util.SQLSupplier;
 import com.vaka.hotel_manager.util.NullaryFunction;
-import com.vaka.hotel_manager.util.exception.RepositoryException;
 import com.vaka.hotel_manager.util.exception.TransactionException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 
 /**
  * Created by Iaroslav on 12/30/2016.
@@ -48,7 +45,7 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
             T result;
             try {
                 result = function.apply();
-            } catch (TransactionException e) {//TODO consider to catch higher lvl exception
+            } catch (TransactionException e) {
                 tx.rollback();
                 throw e;
             }
@@ -73,10 +70,8 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
             } else {
                 return withOutTransaction(withCon);
             }
-        } catch (SQLIntegrityConstraintViolationException e) {
-            throw new ConstraintViolationException(e);
         } catch (SQLException e) {
-            throw new RepositoryException(e);
+            throw new TransactionException(e);
         }
     }
 
@@ -96,4 +91,5 @@ public class JdbcTransactionManagerImpl implements TransactionManager, Connectio
     public int getIsolationDefault() {
         return isolationDefault;
     }
+
 }

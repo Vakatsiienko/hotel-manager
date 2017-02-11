@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Created by Iaroslav on 12/16/2016.
  */
-public class ServiceTestContextConfig extends ApplicationContextConfig {
+public class TestServiceContextConfig extends ApplicationContextConfig {
 
     @Mock
     private BillRepository billRepositoryMock;

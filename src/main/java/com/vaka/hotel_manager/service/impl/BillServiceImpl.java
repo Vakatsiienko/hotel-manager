@@ -3,15 +3,13 @@ package com.vaka.hotel_manager.service.impl;
 import com.vaka.hotel_manager.core.context.ApplicationContextHolder;
 import com.vaka.hotel_manager.core.security.SecurityService;
 import com.vaka.hotel_manager.core.security.SecurityUtils;
-import com.vaka.hotel_manager.core.tx.TransactionManager;
 import com.vaka.hotel_manager.domain.entity.Bill;
 import com.vaka.hotel_manager.domain.entity.Reservation;
 import com.vaka.hotel_manager.domain.entity.User;
 import com.vaka.hotel_manager.repository.BillRepository;
 import com.vaka.hotel_manager.repository.exception.ConstraintViolationException;
+import com.vaka.hotel_manager.repository.exception.ConstraintViolationType;
 import com.vaka.hotel_manager.service.BillService;
-import com.vaka.hotel_manager.util.exception.ApplicationException;
-import com.vaka.hotel_manager.util.exception.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,33 +24,31 @@ public class BillServiceImpl implements BillService {
     private static final Logger LOG = LoggerFactory.getLogger(BillServiceImpl.class);
     private SecurityService securityService;
     private BillRepository billRepository;
-    private TransactionManager transactionManager;
 
     @Override
     public Bill createForReservation(User loggedUser, Reservation reservation) {
         getSecurityService().authorize(loggedUser, SecurityUtils.MANAGER_ACCESS_ROLES);
         LOG.debug("Creating bill from reservation: {}", reservation);
-        Bill bill = new Bill();//TODO move creating bill to fabric or builder
-        bill.setReservation(reservation);
-        bill.setTotalCost(caltucateTotalCost(reservation));
-        bill.setCreatedDatetime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+
+        Bill.BillBuilder builder = Bill.builder()
+                .reservation(reservation)
+                .totalCost(calculateTotalCost(reservation));
+        Bill bill = builder.build();
         try {
             return getBillRepository().create(bill);
-        } catch (RepositoryException e) {
-            if (e instanceof ConstraintViolationException) {
+        } catch (ConstraintViolationException e) {
+            if (e.getViolationType() == ConstraintViolationType.DUPLICATE_ENTRY
+                    && e.getViolatedField().equals("reservationId")) {
                 throw new IllegalArgumentException("Bill for this reservation already created");
-            } else {
-                LOG.error(e.getMessage(), e);
-                throw new ApplicationException(e);
-            }
+            } else throw e;
         }
     }
 
-
-    private int caltucateTotalCost(Reservation reservation) {
+    private int calculateTotalCost(Reservation reservation) {
         return (int) (reservation.getRoom().getCostPerDay() *
                 (reservation.getDepartureDate().toEpochDay() - reservation.getArrivalDate().toEpochDay()));
     }
+
 
     @Override
     public Optional<Bill> getBillByReservationId(User loggedUser, Integer reservationId) {
@@ -114,10 +110,4 @@ public class BillServiceImpl implements BillService {
         return securityService;
     }
 
-    public TransactionManager getTransactionManager() {
-        if (transactionManager == null) {
-            transactionManager = ApplicationContextHolder.getContext().getBean(TransactionManager.class);
-        }
-        return transactionManager;
-    }
 }

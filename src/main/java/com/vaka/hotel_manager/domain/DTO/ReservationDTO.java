@@ -1,10 +1,7 @@
 package com.vaka.hotel_manager.domain.dto;
 
 import com.vaka.hotel_manager.domain.ReservationStatus;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @ToString
 @AllArgsConstructor
 @EqualsAndHashCode
+@Builder
 public class ReservationDTO {
     private final Integer id;
 
@@ -23,7 +21,7 @@ public class ReservationDTO {
 
     private final Integer userId;
 
-    private final Integer roomId;
+    private final Integer roomId; //TODO make Optional roomId
 
     private final Integer guests;
 

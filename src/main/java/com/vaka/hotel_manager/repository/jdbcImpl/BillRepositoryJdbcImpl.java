@@ -72,7 +72,6 @@ public class BillRepositoryJdbcImpl implements BillRepository {
         String strQuery = getQueryByClassAndMethodName().get("bill.update");
         RepositoryUtils.logQuery(LOG, strQuery, id, entity);
         return getCrudHelper().update(DomainToStatementExtractor::extract, strQuery, entity, id);
-
     }
 
 

@@ -7,7 +7,6 @@ import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.dto.RoomClassDTO;
 import com.vaka.hotel_manager.domain.entity.*;
 import com.vaka.hotel_manager.repository.*;
-import com.vaka.hotel_manager.util.DomainFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
@@ -51,8 +50,6 @@ public class EntityProviderUtil {
 
     public static Room createRoom(RoomClass roomClass) {
         Room room = new Room();
-        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-        room.setCreatedDatetime(now);
         room.setCapacity(4);
         room.setCostPerDay(200);
         room.setNumber(roomNumber++);
@@ -63,8 +60,6 @@ public class EntityProviderUtil {
 
     public static Reservation createReservationWithoutRoom(RoomClass requestedRoomClass, User user) {
         Reservation reservation = new Reservation();
-        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-        reservation.setCreatedDatetime(now);
         int arrivalYear = random.nextInt(2017) + 1;
         int arrivalMonth = random.nextInt(12) + 1;
         int arrivalDay = random.nextInt(25) + 1;
@@ -80,8 +75,6 @@ public class EntityProviderUtil {
 
     public static User createUser() {
         User user = new User();
-        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-        user.setCreatedDatetime(now);
         user.setName("name");
         user.setEmail("goodmanmen@gmail.com" + emailNumber++);
         user.setPhoneNumber("+398641423");
@@ -93,9 +86,9 @@ public class EntityProviderUtil {
     }
 
     public static Bill createBill(Reservation reservation) {
-        Bill bill = DomainFactory.createBillFromReservation(reservation);
-        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-        bill.setCreatedDatetime(now);
+        Bill bill = new Bill();
+        bill.setReservation(reservation);
+        bill.setTotalCost((int) (reservation.getRoom().getCostPerDay() * (reservation.getDepartureDate().toEpochDay() - reservation.getArrivalDate().toEpochDay())));
         bill.setPaid(true);
         return bill;
     }

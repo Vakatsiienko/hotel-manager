@@ -1,6 +1,7 @@
 package com.vaka.hotel_manager.repository.util;
 
-import com.vaka.hotel_manager.domain.*;
+import com.vaka.hotel_manager.domain.ReservationStatus;
+import com.vaka.hotel_manager.domain.Role;
 import com.vaka.hotel_manager.domain.dto.ReservationDTO;
 import com.vaka.hotel_manager.domain.dto.RoomClassDTO;
 import com.vaka.hotel_manager.domain.entity.*;
@@ -19,18 +20,33 @@ import java.time.LocalDateTime;
 public class StatementToDomainExtractor {
 
     public static ReservationDTO extractReservationDTO(ResultSet resultSet) throws SQLException {
-        Integer id = resultSet.getInt("reservation_id");
+        ReservationDTO.ReservationDTOBuilder builder = ReservationDTO.builder();
+        builder.id(resultSet.getInt("reservation_id"));
+
         LocalDateTime createdDateTime = resultSet.getTimestamp("reservation_created_datetime").toLocalDateTime();
-        Integer userId = resultSet.getInt("user_id");
+        builder.createdDatetime(createdDateTime);
+
+        builder.userId(resultSet.getInt("user_id"));
+
         Integer roomId = resultSet.getInt("room_id");
-        if (roomId == 0)
+        if (roomId == 0) {
             roomId = null;
-        Integer guests = resultSet.getInt("reservation_guests");
+        }
+        builder.roomId(roomId);
+
+        builder.guests(resultSet.getInt("reservation_guests"));
+
         ReservationStatus status = ReservationStatus.valueOf(resultSet.getString("reservation_status"));
+        builder.status(status);
+
         RoomClassDTO requestedRoomClass = new RoomClassDTO(resultSet.getString("requested_room_class_name"));
+        builder.requestedRoomClass(requestedRoomClass);
+
         LocalDate arrivalDate = resultSet.getDate("reservation_arrival_date").toLocalDate();
+        builder.arrivalDate(arrivalDate);
         LocalDate departureDate = resultSet.getDate("reservation_departure_date").toLocalDate();
-        return new ReservationDTO(id, createdDateTime, userId, roomId, guests, status, requestedRoomClass, arrivalDate, departureDate);
+        builder.departureDate(departureDate);
+        return builder.build();
     }
 
     public static RoomClassDTO extractRoomClassDTO(ResultSet resultSet, String prefix) throws SQLException {
@@ -44,6 +60,7 @@ public class StatementToDomainExtractor {
         roomClass.setName(resultSet.getString(prefix + "room_class_name"));
         return roomClass;
     }
+
     public static RoomClass extractRoomClass(ResultSet resultSet) throws SQLException {
         return extractRoomClass(resultSet, "");
     }
