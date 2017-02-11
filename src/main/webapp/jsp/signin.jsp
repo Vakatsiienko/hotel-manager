@@ -50,7 +50,7 @@
                 </label>
             </th>
             <td>
-                <input id="email" type="email"
+                <input id="email" type="text" pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
                 <c:choose>
                        <c:when test="${!empty email}">
                        value="${email}"
@@ -58,7 +58,7 @@
                 </c:when>
                        <c:otherwise>value="${param.email}"</c:otherwise>
                 </c:choose>
-                       required maxlength="32"
+                       required maxlength="50"
                        min="5" name="email">
             </td>
         </tr>

@@ -59,7 +59,7 @@
                 <label for="email"><fmt:message key="Email" bundle="${bundle}"/>:</label>
             </th>
             <td>
-                <input id="email" name="email" type="text" pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+                <input id="email" name="email" type="text" pattern="[^@\s]+@[^@\s]+\.[^@\s]+" max="50"
                        required>
             </td>
         </tr>
