@@ -112,10 +112,13 @@
             position: relative;
             left: 30%;
         }
-
+        .message{
+            right: 45%;
+        }
     </style>
 </head>
 <body>
+<h3 class="message">Resetting DB every commit</h3>
 <div id="AddReservationBlock">
     <c:if test="${loggedUser.role == 'ANONYMOUS'}">
         <p><fmt:message key="SubmitFormMessage" bundle="${bundle}"/></p>

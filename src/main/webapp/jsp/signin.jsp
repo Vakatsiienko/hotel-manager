@@ -17,8 +17,12 @@
     #exception{
         color : red;
     }
+    .message{
+        right: 45%;
+    }
 </style>
 <body>
+<h3 class="message">Resetting DB every commit</h3>
 
 <form
       <c:choose>

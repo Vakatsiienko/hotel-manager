@@ -18,12 +18,16 @@
         #exception{
             color : red;
         }
+        .message{
+            right: 45%;
+        }
     </style>
 
 </head>
 <body>
 <div id="hrefs">
     <%@include file="header.jspf" %>
+        <h3 class="message">Resetting DB every commit</h3>
 
 <form action="/signup" method="post" id="createForm">
     <table id="signup">
